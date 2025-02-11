@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
+import auth from "./Routes/auth.route"
+
 dotenv.config();
 
 const app = express();
@@ -18,6 +20,8 @@ app.use(express.urlencoded({extended: true}));
 app.get("/", (req, res) => {
   res.send("Hello from Express Backend!");
 });
+
+app.use("/api/auth", auth)
 
 // Start Server
 export default app;
