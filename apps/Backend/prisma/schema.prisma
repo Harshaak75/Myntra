@@ -16,6 +16,15 @@ datasource db {
 model users {
   id         Int     @id @default(autoincrement())
   name       String? @db.VarChar(100)
-  employeeid String  @unique @db.VarChar(100)
   email      String  @unique @db.VarChar(100)
+  refreshTokens refresh_token[]
+}
+
+model refresh_token {
+  id Int @id @default(autoincrement())
+  token String @db.Text
+  userId Int @unique
+  user users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
 }
