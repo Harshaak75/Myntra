@@ -58,7 +58,7 @@ This endpoint verifies the OTP sent to the user's email address. It is used to c
     }
     ```
 
-## `/users/profile` Endpoints
+## `/users/profiles` Endpoints
 
 **Description:**  
 This endpoint provides the authenticated user's profile data. It requires the user to be authenticated.
