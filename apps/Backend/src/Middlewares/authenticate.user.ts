@@ -3,6 +3,10 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { secure_cookie, serect } from "../config";
 import { generateTokens } from "../utils/tokenUtils";
 
+import { PrismaClient } from "@prisma/client";
+
+const Client = new PrismaClient();
+
 // verifying the token, if token is expired then it will create a new token and store it in cookie
 
 export const authenticate_User = (
@@ -10,22 +14,28 @@ export const authenticate_User = (
   res: Response,
   next: NextFunction
 ): any => {
-  const token = req.headers["authorization"];
+  const token = req.cookies.access_token || req.headers["authorization"]?.split(' ')[1];
 
   try {
     if (!token) {
       return res.status(500).json({ message: "Unauthorized" });
     }
 
-    jwt.verify(token, serect || "", async (err, decode) => {
+    jwt.verify(token, serect || "", async (err: any, decode: any) => {
       const decode_token = jwt.decode(token);
 
-      if (err?.name === "TokenExpiredError") {
-        if (!decode_token || typeof decode_token === "string") {
-          return res.status(403).json({ message: "Invalid token" });
-        }
+      if (!decode_token || typeof decode_token === "string") {
+        return res.status(403).json({ message: "Invalid token" });
+      }
 
-        const user_id = decode_token?.id;
+      const user_id = decode_token?.id;
+
+      if (err?.name === "TokenExpiredError") {
+        // if (!decode_token || typeof decode_token === "string") {
+        //   return res.status(403).json({ message: "Invalid token" });
+        // }
+
+        // const user_id = decode_token?.id;
 
         const { accessToken }: any = await generateTokens(user_id);
 

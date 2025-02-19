@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
   res.send("Hello from Express Backend!");
 });
 
-app.use("/api/auth", auth);
+app.use("/users", auth);
 
 // Start Server
 export default app;

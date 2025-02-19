@@ -28,3 +28,19 @@ model refresh_token {
   createdAt  DateTime @default(now())
   expiresAt  DateTime
 }
+
+model otpTable {
+  id Int @id @default(autoincrement())
+  email         String   @unique
+  otp           String?
+  expiresAt     DateTime?
+  lastRequestAt DateTime?  // Store last OTP request timestamp
+}
+
+
+model blacklist_token {
+  id Int @id @default(autoincrement())
+  token String @db.Text
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+}

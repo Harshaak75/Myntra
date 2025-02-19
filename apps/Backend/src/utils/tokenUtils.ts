@@ -1,52 +1,59 @@
 import jwt from "jsonwebtoken";
-import { serect } from "../config";
+import { access_token_expire, refresh_token_expire, refresh_token_renew_time, serect } from "../config";
 import { PrismaClient } from "@prisma/client";
 import { JwtPayload, Secret } from "jsonwebtoken";
 
 const Client = new PrismaClient();
 
+const ACCESS_TOKEN_EXPIRATION = "5m"; // 5 minutes
+const REFRESH_TOKEN_EXPIRATION = "1d"; // 1 day
 
-// Function to generate token
-
+// Function to generate tokens
 export const generateTokens = async (user_id: any) => {
   const accessToken = jwt.sign({ id: user_id }, serect || "", {
-    expiresIn: "5m",
+    expiresIn: ACCESS_TOKEN_EXPIRATION,
   });
 
   try {
-    const verify_refresh_token = await Client.refresh_token.findFirst({
+    const existingRefreshToken = await Client.refresh_token.findFirst({
       where: { userId: user_id },
     });
-    if (verify_refresh_token) {
-      const decode = jwt.decode(verify_refresh_token.token);
 
-      if (decode && typeof decode != "string" && (decode as JwtPayload).exp) {
-        const exp = decode.exp;
+    if (existingRefreshToken) {
+      try {
+        const decoded = jwt.verify(
+          existingRefreshToken.token,
+          serect || ""
+        ) as JwtPayload;
 
-        if (exp) {
+        if (decoded && decoded.exp) {
           const current_time = Math.floor(Date.now() / 1000);
-          const timeRemaining = exp - current_time;
+          const timeRemaining = decoded.exp - current_time;
 
-          if (timeRemaining > 172800) {
-            return { accessToken };
+          // If token is still valid and issued within last 22 hours, reuse it
+          if (timeRemaining > refresh_token_renew_time) {
+            return { accessToken, refreshToken: existingRefreshToken.token };
           }
         }
+      } catch (err) {
+        console.warn("Invalid refresh token, generating a new one.");
       }
     }
 
+    // Generate a new refresh token
     const refreshToken = jwt.sign({ id: user_id }, serect || "", {
-      expiresIn: "7d",
+      expiresIn: REFRESH_TOKEN_EXPIRATION,
     });
 
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
 
     await Client.refresh_token.upsert({
       where: { userId: user_id },
-      update: { token: refreshToken },
+      update: { token: refreshToken, expiresAt },
       create: { userId: user_id, token: refreshToken, expiresAt },
     });
 
-    return { accessToken };
+    return { accessToken, refreshToken };
   } catch (error) {
     console.error(error);
     throw new Error("Failed to generate tokens");
