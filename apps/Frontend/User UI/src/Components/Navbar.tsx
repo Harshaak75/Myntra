@@ -1,61 +1,80 @@
-export default function Navbar() {
-  return (
-    <div>
-      <div className="navbar w-full h-16 bg-gray-100 justify-between ">
-        <div className="h-full">
-          <div className="desktop-menus flex justify-between bg-white h-full items-center pt-4">
-            <div className="desktop-logo">
-              {/* <div className="w-36 h-36"></div> */}
-            </div>
-            <div className="desktop-navbar">
-              <div className="navbarList flex gap-10">
-                <div className="navLink-list">
-                  <a href="">MEN</a>
-                </div>
-                <div className="navLink-list">
-                  <a href="">WOMEN</a>
-                </div>
-                <div className="navLink-list">
-                  <a href="">KIDS</a>
-                </div>
-                <div className="navLink-list">
-                  <a href="">HOME & LIVING</a>
-                </div>
-                <div className="navLink-list">
-                  <a href="">BEAUTY</a>
-                </div>
-              </div>
-            </div>
-            <div className="desktop-actions">
-              <div className="relative">
-                <input
-                  type="text"
-                  className="bg-[#F5F5F6] w-[30rem] p-2 pl-16 rounded border focus:bg-white outline-none border-none"
-                  placeholder="Search for Products, brands and more"
-                />
+import { Menu, Search, User, Heart, ShoppingBag } from "lucide-react";
+import { useState } from "react";
 
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                  🔍{" "}
-                  {/* Replace with an actual icon, like FontAwesome or Lucide */}
-                </span>
-              </div>
-            </div>
-            <div className="desktop-query">
-              <div className="action=query flex gap-5 p-10">
-                <div className="navLink-list">
-                  <a href="">Profile</a>
-                </div>
-                <div className="navLink-list">
-                  <a href="">Wishlist</a>
-                </div>
-                <div className="navLink-list">
-                  <a href="">Bag</a>
-                </div>
-              </div>
+export default function Navbar() {
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  return (
+    <nav className="bg-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <div className="text-xl font-semibold">Logo</div>
+
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-6">
+            {["MEN", "WOMEN", "KIDS", "HOME & LIVING", "BEAUTY"].map((item) => (
+              <a key={item} href="#" className="text-gray-700 hover:text-red-500">
+                {item}
+              </a>
+            ))}
+          </div>
+
+          {/* Search Bar */}
+          <div className="hidden md:flex relative">
+            <Search className="absolute left-3 top-2 text-gray-500" size={20} />
+            <input
+              type="text"
+              className="bg-[#F5F5F6] w-64 lg:w-96 p-2 pl-10 rounded border focus:bg-white outline-none border-gray-300"
+              placeholder="Search for Products, brands and more"
+            />
+          </div>
+
+          {/* Icons */}
+          <div className="hidden md:flex items-center gap-6">
+            <a href="#" className="text-gray-700 hover:text-red-500 flex items-center gap-1">
+              <User size={20} /> Profile
+            </a>
+            <a href="#" className="text-gray-700 hover:text-red-500 flex items-center gap-1">
+              <Heart size={20} /> Wishlist
+            </a>
+            <a href="#" className="text-gray-700 hover:text-red-500 flex items-center gap-1">
+              <ShoppingBag size={20} /> Bag
+            </a>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-gray-700"
+            onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            <Menu size={24} />
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white p-4 border-t">
+            <div className="flex flex-col gap-3">
+              {["MEN", "WOMEN", "KIDS", "HOME & LIVING", "BEAUTY"].map((item) => (
+                <a key={item} href="#" className="text-gray-700 hover:text-red-500">
+                  {item}
+                </a>
+              ))}
+              <hr />
+              <a href="#" className="text-gray-700 hover:text-red-500 flex items-center gap-1">
+                <User size={20} /> Profile
+              </a>
+              <a href="#" className="text-gray-700 hover:text-red-500 flex items-center gap-1">
+                <Heart size={20} /> Wishlist
+              </a>
+              <a href="#" className="text-gray-700 hover:text-red-500 flex items-center gap-1">
+                <ShoppingBag size={20} /> Bag
+              </a>
             </div>
           </div>
-        </div>
+        )}
       </div>
-    </div>
+    </nav>
   );
 }

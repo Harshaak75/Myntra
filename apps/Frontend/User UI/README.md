@@ -1,50 +1,55 @@
-# React + TypeScript + Vite
+# User UI - Sign In Functionality
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+This section of the User UI handles the Sign In functionality for the Myntra E-commerce Website. It includes the following components and pages:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Signin Page:** A form where users can enter their email to receive an OTP.
+- **OtpVerification Component:** A form where users can enter the OTP sent to their email to verify their identity.
 
-## Expanding the ESLint configuration
+## Components
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Signin Page
 
-- Configure the top-level `parserOptions` property like this:
+**File:** `src/Pages/Signin.tsx`
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+**Description:**  
+The Signin page allows users to enter their email address to receive an OTP for authentication.
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+**Key Features:**
+- Email input field.
+- Submit button to send OTP.
+- Displays a loading spinner while the OTP is being sent.
+- Redirects to the OTP verification page upon successful OTP sending.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+### OtpVerification Component
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+**File:** `src/Components/OtpVerification.tsx`
+
+**Description:**  
+The OtpVerification component allows users to enter the OTP sent to their email to verify their identity.
+
+**Key Features:**
+- OTP input fields.
+- Timer for OTP expiration.
+- Resend OTP button.
+- Submit button to verify OTP.
+- Displays a loading spinner while the OTP is being verified.
+
+## Usage
+
+1. **Sign In:**
+   - Navigate to the Sign In page.
+   - Enter your email address.
+   - Click the "Continue" button to receive an OTP.
+
+2. **OTP Verification:**
+   - Enter the OTP sent to your email in the OTP verification form.
+   - Click the "Verify OTP" button to complete the authentication process.
+
+## Dependencies
+
+- **axios:** For making HTTP requests to the backend API.
+- **react:** For building the user interface.
+- **lucide-react:** For using icons in the Navbar component.
+
