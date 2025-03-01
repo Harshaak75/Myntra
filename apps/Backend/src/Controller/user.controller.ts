@@ -13,31 +13,35 @@ export const editProfile = async (
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-
   const userId = req.user_id;
   const userData = req.body;
 
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   if (Object.keys(userData).length == 0) {
-    return res.send(200).json({ message: "Ther is no update from user" });
+    return res.status(200).json({ message: "Ther is no update from user" });
   }
 
   try {
     const updatedUser = await Client.userProfile.upsert({
-        where: { id: Number(userId)},
-        update: {
-            Gender: req.body.Gender,
-            dateofbirth: new Date(req.body.dateofbirth),
-            alternateNumber: req.body.alternateNumber,
-            alternateNumberName: req.body.alternateNumberName
-        },
-        create: {
-            userId: Number(userId),
-            Gender: req.body.Gender,
-            dateofbirth: new Date(req.body.dateofbirth),
-            alternateNumber: req.body.alternateNumber,
-            alternateNumberName: req.body.alternateNumberName
-        }
-    })
+      where: { userId: Number(userId) },
+      update: {
+        Gender: req.body.Gender,
+        dateofbirth: new Date(req.body.dateofbirth),
+        alternateNumber: req.body.alternateNumber,
+        alternateNumberName: req.body.alternateNumberName,
+      },
+      create: {
+        userId: Number(userId),
+        Gender: req.body.Gender,
+        dateofbirth: new Date(req.body.dateofbirth),
+        alternateNumber: req.body.alternateNumber,
+        alternateNumberName: req.body.alternateNumberName,
+      },
+    });
 
     res.json(updatedUser);
   } catch (error) {
