@@ -14,33 +14,56 @@ datasource db {
 }
 
 model users {
-  id         Int     @id @default(autoincrement())
-  name       String? @db.VarChar(100)
-  email      String  @unique @db.VarChar(100)
+  id            Int             @id @default(autoincrement())
+  name          String?         @db.VarChar(100)
+  email         String          @unique @db.VarChar(100)
   refreshTokens refresh_token[]
+  userProfile   userProfile?
+  userAddress   userAddress?
+}
+
+model userProfile {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  user        users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Gender      String
+  dateofbirth DateTime
+  alternateNumber     String?  // ✅ Ensure consistent naming (camelCase)
+  alternateNumberName String?
+}
+
+model userAddress {
+  id      Int     @id @default(autoincrement())
+  userId  Int     @unique
+  user    users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address String?
+  city    String?
+  state   String?
+  pincode String?
+  Locality String?
+  typeOfAddress String? @default("home")
 }
 
 model refresh_token {
-  id Int @id @default(autoincrement())
-  token String @db.Text
-  userId Int @unique
-  user users @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
-  expiresAt  DateTime
+  id        Int      @id @default(autoincrement())
+  token     String   @db.Text
+  userId    Int      @unique
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }
 
 model otpTable {
-  id Int @id @default(autoincrement())
-  email         String   @unique
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
   otp           String?
   expiresAt     DateTime?
-  lastRequestAt DateTime?  // Store last OTP request timestamp
+  lastRequestAt DateTime? // Store last OTP request timestamp
 }
 
-
 model blacklist_token {
-  id Int @id @default(autoincrement())
-  token String @db.Text
-  createdAt  DateTime @default(now())
-  expiresAt  DateTime
+  id        Int      @id @default(autoincrement())
+  token     String   @db.Text
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }

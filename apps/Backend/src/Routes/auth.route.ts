@@ -30,7 +30,9 @@ router.post(
   verify_the_otp
 );
 
-router.get("/profile", authenticate_User, getProfile);
+// router.post("/edit profile", authenticate_User, editProfile)
+
+// router.get("/profile", authenticate_User, getProfile);
 
 router.get("/logout", authenticate_User, logout_user)
 

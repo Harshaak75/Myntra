@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import auth from "./Routes/auth.route";
 
 import cookieParser from "cookie-parser";
+import userRouter from "./Routes/user.route";
 
 dotenv.config();
 
@@ -25,7 +26,8 @@ app.get("/", (req, res) => {
   res.send("Hello from Express Backend!");
 });
 
-app.use("/users", auth);
+app.use("/userAuth", auth);
+app.use("/user",userRouter);
 
 // Start Server
 export default app;
