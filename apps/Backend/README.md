@@ -156,3 +156,67 @@ This endpoint allows the authenticated user to edit their profile information.
       "error": "error details"
     }
     ```
+
+## `/user/editAddress` Endpoints
+
+**Description:**  
+This endpoint allows the authenticated user to edit their address information.
+
+**HTTP Method:**  
+`POST`
+
+**Headers:**  
+- **Authorization:** Bearer token
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "address": "123 Main St",
+    "city": "New York",
+    "state": "NY",
+    "pincode": "10001",
+    "locality": "Downtown",
+    "addressType": "Home"
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** User address updated successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "Address updated successfully",
+      "updateAddress_user": {
+        "userId": "user_id",
+        "address": "123 Main St",
+        "city": "New York",
+        "state": "NY",
+        "pincode": "10001",
+        "Locality": "Downtown",
+        "typeOfAddress": "Home"
+      }
+    }
+    ```
+
+- **401 Unauthorized**
+  - **Description:** The user is not authenticated.
+  - **Example:**
+    ```json
+    {
+      "message": "Unauthorized"
+    }
+    ```
+
+- **500 Internal Server Error**
+  - **Description:** An error occurred while updating the address.
+  - **Example:**
+    ```json
+    {
+      "message": "Error updating address",
+      "error": "error details"
+    }
+    ```
