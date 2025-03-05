@@ -1,34 +1,33 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { admin_serect, secure_cookie, serect } from "../config";
-import { generateTokens } from "../utils/tokenUtils";
+import { generateTokens, generateTokensAdmin } from "../utils/tokenUtils";
 
 import { PrismaClient } from "@prisma/client";
 
 const Client = new PrismaClient();
 
-// verifying the token, if token is expired then it will create a new token and store it in cookie
-
-export const authenticate_User = (
+export const authenticate_Admin_User = (
   req: Request,
   res: Response,
   next: NextFunction
 ): any => {
-  const token = req.cookies.access_token || req.headers["authorization"]?.split(' ')[1];
+  const token =
+    req.cookies.access_token || req.headers["authorization"]?.split(" ")[1];
 
   try {
     if (!token) {
       return res.status(500).json({ message: "Unauthorized" });
     }
 
-    jwt.verify(token, serect || "", async (err: any, decode: any) => {
+    jwt.verify(token, admin_serect || "", async (err: any, decode: any) => {
       const decode_token = jwt.decode(token);
 
       if (!decode_token || typeof decode_token === "string") {
         return res.status(403).json({ message: "Invalid token" });
       }
 
-      const user_id = decode_token?.id;
+      const admin_id = decode_token?.id;
 
       if (err?.name === "TokenExpiredError") {
         // if (!decode_token || typeof decode_token === "string") {
@@ -37,7 +36,8 @@ export const authenticate_User = (
 
         // const user_id = decode_token?.id;
 
-        const { accessToken }: any = await generateTokens(user_id);
+        const { accessToken, refreshToken }: any =
+          await generateTokensAdmin(admin_id);
 
         res.cookie("access_token", accessToken, {
           httpOnly: true,
@@ -45,7 +45,7 @@ export const authenticate_User = (
           sameSite: "strict",
           maxAge: 15 * 60 * 1000,
         });
-        req.user_id = user_id;
+        req.admin_id = admin_id;
         next();
       }
 
@@ -55,7 +55,7 @@ export const authenticate_User = (
 
       if (!err) {
         if (decode_token && typeof decode_token !== "string") {
-          req.user_id = decode_token.id;
+          req.admin_id = decode_token.id;
           next();
         } else {
           return res.status(403).json({ message: "Invalid token" });
@@ -66,5 +66,3 @@ export const authenticate_User = (
     res.status(401).json({ message: "error in the middleware", error: error });
   }
 };
-
-

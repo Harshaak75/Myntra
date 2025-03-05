@@ -23,24 +23,24 @@ model users {
 }
 
 model userProfile {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @unique
-  user        users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Gender      String
-  dateofbirth DateTime
-  alternateNumber     String?  // ✅ Ensure consistent naming (camelCase)
+  id                  Int      @id @default(autoincrement())
+  userId              Int      @unique
+  user                users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Gender              String
+  dateofbirth         DateTime
+  alternateNumber     String? // ✅ Ensure consistent naming (camelCase)
   alternateNumberName String?
 }
 
 model userAddress {
-  id      Int     @id @default(autoincrement())
-  userId  Int     @unique
-  user    users   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  address String?
-  city    String?
-  state   String?
-  pincode String?
-  Locality String?
+  id            Int     @id @default(autoincrement())
+  userId        Int     @unique
+  user          users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address       String?
+  city          String?
+  state         String?
+  pincode       String?
+  Locality      String?
   typeOfAddress String? @default("home")
 }
 
@@ -65,5 +65,28 @@ model blacklist_token {
   id        Int      @id @default(autoincrement())
   token     String   @db.Text
   createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+// admin models
+
+model admin_users {
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  email               String               @unique
+  password            String
+  role                String
+  createdAt           DateTime             @default(now())
+  is_active           Boolean              @default(true)
+  last_login          DateTime?
+  refresh_token_admin refresh_token_admin?
+}
+
+model refresh_token_admin {
+  id        Int         @id @default(autoincrement())
+  token     String      @db.Text
+  adminId    Int         @unique
+  admin     admin_users @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
   expiresAt DateTime
 }

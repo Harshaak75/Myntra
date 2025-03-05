@@ -220,3 +220,97 @@ This endpoint allows the authenticated user to edit their address information.
       "error": "error details"
     }
     ```
+
+## `/admin/login` Endpoints
+
+**Description:**  
+This endpoint allows an admin to log in to the system.
+
+**HTTP Method:**  
+`POST`
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "email": "admin@example.com",
+    "password": "adminpassword"
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Admin logged in successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "Logged In Successfully",
+      "token": "your_jwt_token_here"
+    }
+    ```
+
+## `/admin/create` Endpoints
+
+**Description:**  
+This endpoint allows the creation of a new admin.
+
+**HTTP Method:**  
+`POST`
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "name": "Admin Name",
+    "email": "admin@example.com",
+    "password": "adminpassword",
+    "role": "admin"
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Admin created successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "Admin Created Successfully",
+      "token": "your_jwt_token_here"
+    }
+    ```
+
+## `/admin/get` Endpoints
+
+**Description:**  
+This endpoint retrieves all admins.
+
+**HTTP Method:**  
+`GET`
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Admins retrieved successfully.
+  - **Example:**
+    ```json
+    {
+      "admins": [
+        {
+          "id": "admin_id",
+          "name": "Admin Name",
+          "email": "admin@example.com",
+          "role": "admin"
+        },
+        {
+          "id": "admin_id",
+          "name": "Super Admin Name",
+          "email": "superadmin@example.com",
+          "role": "super_admin"
+        }
+      ]
+    }
+    ```

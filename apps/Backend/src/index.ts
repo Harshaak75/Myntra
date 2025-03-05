@@ -7,6 +7,8 @@ import auth from "./Routes/auth.route";
 import cookieParser from "cookie-parser";
 import userRouter from "./Routes/user.route";
 
+import adminRouter from "./Routes/admin.route";
+
 dotenv.config();
 
 const app = express();
@@ -28,6 +30,9 @@ app.get("/", (req, res) => {
 
 app.use("/userAuth", auth);
 app.use("/user",userRouter);
+
+// Admin Routes
+app.use("/admin", adminRouter);
 
 // Start Server
 export default app;
