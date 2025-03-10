@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { access_token_expire, admin_serect, refresh_token_expire, refresh_token_renew_time, serect } from "../config";
+import { access_token_expire, admin_serect, refresh_token_expire, refresh_token_renew_time, seller_serect, serect } from "../config";
 import { PrismaClient } from "@prisma/client";
 import { JwtPayload, Secret } from "jsonwebtoken";
 
@@ -106,6 +106,61 @@ export const generateTokensAdmin = async (user_id: any) => {
     });
 
     return { accessToken, refreshToken };
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to generate tokens");
+  }
+};
+
+//seller token generation
+
+export const generateTokensSeller = async (user_id: any) => {
+  const accessToken = jwt.sign({ id: user_id }, seller_serect || "", {
+    expiresIn: ACCESS_TOKEN_EXPIRATION,
+  });
+
+  try {
+    const existingRefreshToken = await Client.refresh_token_seller.findFirst({
+      where: { sellerId: user_id },
+    });
+
+    if (existingRefreshToken) {
+      try {
+        const decoded = jwt.verify(
+          existingRefreshToken.token,
+          seller_serect || ""
+        ) as JwtPayload;
+
+        if (decoded && decoded.exp) {
+          const current_time = Math.floor(Date.now() / 1000);
+          const timeRemaining = decoded.exp - current_time;
+
+          // If token is still valid and issued within last 22 hours, reuse it
+          if (timeRemaining > refresh_token_renew_time) {
+            return accessToken;
+          }
+        }
+      } catch (err) {
+        console.warn("Invalid refresh token, generating a new one.");
+      }
+    }
+
+    // Generate a new refresh token
+    const refreshToken = jwt.sign({ id: user_id }, seller_serect || "", {
+      expiresIn: REFRESH_TOKEN_EXPIRATION,
+    });
+
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+
+    await Client.refresh_token_seller.upsert({
+      where: { sellerId: user_id },
+      update: { token: refreshToken, expiresAt },
+      create: { sellerId: user_id, token: refreshToken, expiresAt },
+    });
+
+    // console.log("Access token",accessToken)
+
+    return accessToken;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to generate tokens");

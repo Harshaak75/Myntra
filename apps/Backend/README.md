@@ -314,3 +314,263 @@ This endpoint retrieves all admins.
       ]
     }
     ```
+
+## `/seller/register` Endpoints
+
+**Description:**  
+This endpoint registers a new seller.
+
+**HTTP Method:**  
+`POST`
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "name": "Seller Name",
+    "email": "seller@example.com",
+    "password": "sellerpassword",
+    "phone": "1234567890"
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Seller registered successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "The seller account was created",
+      "sellerToken": "your_jwt_token_here"
+    }
+    ```
+
+- **400 Bad Request**
+  - **Description:** The request body is missing required fields or contains invalid data.
+  - **Example:**
+    ```json
+    {
+      "message": "Seller already exists"
+    }
+    ```
+
+## `/seller/login` Endpoints
+
+**Description:**  
+This endpoint logs in a seller.
+
+**HTTP Method:**  
+`POST`
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "email": "seller@example.com",
+    "password": "sellerpassword"
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Seller logged in successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "Seller logged in successfully",
+      "sellerToken": "your_jwt_token_here"
+    }
+    ```
+
+- **400 Bad Request**
+  - **Description:** Invalid credentials.
+  - **Example:**
+    ```json
+    {
+      "message": "Invalid credentials"
+    }
+    ```
+
+## `/seller/seller_profile` Endpoints
+
+**Description:**  
+This endpoint provides the authenticated seller's profile data. It requires the seller to be authenticated.
+
+**HTTP Method:**  
+`GET`
+
+**Headers:**  
+- **Authorization:** Bearer token
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Seller profile data retrieved successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "Seller profile",
+      "sellerprofile": {
+        "id": "seller_id",
+        "name": "Seller Name",
+        "email": "seller@example.com",
+        "phone": "1234567890"
+      }
+    }
+    ```
+
+
+## `/seller/add_product` Endpoints
+
+**Description:**  
+This endpoint allows the authenticated seller to add a new product.
+
+**HTTP Method:**  
+`POST`
+
+**Headers:**  
+- **Authorization:** Bearer token
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "name": "Product Name",
+    "description": "Product Description",
+    "brand": "Product Brand",
+    "category": "Product Category",
+    "subCategory": "Product SubCategory",
+    "price": 100.0,
+    "discount": 10,
+    "stock": 50,
+    "sizeOptions": ["S", "M", "L"],
+    "colorOptions": ["Red", "Blue"],
+    "images": ["image1_url", "image2_url"],
+    "rating": 4.5,
+    "reviewsCount": 10
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Product added successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "The product was added successfully",
+      "product": {
+        "id": "product_id",
+        "name": "Product Name",
+        "description": "Product Description",
+        "brand": "Product Brand",
+        "category": "Product Category",
+        "subCategory": "Product SubCategory",
+        "price": 100.0,
+        "discount": 10,
+        "stock": 50,
+        "sizeOptions": ["S", "M", "L"],
+        "colorOptions": ["Red", "Blue"],
+        "images": ["image1_url", "image2_url"],
+        "rating": 4.5,
+        "reviewsCount": 10,
+        "sellerId": "seller_id"
+      }
+    }
+    ```
+
+- **400 Bad Request**
+  - **Description:** The request body is missing required fields or contains invalid data.
+  - **Example:**
+    ```json
+    {
+      "errors": [
+        {
+          "msg": "Name must be a string",
+          "param": "name",
+          "location": "body"
+        }
+      ]
+    }
+    ```
+
+
+## `/seller/product/:id` Endpoints
+
+**Description:**  
+This endpoint allows the authenticated seller to update an existing product.
+
+**HTTP Method:**  
+`PUT`
+
+**Headers:**  
+- **Authorization:** Bearer token
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "name": "Updated Product Name",
+    "description": "Updated Product Description",
+    "brand": "Updated Product Brand",
+    "category": "Updated Product Category",
+    "subCategory": "Updated Product SubCategory",
+    "price": 120.0,
+    "discount": 15,
+    "stock": 60,
+    "sizeOptions": ["S", "M", "L", "XL"],
+    "colorOptions": ["Green", "Yellow"],
+    "images": ["updated_image1_url", "updated_image2_url"],
+    "rating": 4.8,
+    "reviewsCount": 15
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Product updated successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "The product was updated successfully",
+      "product": {
+        "id": "product_id",
+        "name": "Updated Product Name",
+        "description": "Updated Product Description",
+        "brand": "Updated Product Brand",
+        "category": "Updated Product Category",
+        "subCategory": "Updated Product SubCategory",
+        "price": 120.0,
+        "discount": 15,
+        "stock": 60,
+        "sizeOptions": ["S", "M", "L", "XL"],
+        "colorOptions": ["Green", "Yellow"],
+        "images": ["updated_image1_url", "updated_image2_url"],
+        "rating": 4.8,
+        "reviewsCount": 15,
+        "sellerId": "seller_id"
+      }
+    }
+    ```
+
+- **400 Bad Request**
+  - **Description:** The request body is missing required fields or contains invalid data.
+  - **Example:**
+    ```json
+    {
+      "errors": [
+        {
+          "msg": "Name must be a string",
+          "param": "name",
+          "location": "body"
+        }
+      ]
+    }
+    ```

@@ -16,7 +16,7 @@ export default function Signin(){
 
         setloading(true)
         try {
-            const response = await axios.post(backend_url + "/userAuth/send-otp", {email})
+            const response = await axios.post(backend_url + "/userAuth/send-otp", {email}, {withCredentials: true})
             // console.log(response)
 
             if(response.data.success){

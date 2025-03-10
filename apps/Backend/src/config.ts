@@ -10,6 +10,8 @@ export const secure_cookie = process.env.SECURE_COOKIE;
 
 export const admin_serect = process.env.SERECT_ADMIN_PASSWORD;
 
+export const seller_serect = process.env.SERECT_SELLER_PASSWORD;
+
 export const access_token_expire: string = process.env.ACCESS_TOKEN_EXPIRE || "5m"; // Default to "5m"
 export const refresh_token_expire: string = process.env.REFRESH_TOKEN_EXPIRE || "1d";
 export const refresh_token_renew_time =  parseInt(process.env.REFRESH_TOKEN_RENEW_TIME || "79200", 10); 

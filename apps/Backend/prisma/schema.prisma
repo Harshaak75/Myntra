@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,43 +8,43 @@ datasource db {
 }
 
 model users {
-  id            Int             @id @default(autoincrement())
-  name          String?         @db.VarChar(100)
-  email         String          @unique @db.VarChar(100)
-  refreshTokens refresh_token[]
-  userProfile   userProfile?
+  id            Int            @id @default(autoincrement())
+  name          String?        @db.VarChar(100)
+  email         String         @unique @db.VarChar(100)
+  refreshTokens refresh_token?
   userAddress   userAddress?
+  userProfile   userProfile?
 }
 
 model userProfile {
   id                  Int      @id @default(autoincrement())
   userId              Int      @unique
-  user                users    @relation(fields: [userId], references: [id], onDelete: Cascade)
   Gender              String
-  dateofbirth         DateTime
-  alternateNumber     String? // ✅ Ensure consistent naming (camelCase)
+  alternateNumber     String?
   alternateNumberName String?
+  dateofbirth         DateTime
+  user                users    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model userAddress {
   id            Int     @id @default(autoincrement())
   userId        Int     @unique
-  user          users   @relation(fields: [userId], references: [id], onDelete: Cascade)
   address       String?
   city          String?
   state         String?
   pincode       String?
   Locality      String?
   typeOfAddress String? @default("home")
+  user          users   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model refresh_token {
   id        Int      @id @default(autoincrement())
-  token     String   @db.Text
+  token     String
   userId    Int      @unique
-  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   expiresAt DateTime
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model otpTable {
@@ -58,17 +52,15 @@ model otpTable {
   email         String    @unique
   otp           String?
   expiresAt     DateTime?
-  lastRequestAt DateTime? // Store last OTP request timestamp
+  lastRequestAt DateTime?
 }
 
 model blacklist_token {
   id        Int      @id @default(autoincrement())
-  token     String   @db.Text
+  token     String
   createdAt DateTime @default(now())
   expiresAt DateTime
 }
-
-// admin models
 
 model admin_users {
   id                  Int                  @id @default(autoincrement())
@@ -84,9 +76,66 @@ model admin_users {
 
 model refresh_token_admin {
   id        Int         @id @default(autoincrement())
-  token     String      @db.Text
-  adminId    Int         @unique
-  admin     admin_users @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  token     String
+  adminId   Int         @unique
   createdAt DateTime    @default(now())
   expiresAt DateTime
+  admin     admin_users @relation(fields: [adminId], references: [id], onDelete: Cascade)
+}
+
+model refresh_token_seller {
+  id        Int      @id @default(autoincrement())
+  token     String
+  sellerId  Int      @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  seller    Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+}
+
+// Products model
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(255) // Product name
+  description  String?  @db.Text // Optional product description
+  brand        String   @db.VarChar(100) // Brand name
+  category     String   @db.VarChar(100) // Product category (e.g., Men, Women, Footwear)
+  subCategory  String?  @db.VarChar(100) // Sub-category (e.g., Sneakers, Formal Shoes)
+  price        Decimal // Product price
+  discount     Int?     @default(0) // Discount percentage (optional)
+  stock        Int      @default(0) // Available stock quantity
+  sizeOptions  Json? // JSON array for sizes available
+  colorOptions Json? // JSON array for colors available
+  material     String?  @db.VarChar(100) // Material type (e.g., Cotton, Leather)
+  images       String[] // Array of image URLs
+  rating       Decimal? // Average product rating
+  reviewsCount Int?     @default(0) // Number of reviews
+  sellerId     Int // Foreign key reference to Seller
+  seller       Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now()) // Timestamp of product creation
+  updatedAt    DateTime @updatedAt // Auto-update on modifications
+}
+
+// Seller
+
+model Seller {
+  id                   Int                   @id @default(autoincrement())
+  name                 String                @db.VarChar(255) // Seller Name or Store Name
+  email                String                @unique @db.VarChar(100) // Seller's email (unique)
+  password             String                @db.VarChar(255) // Hashed Password for authentication
+  phone                String                @db.VarChar(15) // Contact number
+  gstNumber            String?               @unique @db.VarChar(20) // GST Number (for India)
+  panNumber            String?               @unique @db.VarChar(20) // PAN (optional for verification)
+  address              String?               @db.Text // Business address
+  city                 String?               @db.VarChar(100) // Seller’s city
+  state                String?               @db.VarChar(100) // Seller’s state
+  pincode              String?               @db.VarChar(10) // Postal Code / ZIP Code
+  country              String?               @default("India") // Default is India, can be changed
+  bankDetails          Json? // JSON object to store bank details (account number, IFSC)
+  isVerified           Boolean               @default(false) // Status of verification
+  isActive             Boolean               @default(true) // Whether the seller is active
+  createdAt            DateTime              @default(now()) // Timestamp when seller registered
+  updatedAt            DateTime              @updatedAt // Auto-update on modifications
+  products             Product[] // Relation with Product Table
+  refresh_token_seller refresh_token_seller?
 }

@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import userRouter from "./Routes/user.route";
 
 import adminRouter from "./Routes/admin.route";
+import SellerRoute from "./Routes/Seller.route";
 
 dotenv.config();
 
@@ -19,7 +20,10 @@ app.use(cookieParser())
 // console.log(PORT)
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  // origin: "http://localhost:3000",
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -33,6 +37,9 @@ app.use("/user",userRouter);
 
 // Admin Routes
 app.use("/admin", adminRouter);
+
+// seller route
+app.use("/seller",SellerRoute);
 
 // Start Server
 export default app;
