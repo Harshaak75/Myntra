@@ -9,6 +9,7 @@ import userRouter from "./Routes/user.route";
 
 import adminRouter from "./Routes/admin.route";
 import SellerRoute from "./Routes/Seller.route";
+import productAdmin from "./Routes/ProductAdmin.route";
 
 dotenv.config();
 
@@ -40,6 +41,9 @@ app.use("/admin", adminRouter);
 
 // seller route
 app.use("/seller",SellerRoute);
+
+// Product Admin
+app.use("/ProductAdmin", productAdmin);
 
 // Start Server
 export default app;

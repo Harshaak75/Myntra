@@ -104,6 +104,7 @@ model Product {
   price        Decimal // Product price
   discount     Int?     @default(0) // Discount percentage (optional)
   stock        Int      @default(0) // Available stock quantity
+  approved     Boolean  @default(false) // Approval status
   sizeOptions  Json? // JSON array for sizes available
   colorOptions Json? // JSON array for colors available
   material     String?  @db.VarChar(100) // Material type (e.g., Cotton, Leather)

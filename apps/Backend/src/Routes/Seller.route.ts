@@ -9,6 +9,7 @@ import {
   updateProduct,
 } from "../Controller/Seller.controller";
 import { authenticate_Seller } from "../Middlewares/authenticate.seller";
+import { authorizeAdmin } from "../utils/adminAuthUtils";
 
 const SellerRoute = express.Router();
 

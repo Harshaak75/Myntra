@@ -423,7 +423,6 @@ This endpoint provides the authenticated seller's profile data. It requires the 
     }
     ```
 
-
 ## `/seller/add_product` Endpoints
 
 **Description:**  
@@ -499,7 +498,6 @@ This endpoint allows the authenticated seller to add a new product.
     }
     ```
 
-
 ## `/seller/product/:id` Endpoints
 
 **Description:**  
@@ -572,5 +570,178 @@ This endpoint allows the authenticated seller to update an existing product.
           "location": "body"
         }
       ]
+    }
+    ```
+
+## `/productAdmin/login` Endpoints
+
+**Description:**  
+This endpoint allows a product admin to log in to the system.
+
+**HTTP Method:**  
+`POST`
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "email": "admin@example.com",
+    "password": "adminpassword"
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Product admin logged in successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "Logged In Successfully",
+      "token": "your_jwt_token_here"
+    }
+    ```
+
+## `/productAdmin/product/edit/:id` Endpoints
+
+**Description:**  
+This endpoint allows a product admin to edit a product.
+
+**HTTP Method:**  
+`PUT`
+
+**Headers:**  
+- **Authorization:** Bearer token
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "name": "Updated Product Name",
+    "description": "Updated Product Description",
+    "brand": "Updated Product Brand",
+    "category": "Updated Product Category",
+    "subCategory": "Updated Product SubCategory",
+    "price": 120.0,
+    "discount": 15,
+    "stock": 60,
+    "sizeOptions": ["S", "M", "L", "XL"],
+    "colorOptions": ["Green", "Yellow"],
+    "images": ["updated_image1_url", "updated_image2_url"],
+    "rating": 4.8,
+    "reviewsCount": 15
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Product updated successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "The product was updated successfully",
+      "product": {
+        "id": "product_id",
+        "name": "Updated Product Name",
+        "description": "Updated Product Description",
+        "brand": "Updated Product Brand",
+        "category": "Updated Product Category",
+        "subCategory": "Updated Product SubCategory",
+        "price": 120.0,
+        "discount": 15,
+        "stock": 60,
+        "sizeOptions": ["S", "M", "L", "XL"],
+        "colorOptions": ["Green", "Yellow"],
+        "images": ["updated_image1_url", "updated_image2_url"],
+        "rating": 4.8,
+        "reviewsCount": 15,
+        "sellerId": "seller_id"
+      }
+    }
+    ```
+
+## `/productAdmin/product/delete/:id` Endpoints
+
+**Description:**  
+This endpoint allows a product admin to delete a product.
+
+**HTTP Method:**  
+`DELETE`
+
+**Headers:**  
+- **Authorization:** Bearer token
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Product deleted successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "Product deleted successfully"
+    }
+    ```
+
+## `/productAdmin/product/getAll` Endpoints
+
+**Description:**  
+This endpoint retrieves all seller data.
+
+**HTTP Method:**  
+`GET`
+
+**Headers:**  
+- **Authorization:** Bearer token
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Seller data retrieved successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "Seller data",
+      "seller_details": [
+        {
+          "id": "seller_id",
+          "name": "Seller Name",
+          "email": "seller@example.com",
+          "phone": "1234567890"
+        }
+      ]
+    }
+    ```
+
+## `/productAdmin/product/:id/approval` Endpoints
+
+**Description:**  
+This endpoint allows a product admin to approve or disapprove a product.
+
+**HTTP Method:**  
+`PUT`
+
+**Headers:**  
+- **Authorization:** Bearer token
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "approve": true
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Product approval status updated successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "Product approved successfully"
     }
     ```
