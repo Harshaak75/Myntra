@@ -2,7 +2,7 @@ import express from "express";
 
 import { body } from "express-validator";
 import { authenticate_User } from "../Middlewares/authenticate.user";
-import { editAddress, editProfile } from "../Controller/user.controller";
+import { CreateOrder, editAddress, editProfile, getOrderDetails } from "../Controller/user.controller";
 import { getProfile } from "../Controller/auth.controller";
 
 const userRouter = express.Router();
@@ -52,5 +52,11 @@ userRouter.post("/editAddress", [
     .isIn(["Home", "Work", "Other"])
     .withMessage("Invalid address type"),
 ], authenticate_User, editAddress);
+
+// order route
+
+userRouter.post("/order", authenticate_User, CreateOrder);
+
+userRouter.get("/order/:id", authenticate_User, getOrderDetails);
 
 export default userRouter;

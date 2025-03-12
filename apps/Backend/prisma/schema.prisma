@@ -14,6 +14,7 @@ model users {
   refreshTokens refresh_token?
   userAddress   userAddress?
   userProfile   userProfile?
+  Order         Order[]
 }
 
 model userProfile {
@@ -115,6 +116,7 @@ model Product {
   seller       Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now()) // Timestamp of product creation
   updatedAt    DateTime @updatedAt // Auto-update on modifications
+  Order        Order[]
 }
 
 // Seller
@@ -139,4 +141,22 @@ model Seller {
   updatedAt            DateTime              @updatedAt // Auto-update on modifications
   products             Product[] // Relation with Product Table
   refresh_token_seller refresh_token_seller?
+  Order                Order[]
+}
+
+// Order Admin
+
+model Order {
+  id         Int      @id @default(autoincrement())
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  sellerId   Int
+  seller     Seller   @relation(fields: [sellerId], references: [id])
+  buyerId    Int
+  buyer      users    @relation(fields: [buyerId], references: [id])
+  quantity   Int
+  totalPrice Decimal
+  status     String   @default("pending") // pending, accepted, rejected, canceled, shipped, delivered
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

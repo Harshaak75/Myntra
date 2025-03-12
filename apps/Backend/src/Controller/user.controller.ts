@@ -3,6 +3,7 @@ import { validationResult } from "express-validator";
 import dotenv from "dotenv";
 import { json } from "stream/consumers";
 import { PrismaClient } from "@prisma/client";
+import { create_the_order, get_user_order_details } from "../Services/user.services";
 
 dotenv.config();
 
@@ -49,11 +50,11 @@ export const editProfile = async (
   }
 };
 
-
-export const editAddress = async(  req: Request,
+export const editAddress = async (
+  req: Request,
   res: Response,
   next: NextFunction
-): Promise<any> =>{
+): Promise<any> => {
   const userId = req.user_id;
   const userData = req.body;
 
@@ -62,20 +63,20 @@ export const editAddress = async(  req: Request,
     return res.status(400).json({ errors: errors.array() });
   }
 
-  if(Object.keys(req.body).length == 0){
-    return res.status(200).json({message: "There is no update from user"})
+  if (Object.keys(req.body).length == 0) {
+    return res.status(200).json({ message: "There is no update from user" });
   }
 
   try {
     const updateAddress_user = await Client.userAddress.upsert({
-      where: {userId: Number(userId)},
+      where: { userId: Number(userId) },
       update: {
         address: req.body.address,
         city: req.body.city,
         state: req.body.state,
         pincode: req.body.pincode,
         Locality: req.body.locality,
-        typeOfAddress: req.body.addressType
+        typeOfAddress: req.body.addressType,
       },
       create: {
         userId: Number(userId),
@@ -84,12 +85,89 @@ export const editAddress = async(  req: Request,
         state: req.body.state,
         pincode: req.body.pincode,
         Locality: req.body.locality,
-        typeOfAddress: req.body.addressType
-      }
-    })
+        typeOfAddress: req.body.addressType,
+      },
+    });
 
-    return res.status(200).json({message: "Address updated successfully",  updateAddress_user})
+    return res
+      .status(200)
+      .json({ message: "Address updated successfully", updateAddress_user });
   } catch (error) {
-    res.status(500).json({message: "Error updating address", error})
+    res.status(500).json({ message: "Error updating address", error });
+  }
+};
+
+// order
+
+export const CreateOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const userId = req.user_id;
+    const data = req.body;
+
+    const product_id = data.productid;
+
+    const order_created = await create_the_order(userId,data,product_id);
+
+    if(!order_created){
+      return res.status(400).json({message: "Error creating order"})
+    }
+
+    console.log(order_created)
+
+    return res.status(200).json({message: "Order created successfully", order_created})
+  } catch (error) {
+    return res.status(500).json({message: "Error creating order"})
+  }
+};
+
+
+export const getOrderDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> =>{
+  try {
+    const orderId = req.params;
+
+    console.log(orderId);
+
+    const order_details: any = await get_user_order_details(orderId.id);
+
+    if(!order_details.product || !order_details.order){
+      return res.status(400).json({message: "Error fetching order details"})
+    }
+
+    console.log(order_details.order.quantity)
+
+    return res.status(200).json({message: "Order details fetched successfully", order: {
+      quantity: order_details.order.quantity,
+      totalPrice: order_details.order.totalPrice,
+      status: order_details.order.status,
+      orderDate: order_details.order.createdAt,
+      product: {
+        name: order_details.product.name,
+        price: order_details.product.price,
+        description: order_details.product.description,
+        category: order_details.product.category,
+        barnd: order_details.product.brand,
+        image: order_details.product.image,
+        subCategory: order_details.product.subCategory,
+        discount: order_details.product.discount,
+        sizeOption: order_details.product.sizeOption,
+        colorOption: order_details.product.colorOption,
+        created_at: order_details.product.createdAt
+      }
+    }})
+  } catch (error) {
+    return res.status(500).json({message: "Error fetching order detail"})
   }
 }

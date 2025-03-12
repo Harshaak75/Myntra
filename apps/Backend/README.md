@@ -745,3 +745,106 @@ This endpoint allows a product admin to approve or disapprove a product.
       "message": "Product approved successfully"
     }
     ```
+
+
+
+## `/order` Endpoints
+
+**Description:**  
+This endpoint allows an authenticated user to create a new order.
+
+**HTTP Method:**  
+`POST`
+
+**Headers:**  
+- **Authorization:** Bearer token
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "productid": "product_id",
+    "quantity": 2
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Order created successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "Order created successfully",
+      "order_created": {
+        "id": "order_id",
+        "buyerId": "user_id",
+        "productId": "product_id",
+        "sellerId": "seller_id",
+        "quantity": 2,
+        "totalPrice": 200.0,
+        "status": "Pending",
+        "createdAt": "2023-10-01T00:00:00.000Z"
+      }
+    }
+    ```
+
+- **400 Bad Request**
+  - **Description:** Error creating order.
+  - **Example:**
+    ```json
+    {
+      "message": "Error creating order"
+    }
+    ```
+
+## `/order/:id` Endpoints
+
+**Description:**  
+This endpoint retrieves the details of a specific order for an authenticated user.
+
+**HTTP Method:**  
+`GET`
+
+**Headers:**  
+- **Authorization:** Bearer token
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Order details fetched successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "Order details fetched successfully",
+      "order": {
+        "quantity": 2,
+        "totalPrice": 200.0,
+        "status": "Pending",
+        "orderDate": "2023-10-01T00:00:00.000Z",
+        "product": {
+          "name": "Product Name",
+          "price": 100.0,
+          "description": "Product Description",
+          "category": "Product Category",
+          "brand": "Product Brand",
+          "image": "product_image_url",
+          "subCategory": "Product SubCategory",
+          "discount": 10,
+          "sizeOption": ["S", "M", "L"],
+          "colorOption": ["Red", "Blue"],
+          "created_at": "2023-09-01T00:00:00.000Z"
+        }
+      }
+    }
+    ```
+
+- **400 Bad Request**
+  - **Description:** Error fetching order details.
+  - **Example:**
+    ```json
+    {
+      "message": "Error fetching order details"
+    }
+    ```
