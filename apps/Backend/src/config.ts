@@ -19,3 +19,9 @@ export const refresh_token_renew_time =  parseInt(process.env.REFRESH_TOKEN_RENE
 export const redis_url = process.env.REDIS_URL
 
 export const salt_rounds = process.env.SALT_ROUND
+
+// supabase for s3 bucket
+
+export const supabse_url = process.env.SUPABASE_URL
+export const supabase_key = process.env.SUPABASE_SERVICES_ROLE_KEY
+export const bucket_name = process.env.BUCKET_NAME

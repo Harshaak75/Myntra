@@ -573,6 +573,88 @@ This endpoint allows the authenticated seller to update an existing product.
     }
     ```
 
+## `/seller/download_excel` Endpoints
+
+**Description:**  
+This endpoint allows the seller to download an Excel template based on the selected category.
+
+**HTTP Method:**  
+`POST`
+
+**Request Body:**  
+- **Format:** JSON
+- **Example:**
+  ```json
+  {
+    "category": "saree"
+  }
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** Excel template downloaded successfully.
+  - **Content-Type:** `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+  - **Content-Disposition:** `attachment; filename="category-template.xlsx"`
+
+- **400 Bad Request**
+  - **Description:** Invalid category selected.
+  - **Example:**
+    ```json
+    {
+      "message": "Invalid category selected!"
+    }
+    ```
+
+## `/seller/upload_documents` Endpoints
+
+**Description:**  
+This endpoint allows the authenticated seller to upload documents.
+
+**HTTP Method:**  
+`POST`
+
+**Headers:**  
+- **Authorization:** Bearer token
+- **Content-Type:** multipart/form-data
+
+**Request Body:**  
+- **Format:** FormData
+- **Example:**
+  ```form-data
+  file: <file>
+  ```
+
+**Response:**
+
+- **200 OK**
+  - **Description:** File uploaded successfully.
+  - **Example:**
+    ```json
+    {
+      "message": "File uploaded successfully"
+    }
+    ```
+
+- **400 Bad Request**
+  - **Description:** File is required.
+  - **Example:**
+    ```json
+    {
+      "message": "File is required"
+    }
+    ```
+
+- **500 Internal Server Error**
+  - **Description:** Error uploading file.
+  - **Example:**
+    ```json
+    {
+      "message": "Error uploading file",
+      "error": "error details"
+    }
+    ```
+
 ## `/productAdmin/login` Endpoints
 
 **Description:**  

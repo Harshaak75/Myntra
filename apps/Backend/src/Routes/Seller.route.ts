@@ -1,17 +1,22 @@
 import express from "express";
+import multer from "multer";
 
 import { body } from "express-validator";
 import {
   addProduct,
+  downloadExcel,
   login_seller,
   register_seller,
   SellerProfile,
   updateProduct,
+  Upload_Documats,
 } from "../Controller/Seller.controller";
 import { authenticate_Seller } from "../Middlewares/authenticate.seller";
 import { authorizeAdmin } from "../utils/adminAuthUtils";
 
 const SellerRoute = express.Router();
+
+const upload = multer({ storage: multer.memoryStorage()});
 
 // login profile
 
@@ -89,5 +94,12 @@ SellerRoute.post(
 );
 
 SellerRoute.put("/product/:id", authenticate_Seller, updateProduct);
+
+SellerRoute.post("/download_excel", [
+  body("category").isString().withMessage("Category must be a string"),
+],
+downloadExcel);
+
+SellerRoute.post("/upload_documents",authenticate_Seller,upload.single("file"),Upload_Documats)
 
 export default SellerRoute;
