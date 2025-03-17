@@ -23,31 +23,31 @@ export const Create_Seller_account = async (sellerData: any, hashedPassword: any
     }
 }
 
-export const add_product = async (productData: any, sellerId: String)=>{
-    try {
-        const product = await Client.product.create({
-            data: {
-                name: productData.name,
-                description: productData.description,
-                brand: productData.brand,
-                category: productData.category,
-                subCategory: productData.subCategory,
-                price: productData.price,
-                discount: productData.discount,
-                stock: productData.stock,
-                sizeOptions: productData.sizeOptions,
-                colorOptions: productData.colorOptions,
-                images: productData.images,
-                rating: productData.rating,
-                reviewsCount: productData.reviewsCount,
-                sellerId: Number(sellerId),
-            }
-        })
-        return product;
-    } catch (error: any) {
-        throw new Error(`Error adding product: ${error.message}`);
-    }
-}
+// export const add_product = async (productData: any, sellerId: String)=>{
+//     try {
+//         const product = await Client.product.create({
+//             data: {
+//                 name: productData.name,
+//                 description: productData.description,
+//                 brand: productData.brand,
+//                 category: productData.category,
+//                 subCategory: productData.subCategory,
+//                 price: productData.price,
+//                 discount: productData.discount,
+//                 stock: productData.stock,
+//                 sizeOptions: productData.sizeOptions,
+//                 colorOptions: productData.colorOptions,
+//                 images: productData.images,
+//                 rating: productData.rating,
+//                 reviewsCount: productData.reviewsCount,
+//                 sellerId: Number(sellerId),
+//             }
+//         })
+//         return product;
+//     } catch (error: any) {
+//         throw new Error(`Error adding product: ${error.message}`);
+//     }
+// }
 
 export const editProduct = async (edit_product: any, product_id: string)=>{
     try {

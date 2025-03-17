@@ -17,8 +17,6 @@ productAdmin.post("/login",[
 
 productAdmin.put("/product/edit/:id", authenticate_Admin_User,authorizeAdmin("product_admin"), updateProduct);
 
-
-
 productAdmin.delete("/product/delete/:id", authenticate_Admin_User,authorizeAdmin("product_admin"), deleteProduct);
 
 productAdmin.get("/product/getAll", authenticate_Admin_User,authorizeAdmin("product_admin"), getSellerDetails);

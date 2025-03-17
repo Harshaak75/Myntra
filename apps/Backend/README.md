@@ -423,81 +423,6 @@ This endpoint provides the authenticated seller's profile data. It requires the 
     }
     ```
 
-## `/seller/add_product` Endpoints
-
-**Description:**  
-This endpoint allows the authenticated seller to add a new product.
-
-**HTTP Method:**  
-`POST`
-
-**Headers:**  
-- **Authorization:** Bearer token
-
-**Request Body:**  
-- **Format:** JSON
-- **Example:**
-  ```json
-  {
-    "name": "Product Name",
-    "description": "Product Description",
-    "brand": "Product Brand",
-    "category": "Product Category",
-    "subCategory": "Product SubCategory",
-    "price": 100.0,
-    "discount": 10,
-    "stock": 50,
-    "sizeOptions": ["S", "M", "L"],
-    "colorOptions": ["Red", "Blue"],
-    "images": ["image1_url", "image2_url"],
-    "rating": 4.5,
-    "reviewsCount": 10
-  }
-  ```
-
-**Response:**
-
-- **200 OK**
-  - **Description:** Product added successfully.
-  - **Example:**
-    ```json
-    {
-      "message": "The product was added successfully",
-      "product": {
-        "id": "product_id",
-        "name": "Product Name",
-        "description": "Product Description",
-        "brand": "Product Brand",
-        "category": "Product Category",
-        "subCategory": "Product SubCategory",
-        "price": 100.0,
-        "discount": 10,
-        "stock": 50,
-        "sizeOptions": ["S", "M", "L"],
-        "colorOptions": ["Red", "Blue"],
-        "images": ["image1_url", "image2_url"],
-        "rating": 4.5,
-        "reviewsCount": 10,
-        "sellerId": "seller_id"
-      }
-    }
-    ```
-
-- **400 Bad Request**
-  - **Description:** The request body is missing required fields or contains invalid data.
-  - **Example:**
-    ```json
-    {
-      "errors": [
-        {
-          "msg": "Name must be a string",
-          "param": "name",
-          "location": "body"
-        }
-      ]
-    }
-    ```
-
 ## `/seller/product/:id` Endpoints
 
 **Description:**  
@@ -515,18 +440,8 @@ This endpoint allows the authenticated seller to update an existing product.
   ```json
   {
     "name": "Updated Product Name",
-    "description": "Updated Product Description",
-    "brand": "Updated Product Brand",
-    "category": "Updated Product Category",
-    "subCategory": "Updated Product SubCategory",
     "price": 120.0,
-    "discount": 15,
-    "stock": 60,
-    "sizeOptions": ["S", "M", "L", "XL"],
-    "colorOptions": ["Green", "Yellow"],
-    "images": ["updated_image1_url", "updated_image2_url"],
-    "rating": 4.8,
-    "reviewsCount": 15
+    "accepted": false
   }
   ```
 
@@ -541,18 +456,7 @@ This endpoint allows the authenticated seller to update an existing product.
       "product": {
         "id": "product_id",
         "name": "Updated Product Name",
-        "description": "Updated Product Description",
-        "brand": "Updated Product Brand",
-        "category": "Updated Product Category",
-        "subCategory": "Updated Product SubCategory",
         "price": 120.0,
-        "discount": 15,
-        "stock": 60,
-        "sizeOptions": ["S", "M", "L", "XL"],
-        "colorOptions": ["Green", "Yellow"],
-        "images": ["updated_image1_url", "updated_image2_url"],
-        "rating": 4.8,
-        "reviewsCount": 15,
         "sellerId": "seller_id"
       }
     }

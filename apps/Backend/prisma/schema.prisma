@@ -96,27 +96,17 @@ model refresh_token_seller {
 // Products model
 
 model Product {
-  id           Int      @id @default(autoincrement())
-  name         String   @db.VarChar(255) // Product name
-  description  String?  @db.Text // Optional product description
-  brand        String   @db.VarChar(100) // Brand name
-  category     String   @db.VarChar(100) // Product category (e.g., Men, Women, Footwear)
-  subCategory  String?  @db.VarChar(100) // Sub-category (e.g., Sneakers, Formal Shoes)
-  price        Decimal // Product price
-  discount     Int?     @default(0) // Discount percentage (optional)
-  stock        Int      @default(0) // Available stock quantity
-  approved     Boolean  @default(false) // Approval status
-  sizeOptions  Json? // JSON array for sizes available
-  colorOptions Json? // JSON array for colors available
-  material     String?  @db.VarChar(100) // Material type (e.g., Cotton, Leather)
-  images       String[] // Array of image URLs
-  rating       Decimal? // Average product rating
-  reviewsCount Int?     @default(0) // Number of reviews
-  sellerId     Int // Foreign key reference to Seller
-  seller       Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now()) // Timestamp of product creation
-  updatedAt    DateTime @updatedAt // Auto-update on modifications
-  Order        Order[]
+  id               Int                @id @default(autoincrement())
+  name             String             @db.VarChar(255) // Product name
+  price            Decimal // Product price
+  sellerId         Int // Foreign key reference to Seller
+  seller           Seller             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  createdAt        DateTime           @default(now()) // Timestamp of product creation
+  updatedAt        DateTime           @updatedAt // Auto-update on modifications
+  approved         Boolean            @default(false) // Whether the product is approved by admin
+  isActive         Boolean            @default(true) // Whether the product is active
+  Order            Order[]
+  productAttribute productAttribute[]
 }
 
 // Seller
@@ -171,4 +161,12 @@ model SellerDocuments {
   documentUrl String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model productAttribute {
+  id             Int     @id @default(autoincrement())
+  productId      Int
+  product        Product @relation(fields: [productId], references: [id])
+  attributename  String
+  attributevalue String
 }

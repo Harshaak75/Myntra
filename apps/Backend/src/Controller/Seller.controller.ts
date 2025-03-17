@@ -2,9 +2,14 @@ import { NextFunction, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { bucket_name, salt_rounds, secure_cookie, seller_serect } from "../config";
 import {
-  add_product,
+  bucket_name,
+  salt_rounds,
+  secure_cookie,
+  seller_serect,
+} from "../config";
+import {
+  // add_product,
   Create_Seller_account,
   editProduct,
 } from "../Services/seller.services";
@@ -17,7 +22,7 @@ import { categoryTemplate } from "../utils/columnNames";
 import supabase from "../utils/supabase.connect";
 import multer from "multer";
 
-const upload = multer({ storage: multer.memoryStorage()});
+const upload = multer({ storage: multer.memoryStorage() });
 
 const Client = new PrismaClient();
 
@@ -61,12 +66,10 @@ export const register_seller = async (
 
     // console.log("token in controller: ",seller_account);
 
-    res
-      .status(200)
-      .json({
-        message: "the seller account was created",
-        sellerToken: seller_account,
-      });
+    res.status(200).json({
+      message: "the seller account was created",
+      sellerToken: seller_account,
+    });
   } catch (error) {
     res.status(500).json({ message: "Error registering seller", error });
   }
@@ -112,12 +115,10 @@ export const login_seller = async (
             maxAge: 5 * 60 * 1000,
           });
 
-          res
-            .status(200)
-            .json({
-              message: "Seller logged in successfully",
-              sellerToken: seller_account,
-            });
+          res.status(200).json({
+            message: "Seller logged in successfully",
+            sellerToken: seller_account,
+          });
         } else {
           return res.status(400).json({ message: "Invalid credentials" });
         }
@@ -166,37 +167,37 @@ export const SellerProfile = async (
   }
 };
 
-export const addProduct = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<any> => {
-  const errors = validationResult(req);
+// export const addProduct = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ): Promise<any> => {
+//   const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+//   if (!errors.isEmpty()) {
+//     return res.status(400).json({ errors: errors.array() });
+//   }
 
-  try {
-    const product_data = req.body;
+//   try {
+//     const product_data = req.body;
 
-    const seller_Id = req.seller_id;
+//     const seller_Id = req.seller_id;
 
-    console.log(seller_Id);
+//     console.log(seller_Id);
 
-    if (!seller_Id) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+//     if (!seller_Id) {
+//       return res.status(401).json({ message: "Unauthorized" });
+//     }
 
-    const product = await add_product(product_data, seller_Id);
+//     const product = await add_product(product_data, seller_Id);
 
-    res
-      .status(200)
-      .json({ message: "The product was added successfully", product });
-  } catch (error) {
-    res.status(500).json({ message: "Error adding product", error });
-  }
-};
+//     res
+//       .status(200)
+//       .json({ message: "The product was added successfully", product });
+//   } catch (error) {
+//     res.status(500).json({ message: "Error adding product", error });
+//   }
+// };
 
 export const updateProduct = async (
   req: Request,
@@ -294,33 +295,93 @@ export const Upload_Documats = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<any> =>{
-
-  if(!req.file){
-    return res.status(400).json({message: "File is required"})
+): Promise<any> => {
+  if (!req.file) {
+    return res.status(400).json({ message: "File is required" });
   }
   try {
     const file_name = `excel/${Date.now()}_${req.file.originalname}`;
 
-    if(!bucket_name) {
-      return res.status(400).json({message: "Bucket name is required"})
+    if (!bucket_name) {
+      return res.status(400).json({ message: "Bucket name is required" });
     }
 
-    const {data, error} = await supabase.storage
-    .from(bucket_name)
-    .upload(file_name, req.file.buffer, {contentType: req.file.mimetype});
+    const { data, error } = await supabase.storage
+      .from(bucket_name)
+      .upload(file_name, req.file.buffer, { contentType: req.file.mimetype });
 
-    if(error) return res.status(500).json({message: "Error uploading file", error: error});
+    if (error)
+      return res
+        .status(500)
+        .json({ message: "Error uploading file", error: error });
+
+    //Create workbook and store in database
+
+    const workbook = new ExcelJs.Workbook();
+    await workbook.xlsx.load(req.file.buffer);
+
+    const worksheet = workbook.worksheets[1];
+
+    const header: any = [];
+    worksheet.getRow(3).eachCell((cell) => header.push(cell.value));
+
+    // console.log(header)
+
+    const rows: any = [];
+
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber == 1 || rowNumber == 2 || rowNumber == 3) return;
+      const product: any = {};
+      row.eachCell((cell, colnumber) => {
+        product[header[colnumber - 1]] = cell.value;
+      });
+      rows.push(product);
+    });
+
+    console.log(rows);
+
+    // add the name and price to the product table
+
+    const productInfo = await Promise.all(
+      rows.map((row: any) => {
+        if (!row.MRP || !row.productDisplayName) {
+          // ❗ Validate required fields
+          console.error("Missing required fields:", row);
+          return null; // Skip this row if data is invalid
+        }
+        const pro = Client.product.create({
+          data: {
+            name: row.productDisplayName,
+            price: Number(row.MRP),
+            sellerId: Number(req.seller_id),
+          },
+        });
+
+        // create productattribute
+
+        Object.entries(row).map(async ([keys, values]) => {
+          if (!["productDisplayName", "MRP"].includes(keys)) {
+            await Client.productAttribute.create({
+              data: {
+                attributename: keys,
+                attributevalue: String(values),
+                productId: (await pro).id,
+              },
+            });
+          }
+        });
+      })
+    );
 
     await Client.sellerDocuments.create({
       data: {
         sellerId: Number(req.seller_id),
-        documentUrl: file_name
-      }
-    })
+        documentUrl: file_name,
+      },
+    });
 
-    return res.status(200).json({message: "File uploaded successfully"})
+    return res.status(200).json({ message: "File uploaded successfully" });
   } catch (error) {
-    return res.status(500).json({message: "Error uploading file", error})
+    return res.status(500).json({ message: "Error uploading file", error });
   }
-}
+};
