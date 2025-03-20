@@ -6,7 +6,7 @@
     "build": "tsc",
     "dev": "pnpm run build && nodemon dist/servers.js",
     "start": "node dist/servers.js",
-    "postinstall": "pnpm install --filter backend && pnpm run build"
+    "postinstall":"pnpm run build"
   },
   "keywords": [],
   "author": "",
