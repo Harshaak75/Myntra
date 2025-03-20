@@ -15,9 +15,7 @@ userRouter.post(
     body("Gender")
       .isIn(["Male", "Female", "Other"])
       .withMessage("Invalid gender"),
-    body("dateofbirth")
-      .isISO8601()
-      .withMessage("Invalid date format (YYYY-MM-DD expected)"),
+    body("dateofbirth"),
     body("alternateNumber")
       .optional()
       .isMobilePhone("any")

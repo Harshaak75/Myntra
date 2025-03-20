@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import dotenv from "dotenv";
-import { json } from "stream/consumers";
 import { PrismaClient } from "@prisma/client";
 import { create_the_order, get_user_order_details } from "../Services/user.services";
+
+import moment = require("moment");
 
 dotenv.config();
 
@@ -27,18 +28,29 @@ export const editProfile = async (
   }
 
   try {
+
+    const formattedDate = moment(req.body.dateofbirth, ["YYYY-MM-DD", "DD-MM-YYYY", "YYYY/MM/DD"], true);
+
+    if(!formattedDate.isValid()){
+      return res.status(400).json({ error: "Invalid date format (YYYY-MM-DD expected)" });
+    }
+
+    // new Date(req.body.dateofbirth)
+
+    // console.log(formattedDate.toDate())
+
     const updatedUser = await Client.userProfile.upsert({
       where: { userId: Number(userId) },
       update: {
         Gender: req.body.Gender,
-        dateofbirth: new Date(req.body.dateofbirth),
+        dateofbirth: formattedDate.toDate(),
         alternateNumber: req.body.alternateNumber,
         alternateNumberName: req.body.alternateNumberName,
       },
       create: {
         userId: Number(userId),
         Gender: req.body.Gender,
-        dateofbirth: new Date(req.body.dateofbirth),
+        dateofbirth: formattedDate.toDate(),
         alternateNumber: req.body.alternateNumber,
         alternateNumberName: req.body.alternateNumberName,
       },
