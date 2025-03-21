@@ -20,7 +20,11 @@ export const authenticate_Admin_User = (
       return res.status(500).json({ message: "Unauthorized" });
     }
 
-    jwt.verify(token, admin_serect || "", async (err: any, decode: any) => {
+    if(!admin_serect) {
+      return res.status(500).json({ message: "Admin secret not found" });
+    }
+
+    return jwt.verify(token, admin_serect, async (err: any, decode: any) => {
       const decode_token = jwt.decode(token);
 
       if (!decode_token || typeof decode_token === "string") {
@@ -36,8 +40,7 @@ export const authenticate_Admin_User = (
 
         // const user_id = decode_token?.id;
 
-        const { accessToken, refreshToken }: any =
-          await generateTokensAdmin(admin_id);
+        const { accessToken, refreshToken }: any = await generateTokensAdmin(admin_id);
 
         res.cookie("access_token", accessToken, {
           httpOnly: true,

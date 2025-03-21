@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
 
 dotenv.config();
 
@@ -34,6 +36,7 @@ export const auth_the_user = async (
   res: Response,
   next: NextFunction
 ): Promise<any> => {
+  console.log(__dirname)
   const error = validationResult(req);
 
   if (!error.isEmpty()) {
@@ -43,7 +46,14 @@ export const auth_the_user = async (
   // TODO: Implement the logic to authenticate the user with the provided email and send OTP
 
   try {
+    console.log(__dirname)
     const { email } = req.body;
+
+    const pattern = /^[^@]+@gmail\.com$/;
+
+    if(!(pattern.test(email))){
+      return res.status(400).json({error: "Only gmail accounts are allowed."})
+    }
 
     const user = await Client.users.findUnique({ where: { email: email } });
 
@@ -141,6 +151,8 @@ export const verify_the_otp = async (
   next: NextFunction
 ): Promise<any> => {
   const error = validationResult(req);
+
+  
 
   if (!error.isEmpty()) {
     return res.status(400).json({ errors: error.array() });

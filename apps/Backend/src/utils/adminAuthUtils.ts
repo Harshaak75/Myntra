@@ -31,6 +31,8 @@ export const authorizeAdmin = (...roles: string[]) => {
         return res.status(404).json({ message: "Admin not found" });
       }
 
+      console.log(admin.role)
+
       if (!roles.includes(admin.role)) {
         return res.status(403).json({ message: "Access denied" });
       }
