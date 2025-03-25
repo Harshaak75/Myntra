@@ -2,6 +2,7 @@ import axios from "axios";
 import "./App.css";
 import Navbar from "./Components/Navbar";
 import Signin from "./Pages/Signin";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {
   Menu,
   Search,
@@ -20,6 +21,7 @@ import myntralogo from "./ImagesCollection";
 import Icon from "./Components/Icon";
 
 import GridSellerDashboard from "./Components/GridSellerDashboard";
+import SellerCatalog from "./Pages/Seller.Cataloguing";
 
 const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 const partner_topbar = [
@@ -154,6 +156,7 @@ function App() {
         </div>
       </div> */}
 
+      <Router>
       <Navbar
         menus={partner_topbar}
         showSearchBar={false}
@@ -163,7 +166,16 @@ function App() {
         path={myntralogo}
       />
 
-      <GridSellerDashboard/>
+      <Routes>
+        <Route path="/" element={<GridSellerDashboard/>} />
+        <Route path="/seller/cataloguing" element={<SellerCatalog />} />
+      </Routes>
+
+      </Router>
+
+
+
+      
 
 
       {/* <button onClick={() => downloadExcel(selectedOption)}>Click to download Excel sheet</button> */}
