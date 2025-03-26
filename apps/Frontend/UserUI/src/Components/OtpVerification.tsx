@@ -38,11 +38,14 @@ export default function OtpVerification({ email, token }: OtpProps) {
     setOtp(newOtp);
 
     if (value && index < otp.length - 1) {
-        inputRefs.current[index + 1]?.focus();
-      }
+      inputRefs.current[index + 1]?.focus();
+    }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }

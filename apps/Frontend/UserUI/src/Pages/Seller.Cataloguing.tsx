@@ -1,5 +1,4 @@
 import { Store, BookText, ShieldQuestion, X } from "lucide-react";
-import Icon from "../Components/Icon";
 import { useState } from "react";
 import axios from "axios";
 import { upload_token_temp } from "../../config";

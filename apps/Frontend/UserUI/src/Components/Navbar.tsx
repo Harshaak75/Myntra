@@ -1,11 +1,4 @@
-import {
-  Menu,
-  Search,
-  User,
-  Heart,
-  ShoppingBag,
-  LucideIcon,
-} from "lucide-react";
+import { Menu, Search, LucideIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import DropdownMenu from "./DropdownMenu";
 
@@ -15,8 +8,6 @@ import { useNavigate } from "react-router-dom";
 interface IconNameType {
   [key: string]: LucideIcon;
 }
-
-
 
 export default function Navbar({
   menus,
@@ -40,33 +31,30 @@ export default function Navbar({
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const navRef = useRef(null);
 
-  const navigate  = useNavigate();
-
+  const navigate = useNavigate();
 
   const handleMouseEnter = (event: any, item: any) => {
-    if(!menuDropdowns[item]) {
+    if (!menuDropdowns[item]) {
       return;
     }
 
     const rect = event.target.getBoundingClientRect();
-    setDropdownPosition({left: rect.left, top: rect.bottom})
+    setDropdownPosition({ left: rect.left, top: rect.bottom });
     setActiveMenu(item);
     setIsDropdownVisible(true);
-  }
+  };
 
-  const handleMouseLeave  = () =>{
+  const handleMouseLeave = () => {
     setIsDropdownVisible(false);
-  }
+  };
 
   const handleMenuClick = (item: string) => {
-    if(item == "Home"){
-      console.log("home")
-      navigate("/")
+    if (item == "Home") {
+      console.log("home");
+      navigate("/");
     }
     return;
-  }
-
-
+  };
 
   return (
     <nav ref={navRef} className="relative bg-white shadow-md w-full">
@@ -82,25 +70,24 @@ export default function Navbar({
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-6 flex-shrink h-20" >
+          <div className="hidden md:flex items-center gap-6 flex-shrink h-20">
             {menus.map((item) => (
               <div className="h-full flex">
                 <a
-                key={item}
-                className="relative text-gray-500 hover:text-blue-900 group font-medium flex items-center cursor-pointer"
-                onMouseEnter={(e) =>  handleMouseEnter(e, item)}
-                onMouseLeave={handleMouseLeave}
-                onClick={() => handleMenuClick(item)}
-              >
-                {item}
-                <span className="absolute bottom-0 shadow left-0 w-0 h-[2.5px] transition-all duration-200 bg-blue-900 group-hover:w-full"></span>
-              </a>
+                  key={item}
+                  className="relative text-gray-500 hover:text-blue-900 group font-medium flex items-center cursor-pointer"
+                  onMouseEnter={(e) => handleMouseEnter(e, item)}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={() => handleMenuClick(item)}
+                >
+                  {item}
+                  <span className="absolute bottom-0 shadow left-0 w-0 h-[2.5px] transition-all duration-200 bg-blue-900 group-hover:w-full"></span>
+                </a>
               </div>
             ))}
           </div>
 
           {/* Desktop Menu (Hidden on Mobile) */}
-          
 
           {/* Search Bar (Full-width on Mobile) */}
           {showSearchBar && (
@@ -171,11 +158,11 @@ export default function Navbar({
       </div>
 
       <DropdownMenu
-      isVisible={isDropdownVisible}
-      content={menuDropdowns[activeMenu]}
-      position={dropdownPosition}
-      onMouseEnter={() => setIsDropdownVisible(true)}
-      onMouseLeave={handleMouseLeave}
+        isVisible={isDropdownVisible}
+        content={menuDropdowns[activeMenu]}
+        position={dropdownPosition}
+        onMouseEnter={() => setIsDropdownVisible(true)}
+        onMouseLeave={handleMouseLeave}
       />
     </nav>
   );
