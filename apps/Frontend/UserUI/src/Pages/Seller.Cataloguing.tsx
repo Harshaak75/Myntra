@@ -1,7 +1,7 @@
 import { Store, BookText, ShieldQuestion, X } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
-import { upload_token_temp } from "../../config";
+import { backend_url, upload_token_temp } from "../../config";
 
 export default function SellerCatalog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,14 +17,14 @@ export default function SellerCatalog() {
     if (file) setselectfile(file);
   };
 
-  function downloadExcel(category: string) {
+  async function downloadExcel(category: string) {
     if (!category) return;
-
+    setloading(true);
     try {
-      setloading(true);
-      axios
+      
+      await axios
         .post(
-          "http://localhost:3000/seller/download_excel",
+          `${backend_url}/seller/download_excel`,
           { category: category },
           {
             headers: {
@@ -49,10 +49,12 @@ export default function SellerCatalog() {
           window.URL.revokeObjectURL(url);
         })
         .catch((error) => console.error("Error downloading Excel:", error));
-
-      setloading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
+    }
+    finally {
+      setSelectedItem("");
+      setloading(false)
     }
   }
 
@@ -78,16 +80,12 @@ export default function SellerCatalog() {
 
     try {
       setloading(true);
-      await axios.post(
-        "http://localhost:3000/seller/upload_documents",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            authorization: upload_token_temp,
-          },
-        }
-      );
+      await axios.post(`${backend_url}/seller/upload_documents`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          authorization: upload_token_temp,
+        },
+      });
       console.log("File uploaded successfully");
       alert("File uploaded successfully!");
       setselectfile(null);
