@@ -63,8 +63,8 @@ export default function Navbar({
         <div className="flex items-center justify-between w-full gap-4 flex-wrap md:flex-nowrap">
           {/* Logo */}
           <div className="flex flex-row items-center  pb-2">
-            <img src={path} alt="" className="w-[5rem] h-[3rem] object-cover" />
-            <div className="text-center leading-tight flex flex-col items-start">
+            <img src={path} alt="" className="w-[3.5rem] h-[3.5rem] object-cover" />
+            <div className="text-center leading-tight flex flex-col items-start pl-2">
               <div className="font-medium text-gray-500">PARTNER</div>
               <div className="font-medium text-gray-500">PORTAL</div>
             </div>
