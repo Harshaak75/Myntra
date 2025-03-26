@@ -2,7 +2,7 @@ import "./App.css";
 import Navbar from "./Components/Navbar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Search, User, LucideIcon } from "lucide-react";
-import {myntralogo, logo} from "./ImagesCollection";
+import {logo} from "./ImagesCollection";
 
 import GridSellerDashboard from "./Components/GridSellerDashboard";
 import SellerCatalog from "./Pages/Seller.Cataloguing";
