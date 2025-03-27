@@ -20,6 +20,7 @@ export default function SellerCatalog() {
   async function downloadExcel(category: string) {
     if (!category) return;
     setloading(true);
+    console.log(backend_url)
     try {
       
       await axios
