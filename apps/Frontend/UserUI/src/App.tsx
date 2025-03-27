@@ -1,41 +1,11 @@
 import "./App.css";
-import Navbar from "./Components/Navbar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Search, User, LucideIcon } from "lucide-react";
-import {logo} from "./ImagesCollection";
-
 import GridSellerDashboard from "./Components/GridSellerDashboard";
 import SellerCatalog from "./Pages/Seller.Cataloguing";
+import { SellerSignin } from "./Pages/Seller.Signin";
+import Layout from "./Components/Layout.jsx";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
-const partner_topbar = [
-  "Home",
-  "Buying & Inventory",
-  "Catalog",
-  "Orders & Refunds",
-  "Growth",
-  "Pricing, Promo & Ads",
-  "Payment",
-  "Buiness Health",
-  "Reports",
-  "Support",
-];
-// const icons: Record<string, LucideIcon> = {
-//   User,
-//   Heart,
-//   ShoppingBag,
-//   Menu,
-// };
-
-const seller_icons: Record<string, LucideIcon> = {
-  Search,
-  User,
-};
-
-const seller_icons_sizes: Record<string, number> = {
-  Search: 18,
-  User: 18,
-};
 
 // Define icon sizes
 // const iconSizes: Record<string, number> = {
@@ -53,18 +23,15 @@ function App() {
       {/* <Signin/> */}
 
       <Router>
-        <Navbar
-          menus={partner_topbar}
-          showSearchBar={false}
-          IconName={seller_icons}
-          IconSizes={seller_icons_sizes}
-          Iconslabel={false}
-          path={logo}
-        />
-
         <Routes>
-          <Route path="/" element={<GridSellerDashboard />} />
-          <Route path="/seller/cataloguing" element={<SellerCatalog />} />
+          {/* ✅ Route without Navbar */}
+          <Route path="/" element={<SellerSignin />} />
+
+          {/* ✅ Routes with Navbar (Wrapped inside Layout) */}
+          <Route element={<Layout />}>
+            <Route path="/seller/dashboard" element={<GridSellerDashboard />} />
+            <Route path="/seller/cataloguing" element={<SellerCatalog />} />
+          </Route>
         </Routes>
       </Router>
     </div>

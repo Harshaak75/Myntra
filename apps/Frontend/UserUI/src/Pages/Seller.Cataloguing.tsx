@@ -25,12 +25,13 @@ export default function SellerCatalog() {
       
       await axios
         .post(
-          `${backend_url}/seller/download_excel`,
+          `${backend_url}seller/download_excel`,
           { category: category },
           {
             headers: {
               "Content-Type": "application/json",
             },
+            withCredentials: true,
             responseType: "blob",
           }
         )
@@ -81,7 +82,7 @@ export default function SellerCatalog() {
 
     try {
       setloading(true);
-      await axios.post(`${backend_url}/seller/upload_documents`, formData, {
+      await axios.post(`${backend_url}seller/upload_documents`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           authorization: upload_token_temp,
