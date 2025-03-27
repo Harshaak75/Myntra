@@ -25,7 +25,7 @@ export default function SellerCatalog() {
       
       await axios
         .post(
-          `${backend_url}seller/download_excel`,
+          `${backend_url}/seller/download_excel`,
           { category: category },
           {
             headers: {

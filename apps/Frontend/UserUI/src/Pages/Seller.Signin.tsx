@@ -56,7 +56,7 @@ export function SellerSignin() {
       setloading(true); // Show loading state
 
       const response = await axios.post(
-        `${backend_url}seller/register`, // Correct API endpoint
+        `${backend_url}/seller/register`, // Correct API endpoint
         {
           name: formData.name,
           email: formData.email,
