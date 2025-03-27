@@ -28,19 +28,11 @@ app.use(cookieParser())
 
 app.use(
   cors({
-    origin: "https://myntra-opal.vercel.app/", // Change this to your frontend URL
     credentials: true, // ✅ Allows sending cookies & authentication headers
   })
 );
 
-// ✅ Allow Credentials & Headers in Responses
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://myntra-opal.vercel.app/"); // Change this to match frontend
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-  next();
-});
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
