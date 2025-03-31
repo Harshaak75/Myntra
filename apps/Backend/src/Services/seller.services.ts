@@ -13,6 +13,7 @@ export const Create_Seller_account = async (
   hashedPassword: any
 ) => {
   try {
+    console.log("name: ", sellerData.name)
     const seller_account = await Client.seller.create({
       data: {
         firstname: sellerData.name,
@@ -45,6 +46,8 @@ export const Create_Seller_account = async (
       update: { token: refreshToken, expiresAt },
       create: { sellerId: seller_account.id, token: refreshToken, expiresAt },
     });
+
+
 
     // const seller_token = await generateTokensSeller(seller_account.id);
     // console.log("token in services: ",seller_token)

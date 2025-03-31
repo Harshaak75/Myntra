@@ -47,9 +47,11 @@ export const register_seller = async (
   try {
     const new_seller_data = req.body;
 
-    const existing_seller = await Client.seller.findUnique({
+
+    const existing_seller = await Client.seller.findFirst({
       where: { email: new_seller_data.email },
     });
+
 
     if (existing_seller)
       return res.status(400).json({ message: "Seller already exists" });
@@ -59,10 +61,12 @@ export const register_seller = async (
       Number(salt_rounds)
     );
 
+
     const seller_account = await Create_Seller_account(
       new_seller_data,
       hashedPassword
     );
+
 
     res.cookie("sell_access_token", seller_account, {
       httpOnly: true,
