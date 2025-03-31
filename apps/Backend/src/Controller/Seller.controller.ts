@@ -43,15 +43,18 @@ export const register_seller = async (
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+  console.log("done1")
 
   try {
     const new_seller_data = req.body;
 
+    console.log(new_seller_data.email)
 
     const existing_seller = await Client.seller.findFirst({
       where: { email: new_seller_data.email },
     });
 
+    console.log("done2")
 
     if (existing_seller)
       return res.status(400).json({ message: "Seller already exists" });
@@ -61,12 +64,14 @@ export const register_seller = async (
       Number(salt_rounds)
     );
 
+    console.log("done3")
 
     const seller_account = await Create_Seller_account(
       new_seller_data,
       hashedPassword
     );
 
+    console.log("done7")
 
     res.cookie("sell_access_token", seller_account, {
       httpOnly: true,

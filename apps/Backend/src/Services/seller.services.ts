@@ -22,6 +22,7 @@ export const Create_Seller_account = async (
         password: hashedPassword,
       },
     });
+    console.log("done4")
 
     const accessToken = jwt.sign(
       { id: seller_account.id },
@@ -47,7 +48,7 @@ export const Create_Seller_account = async (
       create: { sellerId: seller_account.id, token: refreshToken, expiresAt },
     });
 
-
+    console.log("done5")
 
     // const seller_token = await generateTokensSeller(seller_account.id);
     // console.log("token in services: ",seller_token)
