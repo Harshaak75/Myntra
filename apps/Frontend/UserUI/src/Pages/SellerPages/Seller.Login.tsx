@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { backend_url } from "../../config";
-import { background, logo } from "../ImagesCollection";
+import { backend_url } from "../../../config";
+import { background, logo } from "../../ImagesCollection";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -35,11 +35,13 @@ export function SellerLogin() {
       return;
     }
 
-    try {
-      setloading(true); // Show loading state
+    setloading(true);
 
-      const response = await axios.post(
-        `${backend_url}/login`, // Correct API endpoint
+    try {
+       // Show loading state
+
+      await axios.post(
+        `${backend_url}seller/login`, // Correct API endpoint
         {
           email: formData.email,
           password: formData.password,
@@ -50,25 +52,27 @@ export function SellerLogin() {
           },
           withCredentials: true,
         }
-      );
-
-      if (response.status === 200) {
+      )
+      .then((response) =>{
+        localStorage.setItem("authorization", response.data.sellerToken); // Save token
         alert(
-          "Registration successful! Please check your email for verification."
+          "Login successful! Thanks for logging in"
         );
         navigate("/seller/dashboard")
-      } else {
-        alert("Failed to register. Please try again later.");
-      }
-    } catch (error: any) {
-      console.error("Error during registration:", error);
+      })
+      .catch((error) => {
 
-      if (error.response && error.response.data && error.response.data.errors) {
-        // Show validation errors if backend returns them
-        alert(error.response.data.errors.map((err: any) => err.msg).join("\n"));
-      } else {
-        alert("An error occurred. Please try again later.");
-      }
+        if(error.response){
+          if(error.response.status == 421){
+            alert("Invlaid email address, please try again")
+          }
+          else if(error.response.status == 422){
+            alert("Invalid password, please try again")
+          }
+        }
+      });
+    } catch (error: any) {
+      console.log(error)
     } finally {
       setloading(false); // Hide loading state
     }
@@ -90,9 +94,9 @@ export function SellerLogin() {
 
         {/* Title */}
         <h2 className="text-xl font-semibold text-gray-900 mt-4">
-          Welcome back to Myntra !
+          Welcome back to Mynstars !
         </h2>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-[0.8rem] font-medium">
           Let’s create your Partner Account to start your journey with us.
         </p>
 
@@ -119,10 +123,11 @@ export function SellerLogin() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
+            className={`w-full bg-[#FF3F6C] text-white py-2 rounded-lg hover:bg-[#ff3f6cda] transition ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}
           >
-            Register
+            {loading ? "Please Wait" : "Login"}
           </button>
+          <h1>New user? <a href="/" className="text-[#FF3F6C] font-medium">Signin</a></h1>
         </form>
       </div>
     </div>

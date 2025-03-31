@@ -3,12 +3,17 @@ import multer from "multer";
 
 import { body } from "express-validator";
 import {
+  checkSeller,
   // addProduct,
   downloadExcel,
+  getEmail,
   login_seller,
+  logoutSeller,
   register_seller,
   SellerProfile,
   updateProduct,
+  updateSeller,
+  updateSellerShopDetails,
   Upload_Documats,
 } from "../Controller/Seller.controller";
 import { authenticate_Seller } from "../Middlewares/authenticate.seller";
@@ -99,9 +104,20 @@ SellerRoute.put("/product/:id", authenticate_Seller, updateProduct);
 
 SellerRoute.post("/download_excel", [
   body("category").isString().withMessage("Category must be a string"),
-],
+],authenticate_Seller,
 downloadExcel);
 
+
+SellerRoute.post("/updateSeller", authenticate_Seller, updateSeller);
+
+SellerRoute.post("/updatesellershop", authenticate_Seller, updateSellerShopDetails);
+
 SellerRoute.post("/upload_documents",authenticate_Seller,upload.single("file"),Upload_Documats)
+
+SellerRoute.get("/logoutSeller", authenticate_Seller, logoutSeller)
+
+SellerRoute.get("/auth/check",authenticate_Seller, checkSeller)
+
+SellerRoute.get("/email", authenticate_Seller, getEmail)
 
 export default SellerRoute;

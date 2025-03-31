@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { backend_url } from "../../config";
-import { background, logo } from "../ImagesCollection";
+import { backend_url } from "../../../config";
+import { background, logo } from "../../ImagesCollection";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -8,7 +8,7 @@ export function SellerSignin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("sellerToken");
+    const token = localStorage.getItem("authorization");
     if (token) {
       navigate("/seller/dashboard"); // Redirect if token exists
     }
@@ -56,7 +56,7 @@ export function SellerSignin() {
       setloading(true); // Show loading state
 
       const response = await axios.post(
-        `${backend_url}/seller/register`, // Correct API endpoint
+        `${backend_url}seller/register`, // Correct API endpoint
         {
           name: formData.name,
           email: formData.email,
@@ -72,7 +72,7 @@ export function SellerSignin() {
       );
 
       if (response.status === 200) {
-        localStorage.setItem("sellerToken", response.data.sellerToken); // Save token
+        localStorage.setItem("authorization", response.data.sellerToken); // Save token
         alert("Registration successful!");
         navigate("/seller/dashboard");
       } else {
@@ -108,9 +108,9 @@ export function SellerSignin() {
 
         {/* Title */}
         <h2 className="text-xl font-semibold text-gray-900 mt-4">
-          Welcome to Myntra
+          Welcome to Mynstars
         </h2>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-[0.8rem] font-medium">
           Let’s create your Partner Account to start your journey with us.
         </p>
 
@@ -155,10 +155,12 @@ export function SellerSignin() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
+            className={`w-full bg-[#FF3F6C] text-white py-2 rounded-lg hover:bg-[#ff3f6ce3]  transition cursor-pointer ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}
           >
-            Register
+            {loading ? "Please wait" : "Register"}
           </button>
+
+          <h1>Already have an account? <a href="/SellerLogin" className="text-[#FF3F6C] font-medium">Login</a></h1>
         </form>
       </div>
     </div>

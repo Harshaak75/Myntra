@@ -18,7 +18,6 @@ const partner_topbar = [
 
   const seller_icons: Record<string, LucideIcon> = {
     Search,
-    User,
   };
 
   const seller_icons_sizes: Record<string, number> = {

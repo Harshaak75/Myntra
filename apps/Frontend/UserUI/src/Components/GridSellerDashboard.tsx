@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   Banknote,
   FileCog,
@@ -6,6 +7,8 @@ import {
   Tickets,
   LucideIcon,
 } from "lucide-react";
+import { backend_url } from "../../config";
+import { useEffect, useState } from "react";
 
 const sellerGridIcons: Record<string, LucideIcon> = {
   Banknote,
@@ -32,6 +35,39 @@ const sellerGridIconsLabel: Record<string, string> = {
 };
 
 export default function GridSellerDashboard() {
+  const [email, setemail] = useState(() => localStorage.getItem("email"));
+
+  useEffect(() => {
+    if (!email) {
+      fetchEmail();
+    }
+  }, [email]);
+
+  const fetchEmail = async () => {
+    try {
+      const response = await axios.get(`${backend_url}seller/email`, {
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("authorization")}`,
+        },
+        withCredentials: true,
+      });
+  
+      console.log(JSON.stringify(response.data)); // Debugging
+  
+      // ✅ Corrected way to access email
+      const email = response.data.responone?.email;
+  
+      if (email) {
+        localStorage.setItem("email", email);
+        setemail(email);
+      } else {
+        console.error("Email not found in response");
+      }
+    } catch (error: any) {
+      console.error("Error fetching email:", error.message);
+    }
+  };
+
   return (
     <div className="p-5">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

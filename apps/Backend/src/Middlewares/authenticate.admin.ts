@@ -7,11 +7,11 @@ import { PrismaClient } from "@prisma/client";
 
 const Client = new PrismaClient();
 
-export const authenticate_Admin_User = (
+export const authenticate_Admin_User = async (
   req: Request,
   res: Response,
   next: NextFunction
-): any => {
+): Promise<any> => {
   const token =
     req.cookies.access_token || req.headers["authorization"]?.split(" ")[1];
 
@@ -20,7 +20,22 @@ export const authenticate_Admin_User = (
       return res.status(500).json({ message: "Unauthorized" });
     }
 
-    if(!admin_serect) {
+    const token_exist = await Client.blacklist_token.findMany({
+      where: {
+        token,
+      },
+    });
+
+    if (token_exist) {
+      res.clearCookie("access_token");
+      res.clearCookie("refresh_token");
+
+      return res
+        .status(401)
+        .json({ message: "Unauthorized token accessing resource" });
+    }
+
+    if (!admin_serect) {
       return res.status(500).json({ message: "Admin secret not found" });
     }
 
@@ -34,22 +49,33 @@ export const authenticate_Admin_User = (
       const admin_id = decode_token?.id;
 
       if (err?.name === "TokenExpiredError") {
-        // if (!decode_token || typeof decode_token === "string") {
-        //   return res.status(403).json({ message: "Invalid token" });
-        // }
+        try {
+          const { accessToken, refreshToken }: any =
+            await generateTokensAdmin(admin_id);
 
-        // const user_id = decode_token?.id;
+          res.cookie("access_token", accessToken, {
+            httpOnly: true,
+            secure: secure_cookie == "Production",
+            sameSite: "strict",
+            maxAge: 15 * 60 * 1000,
+          });
+          req.admin_id = admin_id;
+          next();
+        } catch (error) {
+          await Client.blacklist_token.create({
+            data: {
+              token,
+              expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
+            },
+          });
 
-        const { accessToken, refreshToken }: any = await generateTokensAdmin(admin_id);
+          res.clearCookie("access_token");
+          res.clearCookie("refresh_token_admin");
 
-        res.cookie("access_token", accessToken, {
-          httpOnly: true,
-          secure: secure_cookie == "Production",
-          sameSite: "strict",
-          maxAge: 15 * 60 * 1000,
-        });
-        req.admin_id = admin_id;
-        next();
+          return res
+            .status(401)
+            .json({ message: "Session expired. Please log in again." });
+        }
       }
 
       if (err?.name === "JsonWebTokenError") {

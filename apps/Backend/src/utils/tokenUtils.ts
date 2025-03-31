@@ -10,10 +10,6 @@ const REFRESH_TOKEN_EXPIRATION = "1d"; // 1 day
 
 // Function to generate tokens
 export const generateTokens = async (user_id: any) => {
-  const accessToken = jwt.sign({ id: user_id }, serect || "", {
-    expiresIn: ACCESS_TOKEN_EXPIRATION,
-  });
-
   try {
     const existingRefreshToken = await Client.refresh_token.findFirst({
       where: { userId: user_id },
@@ -32,6 +28,9 @@ export const generateTokens = async (user_id: any) => {
 
           // If token is still valid and issued within last 22 hours, reuse it
           if (timeRemaining > refresh_token_renew_time) {
+            const accessToken = jwt.sign({ id: user_id }, serect || "", {
+              expiresIn: ACCESS_TOKEN_EXPIRATION,
+            });
             return { accessToken, refreshToken: existingRefreshToken.token };
           }
         }
@@ -40,20 +39,22 @@ export const generateTokens = async (user_id: any) => {
       }
     }
 
-    // Generate a new refresh token
-    const refreshToken = jwt.sign({ id: user_id }, serect || "", {
-      expiresIn: REFRESH_TOKEN_EXPIRATION,
-    });
+    throw new Error("Session expired. Please log in again.");
 
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+    // // Generate a new refresh token
+    // const refreshToken = jwt.sign({ id: user_id }, serect || "", {
+    //   expiresIn: REFRESH_TOKEN_EXPIRATION,
+    // });
 
-    await Client.refresh_token.upsert({
-      where: { userId: user_id },
-      update: { token: refreshToken, expiresAt },
-      create: { userId: user_id, token: refreshToken, expiresAt },
-    });
+    // const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
 
-    return { accessToken, refreshToken };
+    // await Client.refresh_token.upsert({
+    //   where: { userId: user_id },
+    //   update: { token: refreshToken, expiresAt },
+    //   create: { userId: user_id, token: refreshToken, expiresAt },
+    // });
+
+    // return { accessToken, refreshToken };
   } catch (error) {
     console.error(error);
     throw new Error("Failed to generate tokens");
@@ -92,20 +93,22 @@ export const generateTokensAdmin = async (user_id: any) => {
       }
     }
 
+    throw new Error("Session expired. Please log in again.");
+
     // Generate a new refresh token
-    const refreshToken = jwt.sign({ id: user_id }, admin_serect || "", {
-      expiresIn: REFRESH_TOKEN_EXPIRATION,
-    });
+    // const refreshToken = jwt.sign({ id: user_id }, admin_serect || "", {
+    //   expiresIn: REFRESH_TOKEN_EXPIRATION,
+    // });
 
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+    // const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
 
-    await Client.refresh_token_admin.upsert({
-      where: { adminId: user_id },
-      update: { token: refreshToken, expiresAt },
-      create: { adminId: user_id, token: refreshToken, expiresAt },
-    });
+    // await Client.refresh_token_admin.upsert({
+    //   where: { adminId: user_id },
+    //   update: { token: refreshToken, expiresAt },
+    //   create: { adminId: user_id, token: refreshToken, expiresAt },
+    // });
 
-    return { accessToken, refreshToken };
+    // return { accessToken, refreshToken };
   } catch (error) {
     console.error(error);
     throw new Error("Failed to generate tokens");
@@ -145,22 +148,24 @@ export const generateTokensSeller = async (user_id: any) => {
       }
     }
 
+    throw new Error("Session expired. Please log in again.");
+
     // Generate a new refresh token
-    const refreshToken = jwt.sign({ id: user_id }, seller_serect || "", {
-      expiresIn: REFRESH_TOKEN_EXPIRATION,
-    });
+    // const refreshToken = jwt.sign({ id: user_id }, seller_serect || "", {
+    //   expiresIn: REFRESH_TOKEN_EXPIRATION,
+    // });
 
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+    // const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
 
-    await Client.refresh_token_seller.upsert({
-      where: { sellerId: user_id },
-      update: { token: refreshToken, expiresAt },
-      create: { sellerId: user_id, token: refreshToken, expiresAt },
-    });
+    // await Client.refresh_token_seller.upsert({
+    //   where: { sellerId: user_id },
+    //   update: { token: refreshToken, expiresAt },
+    //   create: { sellerId: user_id, token: refreshToken, expiresAt },
+    // });
 
-    // console.log("Access token",accessToken)
+    // // console.log("Access token",accessToken)
 
-    return accessToken;
+    // return accessToken;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to generate tokens");

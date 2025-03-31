@@ -1,9 +1,11 @@
-import { Menu, Search, LucideIcon } from "lucide-react";
+import { Menu, Search, LucideIcon, User } from "lucide-react";
 import { useRef, useState } from "react";
 import DropdownMenu from "./DropdownMenu";
 
 import { menuDropdowns } from "../data/SellerMenu";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { backend_url } from "../../config";
 
 interface IconNameType {
   [key: string]: LucideIcon;
@@ -29,6 +31,8 @@ export default function Navbar({
   const [activeMenu, setActiveMenu] = useState("");
   const [dropdownPosition, setDropdownPosition] = useState({ left: 0, top: 0 });
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [account, setaccount] = useState(false);
+  const [ProfileDropdownVisible, setProfileDropdownVisible] = useState(false);
   const navRef = useRef(null);
 
   const navigate = useNavigate();
@@ -56,6 +60,40 @@ export default function Navbar({
     return;
   };
 
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter1 = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current); // Cancel any pending close
+    setaccount(true);
+  };
+
+  const handleMouseLeave1 = () => {
+    timeoutRef.current = setTimeout(() => {
+      setaccount(false);
+    }, 500); // Delay closing by 500ms
+  };
+
+  const handlelogout = async () => {
+    await axios
+      .get(`${backend_url}seller/logoutSeller`,{
+        withCredentials: true
+      })
+      .then((response) => {
+        console.log("The responsive",response);
+        localStorage.removeItem("authorization"); // Clear token
+        navigate("/");
+      })
+      .catch((error) => {
+        if (error.response) {
+          if (error.response.status == 401) {
+            console.warn("Session expired. Redirecting to login.");
+            localStorage.removeItem("authorization"); // Clear token
+            navigate("/");
+          }
+        }
+      });
+  };
+
   return (
     <nav ref={navRef} className="relative bg-white shadow-md w-full">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -63,19 +101,23 @@ export default function Navbar({
         <div className="flex items-center justify-between w-full gap-4 flex-wrap md:flex-nowrap">
           {/* Logo */}
           <div className="flex flex-row items-center  pb-2">
-            <img src={path} alt="" className="w-[3.5rem] h-[3.5rem] object-cover" />
+            <img
+              src={path}
+              alt=""
+              className="w-[3.5rem] h-[3.5rem] object-cover"
+            />
             <div className="text-center leading-tight flex flex-col items-start pl-2">
               <div className="font-medium text-gray-500">PARTNER</div>
               <div className="font-medium text-gray-500">PORTAL</div>
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-6 flex-shrink h-20">
+          <div className="hidden md:flex items-center gap-6 flex-shrink h-20 overflow-hidden">
             {menus.map((item) => (
               <div className="h-full flex">
                 <a
                   key={item}
-                  className="relative text-gray-500 hover:text-blue-900 group font-medium flex items-center cursor-pointer"
+                  className="relative text-gray-500  hover:text-blue-900 group font-medium flex items-center cursor-pointer"
                   onMouseEnter={(e) => handleMouseEnter(e, item)}
                   onMouseLeave={handleMouseLeave}
                   onClick={() => handleMenuClick(item)}
@@ -117,44 +159,84 @@ export default function Navbar({
                   {Iconslabel && key}
                 </a>
               ))}
-          </div>
+            {/* Wrapper div that includes both User icon and Dropdown */}
+            <div
+              className="relative z-30"
+              onClick={() => setaccount(true)}
+              onMouseEnter={handleMouseEnter1} // Keep dropdown open when hovering
+              onMouseLeave={handleMouseLeave1} // Delay close when leaving
+            >
+              <User
+                size={24}
+                className="text-gray-700 hover:text-blue-900 cursor-pointer"
+              />
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-gray-700"
-            onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            <Menu size={24} />
-          </button>
-        </div>
-
-        {/* Mobile Menu (Appears when toggled) */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-white p-3 border-t">
-            <div className="flex flex-col gap-3">
-              {menus.map((item) => (
-                <a
-                  key={item}
-                  href="#"
-                  className="text-gray-700 hover:text-red-500"
-                >
-                  {item}
-                </a>
-              ))}
-              <hr />
-              {IconName &&
-                Object.entries(IconName).map(([key, Icons]) => (
-                  <a
-                    key={key}
-                    href="#"
-                    className="text-gray-700 hover:text-red-500 flex items-center gap-1"
+              {account && (
+                <div className="absolute right-0 mt-1 w-48 bg-white shadow-lg rounded-md border transition-all duration-500 delay-100 border-gray-200">
+                  <div className="p-2 font-bold text-gray-800 border-b">
+                    My Account
+                  </div>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      navigate("/accountDetails");
+                      setaccount(false);
+                    }}
                   >
-                    <Icons size={IconSizes?.[key] || 20} /> {Iconslabel && key}
-                  </a>
-                ))}
+                    Account Details
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      navigate("/manage-shop");
+                      setaccount(false);
+                    }}
+                  >
+                    Manage Shop
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 hover:text-red-500 cursor-pointer"
+                    onClick={() => {
+                      handlelogout();
+                      setaccount(false);
+                    }}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-        )}
+
+          {/* Mobile Menu (Appears when toggled) */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden bg-white p-3 border-t">
+              <div className="flex flex-col gap-3">
+                {menus.map((item) => (
+                  <a
+                    key={item}
+                    href="#"
+                    className="text-gray-700 hover:text-red-500"
+                  >
+                    {item}
+                  </a>
+                ))}
+                <hr />
+                {IconName &&
+                  Object.entries(IconName).map(([key, Icons]) => (
+                    <a
+                      key={key}
+                      href="#"
+                      className="text-gray-700 hover:text-red-500 flex items-center gap-1"
+                    >
+                      <Icons size={IconSizes?.[key] || 20} />{" "}
+                      {Iconslabel && key}
+                    </a>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <DropdownMenu

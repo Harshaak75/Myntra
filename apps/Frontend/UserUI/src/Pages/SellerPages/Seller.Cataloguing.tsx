@@ -1,9 +1,12 @@
 import { Store, BookText, ShieldQuestion, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { backend_url, upload_token_temp } from "../../config";
+import { backend_url, upload_token_temp } from "../../../config";
+import { useNavigate } from "react-router-dom";
 
 export default function SellerCatalog() {
+  const navigate = useNavigate();
+
   const [isOpen, setIsOpen] = useState(false);
   const [addProduct, setaddProduct] = useState(false);
   const [selectedItem, setSelectedItem] = useState("");
@@ -20,16 +23,16 @@ export default function SellerCatalog() {
   async function downloadExcel(category: string) {
     if (!category) return;
     setloading(true);
-    console.log(backend_url)
+    console.log(backend_url);
     try {
-      
       await axios
         .post(
-          `${backend_url}/seller/download_excel`,
+          `${backend_url}seller/download_excel`,
           { category: category },
           {
             headers: {
               "Content-Type": "application/json",
+              authorization: `Bearer ${localStorage.getItem("authorization")}`,
             },
             withCredentials: true,
             responseType: "blob",
@@ -50,13 +53,22 @@ export default function SellerCatalog() {
 
           window.URL.revokeObjectURL(url);
         })
-        .catch((error) => console.error("Error downloading Excel:", error));
+        .catch((error) => {
+          if (error.response) {
+            if (error.response.status == 401) {
+              console.warn("Session expired. Redirecting to login.");
+              localStorage.removeItem("authorization"); // Clear token
+              navigate("/");
+            }
+          } else {
+            console.error("Error downloading data:", error);
+          }
+        });
     } catch (error) {
       console.error("Error fetching data:", error);
-    }
-    finally {
+    } finally {
       setSelectedItem("");
-      setloading(false)
+      setloading(false);
     }
   }
 
@@ -82,15 +94,30 @@ export default function SellerCatalog() {
 
     try {
       setloading(true);
-      await axios.post(`${backend_url}seller/upload_documents`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          authorization: upload_token_temp,
-        },
-      });
-      console.log("File uploaded successfully");
-      alert("File uploaded successfully!");
-      setselectfile(null);
+      await axios
+        .post(`${backend_url}seller/upload_documents`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            authorization: `Bearer ${localStorage.getItem("authorization")}`,
+          },
+          withCredentials: true,
+        })
+        .then(() => {
+          console.log("File uploaded successfully");
+          alert("File uploaded successfully!");
+          setselectfile(null);
+        })
+        .catch((error) => {
+          if (error.response) {
+            if (error.response.status == 401) {
+              console.warn("Session expired. Redirecting to login.");
+              localStorage.removeItem("authorization"); // Clear token
+              navigate("/");
+            }
+          } else {
+            console.error("Error uploading file:", error);
+          }
+        });
     } catch (error) {
       console.error("Error uploading file:", error);
     }

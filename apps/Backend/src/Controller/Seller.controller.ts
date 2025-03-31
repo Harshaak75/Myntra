@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, response, Response } from "express";
 import { body, validationResult } from "express-validator";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
@@ -12,6 +12,8 @@ import {
   // add_product,
   Create_Seller_account,
   editProduct,
+  editSellerData,
+  editSellerShopData,
 } from "../Services/seller.services";
 import { generateTokensSeller } from "../utils/tokenUtils";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -22,9 +24,14 @@ import { categoryTemplate } from "../utils/columnNames";
 import supabase from "../utils/supabase.connect";
 import multer from "multer";
 
+import { Decimal } from "@prisma/client/runtime/library"; // Import Decimal
+
 const upload = multer({ storage: multer.memoryStorage() });
 
 const Client = new PrismaClient();
+
+const ACCESS_TOKEN_EXPIRATION = "5m"; // 5 minutes
+const REFRESH_TOKEN_EXPIRATION = "1d"; // 1 day
 
 export const register_seller = async (
   req: Request,
@@ -59,12 +66,12 @@ export const register_seller = async (
 
     res.cookie("sell_access_token", seller_account, {
       httpOnly: true,
-      sameSite: "none",
       secure: secure_cookie === "Production",
+      path: "/",
       maxAge: 5 * 60 * 1000,
     });
 
-    // console.log("token in controller: ",seller_account);
+    console.log("token in controller: ", seller_account);
 
     res.status(200).json({
       message: "the seller account was created",
@@ -94,7 +101,7 @@ export const login_seller = async (
     });
 
     if (!existing_seller)
-      return res.status(400).json({ message: "Seller does not exist" });
+      return res.status(421).json({ message: "Seller does not exist" });
 
     bcrypt.compare(
       seller_data.password,
@@ -104,23 +111,51 @@ export const login_seller = async (
           return res.status(400).json({ message: "Invalid credentials" });
 
         if (result) {
-          const seller_account = await generateTokensSeller(existing_seller.id);
+          // const seller_account = await generateTokensSeller(existing_seller.id);
+
+          const accessToken = jwt.sign(
+            { id: existing_seller.id },
+            seller_serect || "",
+            {
+              expiresIn: ACCESS_TOKEN_EXPIRATION,
+            }
+          );
+
+          const refreshToken = jwt.sign(
+            { id: existing_seller.id },
+            seller_serect || "",
+            {
+              expiresIn: REFRESH_TOKEN_EXPIRATION,
+            }
+          );
+
+          const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+
+          await Client.refresh_token_seller.upsert({
+            where: { sellerId: existing_seller.id },
+            update: { token: refreshToken, expiresAt },
+            create: {
+              sellerId: existing_seller.id,
+              token: refreshToken,
+              expiresAt,
+            },
+          });
 
           // console.log("seller_contoller: ",seller_account)
 
-          res.cookie("sell_access_token", seller_account, {
+          res.cookie("sell_access_token", accessToken, {
             httpOnly: true,
-            sameSite: "none",
+            path:"/",
             secure: secure_cookie === "Production",
             maxAge: 5 * 60 * 1000,
           });
 
           res.status(200).json({
             message: "Seller logged in successfully",
-            sellerToken: seller_account,
+            sellerToken: accessToken,
           });
         } else {
-          return res.status(400).json({ message: "Invalid credentials" });
+          return res.status(422).json({ message: "Invalid credentials" });
         }
       }
     );
@@ -352,7 +387,7 @@ export const Upload_Documats = async (
         const pro = Client.product.create({
           data: {
             name: row.productDisplayName,
-            price: Number(row.MRP),
+            price: new Decimal(row.MRP),
             sellerId: Number(req.seller_id),
           },
         });
@@ -383,5 +418,155 @@ export const Upload_Documats = async (
     return res.status(200).json({ message: "File uploaded successfully" });
   } catch (error) {
     return res.status(500).json({ message: "Error uploading file", error });
+  }
+};
+
+export const logoutSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  const sellers_id = Number(req.seller_id);
+
+  console.log("sellerid", sellers_id);
+
+  
+
+  try {
+    const user_details = await Client.refresh_token_seller.delete({
+      where: { sellerId: sellers_id },
+    });
+
+    console.log(user_details)
+
+    // const user_refresh_token = user_details?.token;
+
+    const token = req.cookies.sell_access_token || req.headers["authorization"]?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const data = await Client.blacklist_token.create({
+      data: {
+        token: token || "",
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day from now
+      },
+    });
+
+    console.log("data list", data);
+
+    res.clearCookie("sell_access_token");
+    res.clearCookie("refresh_token_seller");
+
+    res.status(200).json({ message: "The user is logged out." });
+  } catch (error: any) {
+    res.status(400).json({ message: "Error in logout: ", error: error });
+  }
+};
+
+export const checkSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  try {
+    // const seller_id = req.seller_id;
+
+    const token = req.cookies.sell_access_token;
+
+    if (token)
+      return res
+        .status(200)
+        .json({ message: "seller is authenticated", token: token });
+    else
+      return res.status(401).json({ message: "seller is not authenticated" });
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Error in checking seller: ", error: error });
+  }
+};
+
+
+export const getEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> =>{
+  try {
+    const seller_id = Number(req.seller_id);
+
+    const seller_details = await Client.seller.findUnique({
+      where: { id: seller_id },
+    });
+
+    return res.status(200).json({responone: seller_details})
+  } catch (error) {
+    return res.status(400).json({"message": "Error in getting seller email: ", error: error})
+  }
+}
+
+
+export const updateSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const seller_data = req.body;
+
+    const seller_id = req.seller_id;
+
+    console.log("seller id", seller_id)
+
+    if (!seller_id) {
+      return res.status(400).json({ message: "Product id is required" });
+    }
+
+    const product = await editSellerData(seller_data, seller_id);
+    res
+      .status(200)
+      .json({ message: "The product was updated successfully", product });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating product" });
+  }
+};
+
+
+export const updateSellerShopDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const seller_data = req.body;
+
+    const seller_id = req.seller_id;
+
+    console.log("seller id", seller_id)
+
+    if (!seller_id) {
+      return res.status(400).json({ message: "Product id is required" });
+    }
+
+    const product = await editSellerShopData(seller_data, seller_id);
+    res
+      .status(200)
+      .json({ message: "The product was updated successfully", product });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating product" });
   }
 };
