@@ -21,6 +21,7 @@ interface FormData {
 
 export default function SellerForm() {
   const email = localStorage.getItem("email");
+  const [loading, setloading] = useState(false);
 
   const {
     register,
@@ -29,14 +30,20 @@ export default function SellerForm() {
   } = useForm<FormData>();
 
   const onSubmit = async (data: FormData) => {
+    setloading(true);
+    console.log("loading form data")
     try {
       const response = await axios.post(`${backend_url}seller/updateSeller`, data,{
         headers: { Authorization: `Bearer ${localStorage.getItem("authorization")}` },
         withCredentials: true
       });
       console.log(response.data);
+      alert("The data was successfully uploaded.")
     } catch (error: any) {
       console.error(error.message);
+    }
+    finally{
+      setloading(false);
     }
   };
 
@@ -149,9 +156,9 @@ export default function SellerForm() {
             <Button
               type="submit"
               style={{ backgroundColor: "#FF3F6C" }}
-              className="w-full cursor-pointer rounded-lg py-2 text-md font-semibold transition shadow-md"
+              className={`w-full rounded-lg py-2 text-md font-semibold transition shadow-md ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}
             >
-              SUBMIT
+              {loading ? "Uploading..." : "SUBMIT"}
             </Button>
           </form>
         </div>

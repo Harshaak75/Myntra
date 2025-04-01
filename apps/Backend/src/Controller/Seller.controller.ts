@@ -77,6 +77,7 @@ export const register_seller = async (
       secure: secure_cookie === "Production",
       path: "/",
       maxAge: 5 * 60 * 1000,
+      sameSite: secure_cookie == "Production" ? "none" : "lax"
     });
 
     console.log("token in controller: ", seller_account);
@@ -101,15 +102,25 @@ export const login_seller = async (
     return res.status(400).json({ errors: errors.array() });
   }
 
+  console.log("done")
+
   try {
     const seller_data = req.body;
 
-    const existing_seller = await Client.seller.findUnique({
+    console.log("done0", seller_data.email)
+
+    const existing_seller = await Client.seller.findFirst({
       where: { email: seller_data.email },
     });
 
+    console.log("done1")
+
     if (!existing_seller)
       return res.status(421).json({ message: "Seller does not exist" });
+
+
+    console.log("done2")
+
 
     bcrypt.compare(
       seller_data.password,
@@ -139,6 +150,8 @@ export const login_seller = async (
 
           const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
 
+          console.log("done3")
+
           await Client.refresh_token_seller.upsert({
             where: { sellerId: existing_seller.id },
             update: { token: refreshToken, expiresAt },
@@ -156,6 +169,7 @@ export const login_seller = async (
             path:"/",
             secure: secure_cookie === "Production",
             maxAge: 5 * 60 * 1000,
+            sameSite: secure_cookie == "Production" ? "none" : "lax"
           });
 
           res.status(200).json({

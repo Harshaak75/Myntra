@@ -63,6 +63,7 @@ export const authenticate_Seller = async (
             secure: secure_cookie == "Production",
             path: "/",
             maxAge: 15 * 60 * 1000,
+            sameSite: secure_cookie == "Production" ? "none" : "lax"
           });
           req.seller_id = seller_id;
           next();

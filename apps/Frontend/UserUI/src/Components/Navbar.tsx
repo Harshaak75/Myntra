@@ -81,6 +81,7 @@ export default function Navbar({
       .then((response) => {
         console.log("The responsive",response);
         localStorage.removeItem("authorization"); // Clear token
+        localStorage.removeItem("email"); // Clear email
         navigate("/");
       })
       .catch((error) => {
@@ -88,6 +89,7 @@ export default function Navbar({
           if (error.response.status == 401) {
             console.warn("Session expired. Redirecting to login.");
             localStorage.removeItem("authorization"); // Clear token
+            localStorage.removeItem("email"); // Clear email
             navigate("/");
           }
         }
