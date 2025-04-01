@@ -50,13 +50,13 @@ export const register_seller = async (
 
     console.log(new_seller_data.email)
 
-    // const existing_seller = await Client.seller.findFirst({
-    //   where: { email: new_seller_data.email },
-    // });
+    const existing_seller = await Client.seller.findFirst({
+      where: { email: new_seller_data.email },
+    });
 
     console.log("done2")
 
-    // if (existing_seller) return res.status(400).json({ message: "Seller already exists" });
+    if (existing_seller) return res.status(400).json({ message: "Seller already exists" });
 
     const hashedPassword = await bcrypt.hash(
       new_seller_data.password,
