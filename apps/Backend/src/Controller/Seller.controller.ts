@@ -169,7 +169,8 @@ export const login_seller = async (
             path:"/",
             secure: secure_cookie === "Production",
             maxAge: 5 * 60 * 1000,
-            sameSite: secure_cookie == "Production" ? "none" : "lax"
+            sameSite: secure_cookie == "Production" ? "none" : "lax",
+            
           });
 
           res.status(200).json({

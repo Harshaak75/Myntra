@@ -4,9 +4,11 @@ import GridSellerDashboard from "./Components/GridSellerDashboard";
 import SellerCatalog from "./Pages/SellerPages/Seller.Cataloguing.js";
 import { SellerSignin } from "./Pages/SellerPages/Seller.Signin.js";
 import Layout from "./Components/Layout.jsx";
-import SellerForm from "./Pages/SellerPages/Seller.AccountDetails"
+import SellerForm from "./Pages/SellerPages/Seller.AccountDetails";
 import SellerDeatils from "./Pages/SellerPages/Seller.ShopDetails.js";
 import { SellerLogin } from "./Pages/SellerPages/Seller.Login.js";
+import { NavbarUser } from "./UserComponents/NavbarUser.js";
+import { UserDashboard } from "./Pages/UsersPage/UserDashboard.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -35,10 +37,13 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/seller/dashboard" element={<GridSellerDashboard />} />
             <Route path="/seller/cataloguing" element={<SellerCatalog />} />
-            <Route path="/accountDetails" element={<SellerForm/>} />
-            <Route path="/manage-shop" element={<SellerDeatils/>} />
+            <Route path="/accountDetails" element={<SellerForm />} />
+            <Route path="/manage-shop" element={<SellerDeatils />} />
           </Route>
-          
+
+          {/* ✅ Routes with User*/}
+
+          <Route path="/user/navbar" element={<UserDashboard />} />
         </Routes>
       </Router>
     </div>
