@@ -44,6 +44,12 @@ app.get("/", (req, res) => {
   res.send("Hello from Express Backend!");
 });
 
+// hitting the server to avoid cold start
+
+app.get("/ping", (req,res) =>{
+  res.status(200).json({message:"Pong"})
+})
+
 app.use("/userAuth", auth);
 app.use("/user",userRouter);
 
