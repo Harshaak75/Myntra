@@ -1,0 +1,38 @@
+import axios from "axios";
+// const backend_url = "http://localhost:5000"; // Adjust based on your backend URL
+import {backend_url}  from "../../config";
+
+export const getValidToken = async (): Promise<string | null> => {
+  let token = localStorage.getItem("authorization");
+  console.log("Token from localStorage:", token); // Debugging line
+
+  if (!token) {
+    console.error("No token found in localStorage.");
+    return null;
+  }
+
+  try {
+    const response = await axios.get(`${backend_url}userAuth/validate-token`, {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Cache-Control": "no-cache", // Prevent caching
+      },
+      withCredentials: true,
+    });
+
+    // Check for the new token in the response header
+    const newToken = response.headers["x-new-access-token"];
+    console.log("New token",newToken)
+    if (newToken) {
+      localStorage.setItem("authorization", newToken); // Store the new token in localStorage
+      return newToken;
+    }
+
+    // If token is still valid
+    return token;
+
+  } catch (err) {
+    console.error("Error in validating token:", err);
+    return null;
+  }
+};

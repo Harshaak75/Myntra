@@ -9,13 +9,14 @@ import {
   seller_serect,
 } from "../config";
 import {
+  attachpicklist,
   // add_product,
   Create_Seller_account,
+  createPicklist,
   editProduct,
   editSellerData,
   editSellerShopData,
 } from "../Services/seller.services";
-import { generateTokensSeller } from "../utils/tokenUtils";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 import ExcelJs from "exceljs";
@@ -25,6 +26,13 @@ import supabase from "../utils/supabase.connect";
 import multer from "multer";
 
 import { Decimal } from "@prisma/client/runtime/library"; // Import Decimal
+import { generateCompactPicklistCode } from "../utils/ConvertToSafeBase";
+import {
+  generateBrandCode,
+  generateCustomCode,
+  generateNumericPacketCodes,
+} from "../utils/GenerateBrandCode";
+import { generateBarcode, generatePdf } from "../utils/generatePdf";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -43,41 +51,42 @@ export const register_seller = async (
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  console.log("done1")
+  console.log("done1");
 
   try {
     const new_seller_data = req.body;
 
-    console.log(new_seller_data.email)
+    console.log(new_seller_data.email);
 
     const existing_seller = await Client.seller.findFirst({
       where: { email: new_seller_data.email },
     });
 
-    console.log("done2")
+    console.log("done2");
 
-    if (existing_seller) return res.status(400).json({ message: "Seller already exists" });
+    if (existing_seller)
+      return res.status(400).json({ message: "Seller already exists" });
 
     const hashedPassword = await bcrypt.hash(
       new_seller_data.password,
       Number(salt_rounds)
     );
 
-    console.log("done3")
+    console.log("done3");
 
     const seller_account = await Create_Seller_account(
       new_seller_data,
       hashedPassword
     );
 
-    console.log("done7")
+    console.log("done7");
 
     res.cookie("sell_access_token", seller_account, {
       httpOnly: true,
       secure: secure_cookie === "Production",
       path: "/",
       maxAge: 5 * 60 * 1000,
-      sameSite: secure_cookie == "Production" ? "none" : "lax"
+      sameSite: secure_cookie == "Production" ? "none" : "lax",
     });
 
     console.log("token in controller: ", seller_account);
@@ -102,25 +111,30 @@ export const login_seller = async (
     return res.status(400).json({ errors: errors.array() });
   }
 
-  console.log("done")
+  console.log("done");
 
   try {
     const seller_data = req.body;
 
-    console.log("done0", seller_data.email)
+    console.log("done0", seller_data.email);
 
-    const existing_seller = await Client.seller.findFirst({
-      where: { email: seller_data.email },
-    });
+    let existing_seller;
 
-    console.log("done1")
+    try {
+      existing_seller = await Client.seller.findFirst({
+        where: { email: seller_data.email },
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
-    if (!existing_seller)
+    console.log("done1");
+
+    if (!existing_seller) {
       return res.status(421).json({ message: "Seller does not exist" });
+    }
 
-
-    console.log("done2")
-
+    console.log("done2");
 
     bcrypt.compare(
       seller_data.password,
@@ -133,7 +147,11 @@ export const login_seller = async (
           // const seller_account = await generateTokensSeller(existing_seller.id);
 
           const accessToken = jwt.sign(
-            { id: existing_seller.id },
+            {
+              id: existing_seller.id,
+              role: "authenticated",
+              aud: "authenticated",
+            },
             seller_serect || "",
             {
               expiresIn: ACCESS_TOKEN_EXPIRATION,
@@ -150,7 +168,7 @@ export const login_seller = async (
 
           const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
 
-          console.log("done3")
+          console.log("done3");
 
           await Client.refresh_token_seller.upsert({
             where: { sellerId: existing_seller.id },
@@ -166,11 +184,10 @@ export const login_seller = async (
 
           res.cookie("sell_access_token", accessToken, {
             httpOnly: true,
-            path:"/",
+            path: "/",
             secure: secure_cookie === "Production",
             maxAge: 5 * 60 * 1000,
             sameSite: secure_cookie == "Production" ? "none" : "lax",
-            
           });
 
           res.status(200).json({
@@ -305,6 +322,7 @@ export const downloadExcel = async (
     const { category } = req.body;
 
     // sheet1 instruction
+    console.log("cat", category);
 
     const instructionSheet = workbook.addWorksheet("__Instruction");
     instructionSheet.addRow(["Instructions for using this template:"]);
@@ -335,11 +353,11 @@ export const downloadExcel = async (
         `attachment; filename="${category}-template.xlsx"`
       );
 
+      console.log(`Excel template for ${category} generated successfully!`);
+
       // Write workbook to buffer & send response
       const buffer = await workbook.xlsx.writeBuffer();
       res.send(Buffer.from(buffer));
-
-      console.log(`Excel template for ${category} generated successfully!`);
     } else {
       return res.status(400).json({ message: "Invalid category selected!" });
     }
@@ -364,72 +382,97 @@ export const Upload_Documats = async (
       return res.status(400).json({ message: "Bucket name is required" });
     }
 
+    console.log("1111");
+
     const { data, error } = await supabase.storage
       .from(bucket_name)
       .upload(file_name, req.file.buffer, { contentType: req.file.mimetype });
 
-    if (error)
+    if (error) {
       return res
         .status(500)
         .json({ message: "Error uploading file", error: error });
+    }
 
     //Create workbook and store in database
+
+    const filename = req.file.originalname;
+    const category = filename.split("-")[0].toUpperCase();
+    console.log("category", category);
 
     const workbook = new ExcelJs.Workbook();
     await workbook.xlsx.load(req.file.buffer);
 
     const worksheet = workbook.worksheets[1];
 
-    const header: any = [];
-    worksheet.getRow(3).eachCell((cell) => header.push(cell.value));
+    const headerRowIndex = 1;
+
+    const header: string[] = [];
+    worksheet.getRow(headerRowIndex).eachCell((cell) => {
+      header.push(String(cell.value).trim());
+    });
 
     // console.log(header)
 
     const rows: any = [];
 
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber == 1 || rowNumber == 2 || rowNumber == 3) return;
+      // console.log(row);
+      if (rowNumber == headerRowIndex) return;
       const product: any = {};
       row.eachCell((cell, colnumber) => {
-        product[header[colnumber - 1]] = cell.value;
+        const key = header[colnumber - 1];
+        if (key) {
+          product[key] = cell.value;
+        }
       });
       rows.push(product);
     });
 
-    console.log(rows);
+    // console.log(rows);
 
     // add the name and price to the product table
 
-    const productInfo = await Promise.all(
-      rows.map((row: any) => {
-        if (!row.MRP || !row.productDisplayName) {
-          // ❗ Validate required fields
-          console.error("Missing required fields:", row);
-          return null; // Skip this row if data is invalid
+    for (const row of rows) {
+      if (!row.MRP || !row.brand) {
+        console.error("Missing required fields:", row);
+        continue;
+      }
+
+      // product code generation
+
+      const brandCode: any = await generateBrandCode(row.brand);
+      console.log(brandCode);
+      const CleanedCategory = category.replace(/[^a-zA-Z]/g, "");
+      const categoryCode = CleanedCategory.slice(0, 3).toUpperCase();
+      console.log(categoryCode);
+      const uniqueCode = generateCustomCode();
+      const productSKU = `${brandCode}${categoryCode}${uniqueCode}`;
+      console.log("productSKU", productSKU);
+
+      const pro = await Client.product.create({
+        data: {
+          name: `${row.brand}`,
+          price: new Decimal(row.MRP),
+          sellerId: Number(req.seller_id),
+          productSku: productSKU,
+          sellerSku: row.vendorSkuCode ? row.vendorSkuCode : productSKU,
+          productType: filename.split("-")[0],
+        },
+      });
+
+      for (const [key, value] of Object.entries(row)) {
+        if (!["MRP", "brand", "styleId"].includes(key)) {
+          await Client.productAttribute.create({
+            data: {
+              attributename: key,
+              attributevalue: String(value),
+              productId: pro.id,
+            },
+          });
         }
-        const pro = Client.product.create({
-          data: {
-            name: row.productDisplayName,
-            price: new Decimal(row.MRP),
-            sellerId: Number(req.seller_id),
-          },
-        });
-
-        // create productattribute
-
-        Object.entries(row).map(async ([keys, values]) => {
-          if (!["productDisplayName", "MRP"].includes(keys)) {
-            await Client.productAttribute.create({
-              data: {
-                attributename: keys,
-                attributevalue: String(values),
-                productId: (await pro).id,
-              },
-            });
-          }
-        });
-      })
-    );
+      }
+    }
 
     await Client.sellerDocuments.create({
       data: {
@@ -453,18 +496,18 @@ export const logoutSeller = async (
 
   console.log("sellerid", sellers_id);
 
-  
-
   try {
     const user_details = await Client.refresh_token_seller.delete({
       where: { sellerId: sellers_id },
     });
 
-    console.log(user_details)
+    console.log(user_details);
 
     // const user_refresh_token = user_details?.token;
 
-    const token = req.cookies.sell_access_token || req.headers["authorization"]?.split(" ")[1];
+    const token =
+      req.cookies.sell_access_token ||
+      req.headers["authorization"]?.split(" ")[1];
 
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -511,12 +554,11 @@ export const checkSeller = async (
   }
 };
 
-
 export const getEmail = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<any> =>{
+): Promise<any> => {
   try {
     const seller_id = Number(req.seller_id);
 
@@ -524,12 +566,13 @@ export const getEmail = async (
       where: { id: seller_id },
     });
 
-    return res.status(200).json({responone: seller_details})
+    return res.status(200).json({ responone: seller_details });
   } catch (error) {
-    return res.status(400).json({"message": "Error in getting seller email: ", error: error})
+    return res
+      .status(400)
+      .json({ message: "Error in getting seller email: ", error: error });
   }
-}
-
+};
 
 export const updateSeller = async (
   req: Request,
@@ -547,7 +590,7 @@ export const updateSeller = async (
 
     const seller_id = req.seller_id;
 
-    console.log("seller id", seller_id)
+    console.log("seller id", seller_id);
 
     if (!seller_id) {
       return res.status(400).json({ message: "Product id is required" });
@@ -561,7 +604,6 @@ export const updateSeller = async (
     res.status(500).json({ message: "Error updating product" });
   }
 };
-
 
 export const updateSellerShopDetails = async (
   req: Request,
@@ -579,7 +621,7 @@ export const updateSellerShopDetails = async (
 
     const seller_id = req.seller_id;
 
-    console.log("seller id", seller_id)
+    console.log("seller id", seller_id);
 
     if (!seller_id) {
       return res.status(400).json({ message: "Product id is required" });
@@ -593,3 +635,359 @@ export const updateSellerShopDetails = async (
     res.status(500).json({ message: "Error updating product" });
   }
 };
+
+// generate picklist
+
+export const GeneratePicklist = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  try {
+    // generate unique picklist code
+
+    if (!req.seller_id) {
+      return res.status(401).json({ message: "seller id required" });
+    }
+
+    const picklist_id = generateCompactPicklistCode(req.seller_id);
+
+    console.log("hi", req.body.OrderIds);
+
+    // add the picklist code to the database
+    const picklistCode = await createPicklist(picklist_id, req.seller_id);
+
+    // relate the orders to picklist
+
+    const picklist = await attachpicklist(picklistCode.id, req.body.OrderIds);
+
+    // fetch the orders data
+
+    const orders_data = await Client.order.findMany({
+      where: { id: { in: req.body.OrderIds } },
+      include: { product: true },
+    });
+
+    // picklistitems
+
+    const picklistitems = orders_data.map((order) => {
+      return {
+        productName: order.product.name,
+        productSku: order.product.productSku,
+        sellerSku: order.product.sellerSku,
+        productQuantity: order.quantity,
+      };
+    });
+
+    console.log(picklistitems);
+
+    const barcode = await generateBarcode(picklistCode.code);
+
+    const picklistPDF = await generatePdf(
+      picklistitems,
+      picklistCode.code,
+      barcode
+    );
+
+    // update the order status
+
+    await Client.order.updateMany({
+      where: { id: { in: req.body.OrderIds } },
+      data: { status: "Pick Initiated" },
+    });
+
+    // 3. Send it as downloadable file
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="Picklist-${picklistCode.code}.pdf"`
+    );
+    return res.end(picklistPDF);
+  } catch (err: any) {
+    console.error("Error generating PDF:", err);
+    return res.status(500).json({ message: "Failed to generate PDF" });
+  }
+};
+
+export const getProductDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  try {
+    const order_id = req.body;
+    console.log(order_id);
+
+    if (!order_id) {
+      return res.status(400).json({ message: "Order id is required" });
+    }
+
+    const order_details = await Client.order.findUnique({
+      where: { orderCode: order_id.orderCode },
+      include: {
+        product: {
+          include: {
+            productAttribute: true,
+          },
+        },
+      },
+    });
+
+    // console.log(order_details)
+    // console.log(order_details?.product.productSku)
+    // console.log(order_details?.product.productAttribute.find(attr => attr.attributename == "size"))
+
+    // important note we are dont have extra order table to store the order detils, For now we will only go for single product, in comming days we will add multiple orders
+
+    if (order_details) {
+      const product_data = {
+        [order_details.orderCode]: {
+          title: order_details.product.name,
+          subTitle: order_details.product.productAttribute.find(
+            (arr) => arr.attributename == "Product Title"
+          ),
+          sellerSKU: order_details.product.sellerSku,
+          productSKU: order_details.product.productSku,
+          articleType: order_details.product.productType,
+          size: order_details.selectedSize,
+          price: order_details.totalPrice,
+          colour: order_details.selectedColor,
+          Gender: order_details.product.productAttribute.find(
+            (arr) => arr.attributename == "Gender"
+          ),
+          quntity: order_details.quantity,
+          store: "Mynstars",
+          orderStatus: order_details.status,
+          onHoldOrder: "No",
+        },
+      };
+      res.status(200).json({ message: "Order details", product_data });
+    }
+
+    if (!order_details) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching order details", error });
+  }
+};
+
+export const getQuantity = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  const picklistId = req.query.picklistId;
+
+  if (!picklistId) {
+    return res.status(500).json({ message: "Picklist not fount" });
+  }
+
+  // console.log(picklistId)
+
+  const quantity = await Client.order.findMany({
+    where: {
+      picklistId: Number(picklistId),
+    },
+  });
+
+  const totalQuntity = quantity.reduce((acc, item) => acc + item.quantity, 0);
+  // console.log(totalQuntity)
+  return res.status(200).json({ message: "dont", quantity: totalQuntity });
+};
+
+export const getPicklistDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  try {
+    const picklisitCode = req.body.picklistId;
+
+    if (!picklisitCode) {
+      return res.status(400).json({ message: "Picklist ID is required" });
+    }
+
+    const picklistDetails = await Client.picklist.findUnique({
+      where: { code: picklisitCode },
+      include: { orders: { select: { id: true } } },
+    });
+
+    if (!picklistDetails) {
+      return res.status(404).json({ message: "Picklist not found" });
+    }
+
+    const OrderIds = picklistDetails?.orders.map((order) => order.id);
+    console.log(OrderIds);
+
+    res.status(200).json({ message: "Picklist details", OrderIds });
+  } catch (error: any) {
+    console.error("Error fetching picklist details:", error);
+    res.status(500).json({ message: "Failed to fetch picklist details" });
+  }
+};
+
+export const validateSKU = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  try {
+    const { sku, orderIds, picklistCode } = req.body;
+
+    if (!sku && !orderIds && !picklistCode) {
+      return res.status(401).json({ message: "SKU or Orderid not found" });
+    }
+
+    const existing = await Client.sellerPacket.findFirst({
+      where: { picklistCode: picklistCode },
+      select: { code: true },
+    });
+
+    let sellerPacketCode;
+
+    if (existing) {
+      sellerPacketCode = existing.code;
+    } else {
+      // create a seller packet ID if it is not present Otherwise take the generated sellectPacketId
+
+      sellerPacketCode = generateNumericPacketCodes();
+
+      // first get the id of picklist
+
+      const Picklistid = await Client.picklist.findUnique({
+        where: { code: picklistCode },
+        select: { id: true },
+      });
+      // create a sellectPacketId table
+
+      const sellectPacket = await Client.sellerPacket.create({
+        data: {
+          code: String(sellerPacketCode),
+          picklistCode: picklistCode,
+          picklistId: Number(Picklistid?.id),
+        },
+      });
+
+      // now add orders linked to it
+
+      const createData = orderIds.map((orderId: number) => ({
+        sellerPacketId: sellectPacket?.id,
+        orderId: Number(orderId),
+        sku: sku,
+      }));
+
+      const response = await Client.sellerPacketOrder.createMany({
+        data: createData,
+      });
+    }
+
+    console.log("sellerPacketCode", sellerPacketCode);
+
+    const response = await Client.order.findFirst({
+      where: {
+        id: { in: orderIds },
+        product: {
+          OR: [{ productSku: sku }, { sellerSku: sku }],
+        },
+      },
+      include: {
+        product: {
+          include: {
+            productAttribute: true,
+          },
+        },
+      },
+    });
+    console.log(response);
+
+    const productDetails = [];
+
+    if (response) {
+      const product = {
+        productName: response.product.name,
+        productSku: response.product.productSku,
+        sellerSku: response.product.sellerSku,
+        productQuantity: response.quantity,
+        size: response.selectedSize,
+        color: response.selectedColor,
+        price: response.totalPrice,
+        styleId: response.product.productAttribute.find(
+          (attr) => attr.attributename === "styleGroupId"
+        )?.attributevalue,
+        sellerPacketId: sellerPacketCode,
+      };
+      productDetails.push(product);
+    }
+
+    console.log("productDetails", productDetails);
+
+    res.status(200).json({message: "SKU validated successfully", productDetails });
+  } catch (error) {
+    console.error("Error validating SKU:", error);
+    res.status(500).json({ message: "Failed to validate SKU" });
+  }
+};
+
+
+export const addCoverId = async(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> =>{
+  try {
+    const {coverId, productSku, picklisitCode} = req.body;
+
+    if(!coverId || !productSku || !picklisitCode) {
+      return res.status(400).json({ message: "Cover ID and Product SKU are required" });
+    }
+
+    // get the theorder id from the order table
+
+    const ProductData = await Client.product.findUnique({
+      where: { productSku: productSku },
+      select: { id: true },
+    })
+
+    if(!ProductData) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // get picklist code
+
+    const picklistData = await Client.picklist.findUnique({
+      where: {code: picklisitCode},
+      select: {id: true}
+    })
+
+    if(!picklistData){
+      return res.status(404).json({message: "Picklist data not found"})
+    }
+
+    const orderData = await Client.order.findFirst({
+      where: {
+        productId: ProductData.id,
+        picklistId: picklistData.id,
+        coverId: null,
+      }
+    })
+
+    if(!orderData){
+      return res.status(404).json({message: "Order data not found"})
+    }
+
+    await Client.order.update({
+      where: {id: orderData.id},
+      data: {
+        coverId: coverId,
+        status: "Item Packed"
+      }
+    })
+
+    return res.status(200).json({message: "Cover id added succesfully"})
+
+  } catch (error) {
+    return res.status(500).json({message: "Error while adding the cover Id", error: error})
+  }
+}

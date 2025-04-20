@@ -172,7 +172,9 @@ export const verify_the_otp = async (
       return res.status(400).json({ error: "Session token is required." });
     }
 
+
     const email = await redis.get(`session:${sessionToken}`);
+
 
     if (!email) {
       return res
@@ -181,6 +183,7 @@ export const verify_the_otp = async (
     }
 
     const otpRecord = await Client.otpTable.findUnique({ where: { email } });
+
 
     if (!otpRecord || otpRecord.otp !== (otp as string)) {
       return res.status(400).json({ error: "Invalid OTP." });
@@ -192,11 +195,14 @@ export const verify_the_otp = async (
         .json({ error: "OTP expired. Please request a new one." });
     }
 
+
     await Client.otpTable.delete({ where: { email } });
+
 
     res.clearCookie("sessionToken");
 
     await redis.del(`otp:${sessionToken}`);
+
 
     const user = await Client.users.create({
       data: {
@@ -205,6 +211,7 @@ export const verify_the_otp = async (
     });
 
     const { accessToken }: any = await generateTokens(user?.id);
+
 
     res.cookie("access_token", accessToken, {
       httpOnly: true,

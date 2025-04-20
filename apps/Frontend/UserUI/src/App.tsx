@@ -9,6 +9,11 @@ import SellerDeatils from "./Pages/SellerPages/Seller.ShopDetails.js";
 import { SellerLogin } from "./Pages/SellerPages/Seller.Login.js";
 import { NavbarUser } from "./UserComponents/NavbarUser.js";
 import { UserDashboard } from "./Pages/UsersPage/UserDashboard.js";
+import { OrdersMdirect }from "./Pages/SellerPages/Orders/Orders.Mdirect.js"
+import OrderLayout from "./Components/OrderLayout.js";
+import { PackingItems } from "./Pages/SellerPages/Orders/PackingItems.js";
+import { OrderDetails } from "./Pages/SellerPages/Orders/OrderDetails.js";
+import { OrderProductDetails } from "./Pages/SellerPages/Orders/OrderedProductDetails.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -40,6 +45,17 @@ function App() {
             <Route path="/accountDetails" element={<SellerForm />} />
             <Route path="/manage-shop" element={<SellerDeatils />} />
           </Route>
+
+          {/* orders seller */}
+          <Route element = {<OrderLayout/>}>
+          <Route path="/Orders/Search"  element={<OrdersMdirect/>}/>
+          <Route path="/Orders/Packing" element={<PackingItems/>}/>
+          <Route path="/Orders/Details" element={<OrderDetails/>}/>
+          <Route path="/Orders/Open/Details" element={<OrderProductDetails/>}/>
+          <Route path="/PackOrders/Operations" element={<PackingItems/>}/>
+          </Route>
+
+          
 
           {/* ✅ Routes with User*/}
 

@@ -17,6 +17,10 @@ export default function DropdownMenu({
       console.log("Cataloguing ");
       navigate("/seller/cataloguing");
     }
+
+    else if(sub == "Mdirect"){
+      navigate("/Orders/Search")
+    }
   };
 
   if (!isVisible || !content) return null;

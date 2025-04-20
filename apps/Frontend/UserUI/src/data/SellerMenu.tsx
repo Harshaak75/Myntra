@@ -29,8 +29,9 @@ export const menuDropdowns: any = {
     },
   ],
   "Orders & Refunds": [
-    { title: "Order History", sub: ["Returns"] },
-    { title: "Refund Requests", sub: ["Disputes"] },
+    { title: "Myntra Returns", sub: ["RTV Recommendations", "RTV Job Tracker"] },
+    { title: "Job Trackers", sub: ["Search"] },
+    { title: "Customer Returns", sub: ["View OTC", "Return Tracking", "Mdirect"] },
   ],
   Reports: [
     { title: "Sales Report", sub: ["Monthly Analysis"] },

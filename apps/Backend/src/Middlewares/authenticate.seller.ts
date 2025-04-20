@@ -16,88 +16,101 @@ export const authenticate_Seller = async (
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const token = req.cookies.sell_access_token || req.headers["authorization"]?.split(" ")[1];
+  const token =
+    req.cookies.sell_access_token ||
+    req.headers["authorization"]?.split(" ")[1];
 
-  console.log("auth in seller",token)
+  console.log("auth in seller", token);
+
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  let seller_id: any = null; // ✅ Moved this here
 
   try {
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
+    let token_exist = null;
+
+    try {
+      token_exist = await Client.blacklist_token.findFirst({
+        where: { token: token },
+      });
+      console.log("blacklist token", token_exist);
+    } catch (err) {
+      console.error("Error checking blacklist_token:", err);
+      return res
+        .status(500)
+        .json({ message: "Internal error while checking token" });
     }
-
-    const token_exist = await Client.blacklist_token.findFirst({
-      where: {
-        token: token,
-      },
-    });
-
-    console.log("blacklist token", token_exist)
 
     if (token_exist) {
       res.clearCookie("sell_access_token");
       res.clearCookie("refresh_token_seller");
-
-      return res
-        .status(401)
-        .json({ message: "Unauthorized token accessing resourceeeeeeeeeeeee" });
+      return res.status(401).json({ message: "Blacklisted token" });
     }
 
-    jwt.verify(token, seller_serect || "", async (err: any, decode: any) => {
-      const decode_token = jwt.decode(token);
+    const decoded: any = jwt.verify(token, seller_serect || "");
 
-      if (!decode_token || typeof decode_token === "string") {
-        return res.status(403).json({ message: "Invalid token" });
-      }
+    if (!decoded || typeof decoded === "string" || !decoded.id) {
+      return res.status(403).json({ message: "Invalid token structure" });
+    }
 
-      const seller_id = decode_token?.id;
+    seller_id = decoded.id;
+    console.log("seller_idlddvmkmdfkmdsl", seller_id);
+    console.log("seller", seller_id);
 
-      if (err?.name === "TokenExpiredError") {
-        // console.log("generetavhe token");
+    req.seller_id = decoded.id;
+    next();
+  } catch (err: any) {
+    console.error("Token verification failed:", err);
 
-        try {
-          const accessToken = await generateTokensSeller(seller_id);
-          // console.log("access token", accessToken);
+    const decoded_token: any = jwt.decode(token);
+    seller_id = decoded_token?.id;
 
-          res.cookie("sell_access_token", accessToken, {
-            httpOnly: true,
-            secure: secure_cookie == "Production",
-            path: "/",
-            maxAge: 15 * 60 * 1000,
-            sameSite: secure_cookie == "Production" ? "none" : "lax"
-          });
-          req.seller_id = seller_id;
-          next();
-        } catch (error) {
-          await Client.blacklist_token.create({
-            data: {
-              token,
-              expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
-            },
-          });
+    console.log(seller_id);
 
-          res.clearCookie("sell_access_token");
-          res.clearCookie("refresh_token_seller");
+    if (err.name === "TokenExpiredError") {
+      try {
+        const accessToken = await generateTokensSeller(seller_id);
 
-          return res
-            .status(401)
-            .json({ message: "Session expired. Please log in again." });
+        res.cookie("sell_access_token", accessToken, {
+          httpOnly: true,
+          secure: secure_cookie == "Production",
+          path: "/",
+          maxAge: 15 * 60 * 1000,
+          sameSite: secure_cookie == "Production" ? "none" : "lax",
+        });
+
+        res.setHeader("x-new-access-token", accessToken);
+
+        res.locals.newAccessToken = accessToken;
+
+        if (seller_id !== null) {
+          req.seller_id = seller_id.toString();
         }
-      }
 
-      if (err?.name === "JsonWebTokenError") {
-        return res.status(403).json({ message: "Invalid token" });
-      }
+        next();
+      } catch (error) {
+        await Client.blacklist_token.create({
+          data: {
+            token,
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
+          },
+        });
 
-      if (!err) {
-        if (decode_token && typeof decode_token !== "string") {
-          req.seller_id = decode_token.id;
-          next();
-        } else {
-          return res.status(403).json({ message: "Invalid token" });
-        }
+        res.clearCookie("sell_access_token");
+        res.clearCookie("refresh_token_seller");
+
+        return res
+          .status(401)
+          .json({ message: "Session expired. Please log in again." });
       }
-    });
-  } catch (error) {
-    res.status(401).json({ message: "error in the middleware", error: error });
+    } else if (err?.name === "JsonWebTokenError") {
+      return res.status(403).json({ message: "Invalid token" });
+    } else {
+      return res
+        .status(500)
+        .json({ message: "Error in authenticating seller", error: err });
+    }
   }
 };

@@ -76,9 +76,9 @@ export default function GridSellerDashboard() {
           <div className="bg-white shadow-md p-4 rounded-lg flex flex-col justify-between">
             <h2 className="text-lg font-bold">Hello MFKI!</h2>
             <p className="text-sm">MODE-LINK LIFESTYLE SOLUTIONS LLP</p>
-            <div className="text-sm font-medium">
+            <div className="text-[0.825rem] font-medium">
               <p>Welcome to Partner Portal</p>
-              <p>One place for all your interaction with Myntra</p>
+              <p>One place for all your interaction with Mynstars</p>
             </div>
           </div>
           <div className="bg-white shadow-md p-4 rounded-lg">

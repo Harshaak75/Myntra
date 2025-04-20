@@ -31,6 +31,7 @@ app.use(
     origin: "https://mynstars-opal.vercel.app",
     // origin:"http://localhost:5173",
     credentials: true, // ✅ Allows sending cookies & authentication headers
+    exposedHeaders: ["x-new-access-token", "Content-Disposition"], // Expose the custom header
   })
 );
 

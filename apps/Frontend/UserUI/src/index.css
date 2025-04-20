@@ -33,3 +33,29 @@
     animation: wrap 0.4s ease-in forwards;
   }
   
+
+  @keyframes dotSpin {
+    0% {
+      transform: rotate(0deg);
+    }
+    20% {
+      transform: rotate(72deg);
+    }
+    40% {
+      transform: rotate(144deg);
+    }
+    60% {
+      transform: rotate(216deg);
+    }
+    80% {
+      transform: rotate(288deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .animate-dotSpin {
+    animation: dotSpin 1.2s linear infinite;
+  }
+  

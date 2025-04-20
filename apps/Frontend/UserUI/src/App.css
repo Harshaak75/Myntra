@@ -1,1 +1,50 @@
 @import "tailwindcss";
+
+@keyframes tail-chase {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(100deg);
+  }
+
+  50% {
+    transform: rotate(180deg);
+  }
+
+  75% {
+    transform: rotate(280deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-tail-chase {
+  animation: tail-chase 1s infinite cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+
+.loader {
+  width: 60px;
+  padding: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #0bc1a9;
+  --_m:
+    conic-gradient(#0000 20%, #000),
+    linear-gradient(#000 0 0) content-box;
+  -webkit-mask: var(--_m);
+  mask: var(--_m);
+  -webkit-mask-composite: source-out;
+  mask-composite: subtract;
+  animation: l3 1s infinite linear;
+}
+
+@keyframes l3 {
+  to {
+    transform: rotate(1turn)
+  }
+}

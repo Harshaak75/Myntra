@@ -22,13 +22,14 @@ export const authenticate_User = async (
       return res.status(500).json({ message: "Unauthorized" });
     }
 
-    const token_exist = await Client.blacklist_token.findMany({
+    const token_exist: any = await Client.blacklist_token.findMany({
       where: {
         token,
       },
     });
+    console.log(token_exist, "token exist");
 
-    if (token_exist) {
+    if (token_exist.length > 0) {
       res.clearCookie("access_token");
       res.clearCookie("refresh_token");
 

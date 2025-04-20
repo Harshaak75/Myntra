@@ -4,7 +4,9 @@ import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import { create_the_order, get_user_order_details } from "../Services/user.services";
 
-import moment = require("moment");
+// import moment = require("moment");
+
+import moment from "moment";
 
 dotenv.config();
 
@@ -127,10 +129,10 @@ export const CreateOrder = async (
 
     const product_id = data.productid;
 
-    const order_created = await create_the_order(userId,data,product_id);
+    const order_created: any = await create_the_order(userId,data,product_id);
 
-    if(!order_created){
-      return res.status(400).json({message: "Error creating order"})
+    if ("message" in order_created) {
+      return res.status(404).json({ message: order_created.message });
     }
 
     console.log(order_created)

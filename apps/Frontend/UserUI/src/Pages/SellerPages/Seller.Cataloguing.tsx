@@ -155,13 +155,15 @@ export default function SellerCatalog() {
           <div className="flex flex-wrap gap-4">
             <button
               onClick={() => setIsOpen(true)}
-              className="border px-3 py-2 rounded text-[#0bc1a9] bg-white border-[#0bc1a9] cursor-pointer"
+              className={`border px-3 py-2 rounded text-[#0bc1a9] bg-white border-[#0bc1a9] ${loading ? "cursor-not-allowed" : "cursor-pointer"} `}
+              disabled = {loading}
             >
               Download DIY Template
             </button>
             <button
               onClick={() => setaddProduct(true)}
-              className="border px-4 py-2 rounded text-white bg-[#0bc1a9] border-[#0bc1a9] cursor-pointer"
+              className={`border px-4 py-2 rounded text-white bg-[#0bc1a9] border-[#0bc1a9] ${loading ? "cursor-not-allowed" : "cursor-pointer"} `}
+              disabled = {loading}
             >
               Add New DIY Products
             </button>
@@ -247,7 +249,7 @@ export default function SellerCatalog() {
             <div className="flex justify-end mt-7">
               <button
                 onClick={() => downloadExcel(selectedItem)}
-                className="w-full sm:w-[12rem] px-4 py-2 rounded text-white bg-[#0bc1a9] border-[#0bc1a9] cursor-pointer"
+                className={`w-full sm:w-[12rem] px-4 py-2 rounded text-white bg-[#0bc1a9] border-[#0bc1a9] ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}
                 disabled={loading}
               >
                 {loading ? "Downloading.." : "Download Template"}
@@ -336,7 +338,7 @@ export default function SellerCatalog() {
               </button>
               <button
                 onClick={() => uploadfile(selectfile)}
-                className="w-full sm:w-auto px-5 py-2 rounded-md text-white bg-[#0bc1a9] border-[#0bc1a9] cursor-pointer transition"
+                className={`w-full sm:w-auto px-5 py-2 rounded-md text-white bg-[#0bc1a9] border-[#0bc1a9] cursor-pointer transition ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}
                 disabled={loading}
               >
                 {loading ? "Loading" : "Add Product"}

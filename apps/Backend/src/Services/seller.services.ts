@@ -25,7 +25,7 @@ export const Create_Seller_account = async (
     console.log("done4")
 
     const accessToken = jwt.sign(
-      { id: seller_account.id },
+      { id: seller_account.id, role: "authenticated" , aud: "authenticated" },
       seller_serect || "",
       {
         expiresIn: ACCESS_TOKEN_EXPIRATION,
@@ -224,3 +224,36 @@ export const editSellerShopData = async (sellerdata: any, sellerid: string) => {
     throw new Error(`Error editing seller data: ${error.message}`);
   }
 };
+
+
+export const createPicklist = async (picklistCode: any, sellerId: any) =>{
+  try {
+    const picklist = await Client.picklist.create({
+      data: {
+        code: picklistCode,
+        sellerId: sellerId,
+      },
+    });
+    return picklist;
+  } catch (error: any) {
+    throw new Error(`Error creating picklist: ${error.message}`);
+  }
+}
+
+export const attachpicklist = async (picklistId: any, productId: number[]) =>{
+  try {
+    const updated_picklist = await Client.order.updateMany({
+      where: { id: {
+        in: productId,
+      },
+    },
+      data: {
+        picklistId: Number(picklistId),
+      },
+    })
+    
+    return updated_picklist;
+  } catch (error: any) {
+    throw new Error(`Error attaching picklist: ${error.message}`);
+  }
+}

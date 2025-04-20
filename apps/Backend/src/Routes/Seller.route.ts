@@ -3,10 +3,15 @@ import multer from "multer";
 
 import { body } from "express-validator";
 import {
+  addCoverId,
   checkSeller,
   // addProduct,
   downloadExcel,
+  GeneratePicklist,
   getEmail,
+  getPicklistDetails,
+  getProductDetails,
+  getQuantity,
   login_seller,
   logoutSeller,
   register_seller,
@@ -15,9 +20,11 @@ import {
   updateSeller,
   updateSellerShopDetails,
   Upload_Documats,
+  validateSKU,
 } from "../Controller/Seller.controller";
 import { authenticate_Seller } from "../Middlewares/authenticate.seller";
 import { authorizeAdmin } from "../utils/adminAuthUtils";
+import { getOrderDetails } from "../Controller/user.controller";
 
 const SellerRoute = express.Router();
 
@@ -119,5 +126,17 @@ SellerRoute.get("/logoutSeller", authenticate_Seller, logoutSeller)
 SellerRoute.get("/auth/check",authenticate_Seller, checkSeller)
 
 SellerRoute.get("/email", authenticate_Seller, getEmail)
+
+SellerRoute.post("/generatePicklist", authenticate_Seller, GeneratePicklist)
+
+SellerRoute.post("/getOrderDetails", authenticate_Seller, getProductDetails)
+
+SellerRoute.get("/getQuantity",authenticate_Seller,getQuantity)
+
+SellerRoute.post("/getPicklistDetails", authenticate_Seller, getPicklistDetails)
+
+SellerRoute.post("/validateSKU", authenticate_Seller, validateSKU)
+
+SellerRoute.post("/addCoverId", authenticate_Seller, addCoverId)
 
 export default SellerRoute;
