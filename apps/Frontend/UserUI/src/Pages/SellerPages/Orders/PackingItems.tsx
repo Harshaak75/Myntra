@@ -17,7 +17,7 @@ export function PackingItems() {
 
   const [skuInputs, setSkuInputs] = useState([""]); // dynamic input boxes
   const [scannedProducts, setScannedProducts] = useState<any[]>([]); // list of valid scanned SKUs
-  const [skuError, setSkuError] = useState<string | null>(null); // error message
+  // const [skuError, setSkuError] = useState<string | null>(null); // error message
   const [showProdcut, setShowProduct] = useState(false); // show product details
 
   const [loading, setloading] = useState(false);

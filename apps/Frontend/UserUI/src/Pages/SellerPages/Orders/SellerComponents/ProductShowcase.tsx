@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { logo } from "../../../../ImagesCollection";
 import axios from "axios";
 import { backend_url } from "../../../../../config";
@@ -28,7 +28,6 @@ const TextLine = ({ label, value }: { label: string; value: string }) => (
 
 export default function ProductCard({
   product,
-  orderId,
   picklistCode,
   onScanNext,
 }: {

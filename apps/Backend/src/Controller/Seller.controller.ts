@@ -670,7 +670,7 @@ export const GeneratePicklist = async (
 
     // picklistitems
 
-    const picklistitems = orders_data.map((order) => {
+    const picklistitems = orders_data.map((order: any) => {
       return {
         productName: order.product.name,
         productSku: order.product.productSku,
@@ -745,7 +745,7 @@ export const getProductDetails = async (
         [order_details.orderCode]: {
           title: order_details.product.name,
           subTitle: order_details.product.productAttribute.find(
-            (arr) => arr.attributename == "Product Title"
+            (arr: any) => arr.attributename == "Product Title"
           ),
           sellerSKU: order_details.product.sellerSku,
           productSKU: order_details.product.productSku,
@@ -754,7 +754,7 @@ export const getProductDetails = async (
           price: order_details.totalPrice,
           colour: order_details.selectedColor,
           Gender: order_details.product.productAttribute.find(
-            (arr) => arr.attributename == "Gender"
+            (arr: any) => arr.attributename == "Gender"
           ),
           quntity: order_details.quantity,
           store: "Mynstars",
@@ -792,7 +792,7 @@ export const getQuantity = async (
     },
   });
 
-  const totalQuntity = quantity.reduce((acc, item) => acc + item.quantity, 0);
+  const totalQuntity = quantity.reduce((acc: any, item: any) => acc + item.quantity, 0);
   // console.log(totalQuntity)
   return res.status(200).json({ message: "dont", quantity: totalQuntity });
 };
@@ -818,7 +818,7 @@ export const getPicklistDetails = async (
       return res.status(404).json({ message: "Picklist not found" });
     }
 
-    const OrderIds = picklistDetails?.orders.map((order) => order.id);
+    const OrderIds = picklistDetails?.orders.map((order: any) => order.id);
     console.log(OrderIds);
 
     res.status(200).json({ message: "Picklist details", OrderIds });
@@ -914,7 +914,7 @@ export const validateSKU = async (
         color: response.selectedColor,
         price: response.totalPrice,
         styleId: response.product.productAttribute.find(
-          (attr) => attr.attributename === "styleGroupId"
+          (attr: any) => attr.attributename === "styleGroupId"
         )?.attributevalue,
         sellerPacketId: sellerPacketCode,
       };
