@@ -6,7 +6,7 @@
     "build": "tsc",
     "dev": "pnpm run build && nodemon dist/servers.js",
     "start": "node dist/servers.js",
-    "postinstall": "pnpm install && npx puppeteer browsers install chrome && pnpm run build"
+    "postinstall": "npx puppeteer browsers install chrome && pnpm run build"
   },
   "keywords": [],
   "author": "",
