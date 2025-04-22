@@ -66,7 +66,7 @@ export const generatePicklistHTML = (orders: any[], picklistCode: string, barcod
 export const generatePdf = async (ordersdata: any[], picklistCode: string, barcode: any) => {
   const htmlContent = generatePicklistHTML(ordersdata, picklistCode, barcode);
 
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
 
