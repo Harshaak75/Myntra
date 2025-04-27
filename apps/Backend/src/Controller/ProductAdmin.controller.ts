@@ -162,13 +162,15 @@ export const Updatestatus = async (
   try {
     const { productId, newStatus } = req.body;
 
+    const statusString = newStatus.toString();
+
     const data = await Client.product.update({
       where: {
         id: Number(productId),
       },
       data: {
-        status: newStatus,
-        approved: newStatus =="Approved" ? true : false,
+        status: statusString,
+        approved: statusString =="Approved",
       },
     })
     console.log("Data updated successfully:", data);
