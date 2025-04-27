@@ -25,7 +25,7 @@ export const Create_Seller_account = async (
     console.log("done4")
 
     const accessToken = jwt.sign(
-      { id: seller_account.id, role: "authenticated" , aud: "authenticated" },
+      { id: seller_account.id,currRole:"seller", role: "authenticated" , aud: "authenticated" },
       seller_serect || "",
       {
         expiresIn: ACCESS_TOKEN_EXPIRATION,
@@ -33,7 +33,7 @@ export const Create_Seller_account = async (
     );
 
     const refreshToken = jwt.sign(
-      { id: seller_account.id },
+      { id: seller_account.id, currRole:"seller" },
       seller_serect || "",
       {
         expiresIn: REFRESH_TOKEN_EXPIRATION,

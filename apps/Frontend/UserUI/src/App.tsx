@@ -9,11 +9,18 @@ import SellerDeatils from "./Pages/SellerPages/Seller.ShopDetails.js";
 import { SellerLogin } from "./Pages/SellerPages/Seller.Login.js";
 import { NavbarUser } from "./UserComponents/NavbarUser.js";
 import { UserDashboard } from "./Pages/UsersPage/UserDashboard.js";
-import { OrdersMdirect }from "./Pages/SellerPages/Orders/Orders.Mdirect.js"
+import { OrdersMdirect } from "./Pages/SellerPages/Orders/Orders.Mdirect.js";
 import OrderLayout from "./Components/OrderLayout.js";
 import { PackingItems } from "./Pages/SellerPages/Orders/PackingItems.js";
 import { OrderDetails } from "./Pages/SellerPages/Orders/OrderDetails.js";
 import { OrderProductDetails } from "./Pages/SellerPages/Orders/OrderedProductDetails.js";
+
+import RouteDecider from "./RouteDecider.js";
+import { Mobilehome } from "./Pages/UserMobilePage/Mobilehome.js";
+import Dashboard from "./Pages/ProductAdminDashboard/ProductDashboard.js";
+import { Playout } from "./Components/ProductAdmin/Playout.js";
+import { ManageProduct } from "./Components/ProductAdmin/ManageProduct.js";
+import ProductLogin from "./Pages/ProductAdminDashboard/ProductLogin.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -34,10 +41,11 @@ function App() {
 
       <Router>
         <Routes>
+          <Route path="/" element={<RouteDecider />} />
           {/* ✅ Route without Navbar */}
-          <Route path="/" element={<SellerSignin />} />
+          <Route path="/seller/signin" element={<SellerSignin />} />
+          {/* Signin added you can change it */}
           <Route path="/SellerLogin" element={<SellerLogin />} />
-
           {/* ✅ Routes with Navbar (Wrapped inside Layout) */}
           <Route element={<Layout />}>
             <Route path="/seller/dashboard" element={<GridSellerDashboard />} />
@@ -45,21 +53,29 @@ function App() {
             <Route path="/accountDetails" element={<SellerForm />} />
             <Route path="/manage-shop" element={<SellerDeatils />} />
           </Route>
-
           {/* orders seller */}
-          <Route element = {<OrderLayout/>}>
-          <Route path="/Orders/Search"  element={<OrdersMdirect/>}/>
-          <Route path="/Orders/Packing" element={<PackingItems/>}/>
-          <Route path="/Orders/Details" element={<OrderDetails/>}/>
-          <Route path="/Orders/Open/Details" element={<OrderProductDetails/>}/>
-          <Route path="/PackOrders/Operations" element={<PackingItems/>}/>
+          <Route element={<OrderLayout />}>
+            <Route path="/Orders/Search" element={<OrdersMdirect />} />
+            <Route path="/Orders/Packing" element={<PackingItems />} />
+            <Route path="/Orders/Details" element={<OrderDetails />} />
+            <Route
+              path="/Orders/Open/Details"
+              element={<OrderProductDetails />}
+            />
+            <Route path="/PackOrders/Operations" element={<PackingItems />} />
           </Route>
-
-          
-
           {/* ✅ Routes with User*/}
+          <Route path="/mobile/home" element={<Mobilehome />} />
+          {/* <Route path="/user/navbar" element={<UserDashboard />} /> */}
 
-          <Route path="/user/navbar" element={<UserDashboard />} />
+
+
+          <Route path="/productAdmin/login" element={<ProductLogin />} />
+          {/* routes for product admin */}
+          <Route element={<Playout />}>
+            <Route path="/productAdmin/dashboard" element={<Dashboard />} />
+            <Route path="/productAdmin/manageProduct" element={<ManageProduct />} />
+          </Route>
         </Routes>
       </Router>
     </div>

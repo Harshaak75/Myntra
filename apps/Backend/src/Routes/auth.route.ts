@@ -8,6 +8,7 @@ import {
 } from "../Controller/auth.controller";
 import { authenticate_User } from "../Middlewares/authenticate.user";
 import { authenticate_Seller } from "../Middlewares/authenticate.seller";
+import { authenticate_Admin_User } from "../Middlewares/authenticate.admin";
 
 const router = express.Router();
 
@@ -40,6 +41,15 @@ router.get("/logout", authenticate_User, logout_user)
 router.get("/validate-token", authenticate_Seller, (req,res) =>{
   const newToken = res.locals.newAccessToken || null;
   console.log("newtoken",newToken)
+  if (newToken) {
+    res.setHeader("x-new-access-token", newToken);
+  }
+  res.status(200).json({ message: "Token valid" });
+})
+
+router.get("/validate-token-admin", authenticate_Admin_User, (req,res) =>{
+  const newToken = res.locals.newAccessToken || null;
+  console.log("newtokenhh",newToken)
   if (newToken) {
     res.setHeader("x-new-access-token", newToken);
   }

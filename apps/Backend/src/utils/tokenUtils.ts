@@ -66,7 +66,7 @@ export const generateTokens = async (user_id: any) => {
 
 
 export const generateTokensAdmin = async (user_id: any) => {
-  const accessToken = jwt.sign({ id: user_id }, admin_serect || "", {
+  const accessToken = jwt.sign({ id: user_id, currRole:"product_admin",role: "authenticated" , aud: "authenticated" }, admin_serect || "", {
     expiresIn: ACCESS_TOKEN_EXPIRATION,
   });
 
@@ -88,7 +88,22 @@ export const generateTokensAdmin = async (user_id: any) => {
 
           // If token is still valid and issued within last 22 hours, reuse it
           if (timeRemaining > refresh_token_renew_time) {
-            return { accessToken, refreshToken: existingRefreshToken.token };
+            return accessToken;
+          }
+          else{
+            const refreshToken = jwt.sign({ id: user_id, currRole:"product_admin",role: "authenticated" , aud: "authenticated" }, admin_serect || "", {
+              expiresIn: REFRESH_TOKEN_EXPIRATION,
+            });
+
+            const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+
+            await Client.refresh_token_admin.upsert({
+              where: { adminId: user_id },
+              update: { token: refreshToken, expiresAt },
+              create: { adminId: user_id, token: refreshToken, expiresAt },
+            });
+
+            return accessToken;
           }
         }
       } catch (err) {
@@ -121,7 +136,7 @@ export const generateTokensAdmin = async (user_id: any) => {
 //seller token generation
 
 export const generateTokensSeller = async (user_id: any) => {
-  const accessToken = jwt.sign({ id: user_id, role: "authenticated" , aud: "authenticated"}, seller_serect || "", {
+  const accessToken = jwt.sign({ id: user_id,currRole:"seller", role: "authenticated" , aud: "authenticated"}, seller_serect || "", {
     expiresIn: ACCESS_TOKEN_EXPIRATION,
   });
 
@@ -146,7 +161,7 @@ export const generateTokensSeller = async (user_id: any) => {
             return accessToken;
           }
           else{
-            const refreshToken = jwt.sign({ id: user_id }, seller_serect || "", {
+            const refreshToken = jwt.sign({ id: user_id, currRole:"seller" }, seller_serect || "", {
               expiresIn: REFRESH_TOKEN_EXPIRATION,
             });
 

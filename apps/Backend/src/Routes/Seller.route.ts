@@ -139,4 +139,9 @@ SellerRoute.post("/validateSKU", authenticate_Seller, validateSKU)
 
 SellerRoute.post("/addCoverId", authenticate_Seller, addCoverId)
 
+SellerRoute.get("/get-sellerId", authenticate_Seller, (req,res) =>{
+    console.log("Seller ID:", req.seller_id); // Log the seller ID
+    res.status(200).json({ sellerId: req.seller_id }); // Send the seller ID in the response
+})
+
 export default SellerRoute;

@@ -5,3 +5,6 @@ export const upload_token_temp = `Bearer ${import.meta.env.VITE_TOKEN_BEARER_UPL
 export const supabase_url = import.meta.env.VITE_SUPABASE_URL;
 
 export const supabse_key = import.meta.env.VITE_SUPABASE_KEY
+
+export const excel_supabase_url = import.meta.env.VITE_SUPABASE1_URL
+export const excel_supabase_key = import.meta.env.VITE_SUPABASE1_KEY

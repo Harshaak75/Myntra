@@ -1,9 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import { generateTokensAdmin } from "../utils/tokenUtils";
 import bcrypt from "bcrypt";
-import { salt_rounds } from "../config";
+import { admin_serect, salt_rounds } from "../config";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 const Client = new PrismaClient();
+const ACCESS_TOKEN_EXPIRATION = "5m"; // 5 minutes
+const REFRESH_TOKEN_EXPIRATION = "1d"; // 1 day
 
 export const createAdminService = async (adminData: any) => {
   try {
@@ -21,8 +24,36 @@ export const createAdminService = async (adminData: any) => {
       },
     });
 
-    const { admin_token }: any = generateTokensAdmin(admin.id);
-    return { admin, admin_token };
+    // const { admin_token }: any = generateTokensAdmin(admin.id);
+    const accessToken = jwt.sign(
+      {
+        id: admin.id,
+        role: "authenticated",
+        aud: "authenticated",
+      },
+      admin_serect || "",
+      {
+        expiresIn: ACCESS_TOKEN_EXPIRATION,
+      }
+    );
+
+    const refreshToken = jwt.sign({ id: admin.id }, admin_serect || "", {
+      expiresIn: REFRESH_TOKEN_EXPIRATION,
+    });
+
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+
+    await Client.refresh_token_admin.upsert({
+      where: { adminId: admin.id },
+      update: { token: refreshToken, expiresAt },
+      create: {
+        adminId: admin.id,
+        token: refreshToken,
+        expiresAt,
+      },
+    });
+
+    return {admin, accessToken };
   } catch (error: any) {
     throw new Error(`Error creating admin: ${error.message}`);
   }
@@ -43,8 +74,36 @@ export const CreatesuperAdmin = async ({
       },
     });
 
-    const { admin_token }: any = generateTokensAdmin(superAdmin.id);
-    return { superAdmin, admin_token };
+    // const { admin_token }: any = generateTokensAdmin(superAdmin.id);
+    const accessToken = jwt.sign(
+          {
+            id: superAdmin.id,
+            role: "authenticated",
+            aud: "authenticated",
+          },
+          admin_serect || "",
+          {
+            expiresIn: ACCESS_TOKEN_EXPIRATION,
+          }
+        );
+    
+        const refreshToken = jwt.sign({ id: superAdmin.id }, admin_serect || "", {
+          expiresIn: REFRESH_TOKEN_EXPIRATION,
+        });
+    
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+    
+        await Client.refresh_token_admin.upsert({
+          where: { adminId: superAdmin.id },
+          update: { token: refreshToken, expiresAt },
+          create: {
+            adminId: superAdmin.id,
+            token: refreshToken,
+            expiresAt,
+          },
+        });
+    
+        return { accessToken };
   } catch (error: any) {
     throw new Error(`Error creating super admin: ${error.message}`);
   }

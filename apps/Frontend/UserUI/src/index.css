@@ -59,3 +59,36 @@
     animation: dotSpin 1.2s linear infinite;
   }
   
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
+
+  .bg-blue-gradient{
+    background: linear-gradient(to top, #87cfeb6b, #e0f7ff00);
+  }
+
+  .bg-pink-gradient{
+    background: linear-gradient(to top, #ffc1d984, #ffeaf300);
+  }
+
+  .offer-ribbon{
+    background: linear-gradient(to right, #ffd6d9, #fff2e6, #f2e6ff);
+  }
+
+  .clip-left-ribbon {
+    clip-path: polygon(100% 0%, 0% 50%, 100% 100%);
+  }
+  
+  .clip-right-ribbon {
+    clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+  }
+  
+
+  :root {
+
+  }

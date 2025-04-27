@@ -7,9 +7,13 @@ import {
   createAdminService,
   CreatesuperAdmin,
 } from "../Services/admin.services";
-import { salt_rounds } from "../config";
+import { admin_serect, salt_rounds, secure_cookie } from "../config";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 const Client = new PrismaClient();
+
+const ACCESS_TOKEN_EXPIRATION = "5m"; // 5 minutes
+const REFRESH_TOKEN_EXPIRATION = "1d"; // 1 day
 
 export const loginAdmin = async (
   req: Request,
@@ -43,16 +47,49 @@ export const loginAdmin = async (
           .status(401)
           .json({ message: "Incorrect Password Try again.." });
       } else {
-        const { accessToken }: any = await generateTokensAdmin(adminInfo.id);
-        res.cookie("access_token", accessToken, {
+        const accessToken = jwt.sign(
+          {
+            id: adminInfo.id,
+            role: "authenticated",
+            aud: "authenticated",
+          },
+          admin_serect || "",
+          {
+            expiresIn: ACCESS_TOKEN_EXPIRATION,
+          }
+        );
+
+        const refreshToken = jwt.sign(
+          { id: adminInfo.id },
+          admin_serect || "",
+          {
+            expiresIn: REFRESH_TOKEN_EXPIRATION,
+          }
+        );
+
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+
+        await Client.refresh_token_admin.upsert({
+          where: { adminId: adminInfo.id },
+          update: { token: refreshToken, expiresAt },
+          create: {
+            adminId: adminInfo.id,
+            token: refreshToken,
+            expiresAt,
+          },
+        });
+
+        res.cookie("admin_access_token", accessToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
+          path: "/",
+          secure: secure_cookie === "Production",
+          sameSite: secure_cookie == "Production" ? "none" : "lax",
           maxAge: 15 * 60 * 1000,
         });
+
         return res.json({
           message: "Logged In Successfully",
-          token: accessToken,
+          ProductAdmintoken: accessToken,
         });
       }
     });
@@ -77,12 +114,19 @@ export const createAdmin = async (
 
   try {
     const create_admin = await createAdminService(adminData);
-    return res
-      .status(200)
-      .json({
-        message: "Admin Created Successfully",
-        token: create_admin.admin_token,
-      });
+
+    res.cookie("Super_admin_access_token", create_admin.accessToken, {
+      httpOnly: true,
+      path: "/",
+      secure: secure_cookie === "Production",
+      sameSite: secure_cookie == "Production" ? "none" : "lax",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      message: "Admin Created Successfully",
+      token: create_admin.accessToken,
+    });
   } catch (error) {
     return res.status(500).json({ message: "Error in creating admin", error });
   }
@@ -117,12 +161,18 @@ export const createSuperAdmin = async (
       email,
     });
 
-    return res
-      .status(200)
-      .json({
-        message: "Super Admin Created Successfully",
-        token: Create_super_admin,
-      });
+    res.cookie("Super_admin_access_token", Create_super_admin, {
+      httpOnly: true,
+      path: "/",
+      secure: secure_cookie === "Production",
+      sameSite: secure_cookie == "Production" ? "none" : "lax",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      message: "Super Admin Created Successfully",
+      token: Create_super_admin,
+    });
   } catch (error) {
     return res
       .status(500)

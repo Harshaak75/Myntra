@@ -25,6 +25,7 @@ import { categoryTemplate } from "../utils/columnNames";
 import supabase from "../utils/supabase.connect";
 import multer from "multer";
 
+
 import { Decimal } from "@prisma/client/runtime/library"; // Import Decimal
 import { generateCompactPicklistCode } from "../utils/ConvertToSafeBase";
 import {
@@ -149,6 +150,7 @@ export const login_seller = async (
           const accessToken = jwt.sign(
             {
               id: existing_seller.id,
+              currRole:"seller",
               role: "authenticated",
               aud: "authenticated",
             },
@@ -159,7 +161,7 @@ export const login_seller = async (
           );
 
           const refreshToken = jwt.sign(
-            { id: existing_seller.id },
+            { id: existing_seller.id , currRole:"seller"},
             seller_serect || "",
             {
               expiresIn: REFRESH_TOKEN_EXPIRATION,
@@ -433,6 +435,11 @@ export const Upload_Documats = async (
 
     // add the name and price to the product table
 
+    // lot id
+
+    const randomNumber = Math.floor(1000000 + Math.random() * 9000000);
+
+
     for (const row of rows) {
       if (!row.MRP || !row.brand) {
         console.error("Missing required fields:", row);
@@ -458,6 +465,7 @@ export const Upload_Documats = async (
           productSku: productSKU,
           sellerSku: row.vendorSkuCode ? row.vendorSkuCode : productSKU,
           productType: filename.split("-")[0],
+          lotId: randomNumber.toString(),
         },
       });
 

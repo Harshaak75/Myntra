@@ -36,3 +36,65 @@ export const getValidToken = async (): Promise<string | null> => {
     return null;
   }
 };
+
+export const AdminValidToken = async (): Promise<string | null> => {
+  let token = localStorage.getItem("admin_authorization");
+  console.log("Token from localStorage:", token); // Debugging line
+
+  if (!token) {
+    console.error("No token found in localStorage.");
+    return null;
+  }
+
+  try {
+    const response = await axios.get(`${backend_url}userAuth/validate-token-admin`, {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Cache-Control": "no-cache", // Prevent caching
+      },
+      withCredentials: true,
+    });
+
+    // Check for the new token in the response header
+    const newToken = response.headers["x-new-access-token"];
+    console.log("New token",newToken)
+    if (newToken) {
+      localStorage.setItem("authorization", newToken); // Store the new token in localStorage
+      return newToken;
+    }
+
+    // If token is still valid
+    return token;
+
+  } catch (err) {
+    console.error("Error in validating token:", err);
+    return null;
+  }
+};
+
+export const getSellerIdFromToken = async (token: any): Promise<string | null> => {
+
+  if (!token) {
+    console.error("No token found in localStorage.");
+    return null;
+  }
+
+  try {
+    const response = await axios.get(`${backend_url}seller/get-sellerId`, {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Cache-Control": "no-cache", // Prevent caching
+      },
+      withCredentials: true,
+    });
+
+    // Check for the new token in the response header
+    
+    // If token is still valid
+    return response.data.sellerId;
+
+  } catch (err) {
+    console.error("Error in validating token:", err);
+    return null;
+  }
+}

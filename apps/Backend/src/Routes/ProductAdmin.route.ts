@@ -3,7 +3,7 @@ import express from "express";
 import { body } from "express-validator";
 import { authenticate_Admin_User } from "../Middlewares/authenticate.admin";
 import { authorizeAdmin } from "../utils/adminAuthUtils";
-import { aproveProduct, deleteProduct, getSellerDetails, login_product_admin } from "../Controller/ProductAdmin.controller";
+import { aproveProduct, deleteProduct, getName, getSellerDetails, login_product_admin, logoutadmin, Updatestatus } from "../Controller/ProductAdmin.controller";
 import { updateProduct } from "../Controller/Seller.controller";
 
 const productAdmin = express.Router();
@@ -22,5 +22,11 @@ productAdmin.delete("/product/delete/:id", authenticate_Admin_User,authorizeAdmi
 productAdmin.get("/product/getAll", authenticate_Admin_User,authorizeAdmin("product_admin"), getSellerDetails);
 
 productAdmin.put("/product/:id/approval",authenticate_Admin_User, authorizeAdmin("product_admin"), aproveProduct);
+
+productAdmin.post("/get-seller-name",authenticate_Admin_User, authorizeAdmin("product_admin"), getName);
+
+productAdmin.put("/update", authenticate_Admin_User, authorizeAdmin("product_admin"), Updatestatus);
+
+productAdmin.get("/logoutadmin", authenticate_Admin_User, authorizeAdmin("product_admin"), logoutadmin)
 
 export default productAdmin;

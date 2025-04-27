@@ -104,6 +104,8 @@ model Product {
   productSku       String?            @unique
   sellerSku        String?            @unique
   productType      String?
+  lotId            String?            @db.VarChar(20)
+  status           String?            @default("Pending")
   approved         Boolean            @default(false)
   isActive         Boolean            @default(true)
   Order            Order[]

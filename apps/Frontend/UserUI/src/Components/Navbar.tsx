@@ -55,7 +55,7 @@ export default function Navbar({
   const handleMenuClick = (item: string) => {
     if (item == "Home") {
       console.log("home");
-      navigate("/");
+      navigate("/seller/dashboard");
     }
     return;
   };
@@ -82,7 +82,7 @@ export default function Navbar({
         console.log("The responsive",response);
         localStorage.removeItem("authorization"); // Clear token
         localStorage.removeItem("email"); // Clear email
-        navigate("/");
+        navigate("/seller/signin");
       })
       .catch((error) => {
         if (error.response) {
@@ -90,7 +90,7 @@ export default function Navbar({
             console.warn("Session expired. Redirecting to login.");
             localStorage.removeItem("authorization"); // Clear token
             localStorage.removeItem("email"); // Clear email
-            navigate("/");
+            navigate("/seller/signin");
           }
         }
       });
