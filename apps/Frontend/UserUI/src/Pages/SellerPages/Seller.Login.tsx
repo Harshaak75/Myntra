@@ -127,7 +127,7 @@ export function SellerLogin() {
           >
             {loading ? "Please Wait" : "Login"}
           </button>
-          <h1>New user? <a href="/" className="text-[#FF3F6C] font-medium">Signin</a></h1>
+          <h1>New user? <a href="/seller/signin" className="text-[#FF3F6C] font-medium">Signin</a></h1>
         </form>
       </div>
     </div>
