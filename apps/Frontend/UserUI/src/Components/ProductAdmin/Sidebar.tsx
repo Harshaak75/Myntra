@@ -16,10 +16,12 @@ import axios from "axios";
 import { backend_url } from "../../../config";
 
 export default function Sidebar() {
+  const [loading, setloading] = useState(false);
   const naviage = useNavigate();
   useEffect(() => {
     const fetchPendingProducts = async () => {
       try {
+        setloading(true);
         const token = await AdminValidToken();
         if (!token) {
           console.error("Token missing.");
@@ -39,6 +41,9 @@ export default function Sidebar() {
         }
       } catch (err) {
         console.error("Failed to fetch pending products:", err);
+      }
+      finally{
+        setloading(false);
       }
     };
 
@@ -134,7 +139,13 @@ export default function Sidebar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        {loading && (
+          <div className="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50">
+            <div className="loader"></div>
+          </div>
+        )}
       </div>
+
     </aside>
   );
 }
