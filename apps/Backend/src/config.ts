@@ -26,5 +26,7 @@ export const supabse_url = process.env.SUPABASE_URL
 export const supabase_key = process.env.SUPABASE_SERVICES_ROLE_KEY
 export const bucket_name = process.env.BUCKET_NAME
 
+export const user_serect = process.env.SERECT_USER_PASSWORD
+
 
 

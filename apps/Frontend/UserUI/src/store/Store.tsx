@@ -1,13 +1,27 @@
-import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./authSlice"; // ✅ Import your auth reducer
+// store/index.js
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import {sidebarReducer} from './SidebarSlice.tsx';
+import { authReducer } from './authSlice.tsx';
 
-const store = configureStore({
-  reducer: {
-    auth: authReducer,
-  },
+import { persistReducer, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage"; // uses localStorage
+
+
+const persistConfig = {
+  key: "auth",
+  storage,
+  whitelist: ["email"], // Only persist the email
+};
+
+
+const rootReducer = combineReducers({
+  sidebar: sidebarReducer,
+  auth: persistReducer(persistConfig, authReducer),
 });
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export const store = configureStore({
+  reducer: rootReducer,
+});
 
-export default store;
+export const persistor = persistStore(store);
+

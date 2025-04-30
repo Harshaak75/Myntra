@@ -21,6 +21,10 @@ import Dashboard from "./Pages/ProductAdminDashboard/ProductDashboard.js";
 import { Playout } from "./Components/ProductAdmin/Playout.js";
 import { ManageProduct } from "./Components/ProductAdmin/ManageProduct.js";
 import ProductLogin from "./Pages/ProductAdminDashboard/ProductLogin.js";
+import { MobileUserLayout } from "./Components/MobileUsers/MobileUserLayout.js";
+import { Account } from "./Components/MobileUsers/Account.js";
+import { Loginmobile } from "./Pages/UserMobilePage/Loginmobile.js";
+import { LoginOTP } from "./Pages/UserMobilePage/LoginOTP.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -65,7 +69,16 @@ function App() {
             <Route path="/PackOrders/Operations" element={<PackingItems />} />
           </Route>
           {/* ✅ Routes with User*/}
+
+          {/* login page of mobile uders */}
+          <Route path="/users/login" element={<Loginmobile/>} />
+          <Route path="/users/login/otp" element={<LoginOTP/>} />
+          
           <Route path="/mobile/home" element={<Mobilehome />} />
+          <Route element = {<MobileUserLayout/>}>
+          <Route path="/user/account" element={<Account />} />
+          </Route>
+
           {/* <Route path="/user/navbar" element={<UserDashboard />} /> */}
 
 

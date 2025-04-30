@@ -15,7 +15,7 @@ import { JwtPayload, Secret } from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 
 import jwt from "jsonwebtoken";
-import { redis_url, secure_cookie, serect } from "../config";
+import { redis_url, secure_cookie, serect, user_serect } from "../config";
 import { generateTokens } from "../utils/tokenUtils";
 
 import Redis from "ioredis";
@@ -25,9 +25,12 @@ const redis = new Redis(process.env.REDIS_URL || "");
 const Client = new PrismaClient();
 
 const OTP_LIMIT = 5; // Max 5 OTPs per hour
-const OTP_WINDOW_SECONDS = 60 * 60; // 1 hour window
+const OTP_WINDOW_SECONDS = 5 * 60; // 1 minutes window
 
 // storing otp temporarily in memory
+
+const ACCESS_TOKEN_EXPIRATION = "5m"; // 5 minutes
+const REFRESH_TOKEN_EXPIRATION = "1d"; // 1 day
 
 const otpstore: Record<string, { otp: number; expireAt: number }> = {};
 
@@ -36,7 +39,7 @@ export const auth_the_user = async (
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  console.log(__dirname)
+  console.log(__dirname);
   const error = validationResult(req);
 
   if (!error.isEmpty()) {
@@ -46,26 +49,22 @@ export const auth_the_user = async (
   // TODO: Implement the logic to authenticate the user with the provided email and send OTP
 
   try {
-    console.log(__dirname)
+    console.log(__dirname);
     const { email } = req.body;
 
     const pattern = /^[^@]+@gmail\.com$/;
 
-    if(!(pattern.test(email))){
-      return res.status(400).json({error: "Only gmail accounts are allowed."})
-    }
-
-    const user = await Client.users.findUnique({ where: { email: email } });
-
-    if (user) {
-      res
+    if (!pattern.test(email)) {
+      return res
         .status(400)
-        .json({ success: false, message: "User already exists. Login" });
-      return;
+        .json({ error: "Only gmail accounts are allowed." });
     }
 
     const redisKey = `otp:${email}`;
     const requestCount = await redis.get(redisKey);
+
+    const ttll = await redis.ttl(redisKey);
+    console.log("Redis Key TTL (seconds):", ttll)
 
     if (requestCount && parseInt(requestCount) >= OTP_LIMIT) {
       return res
@@ -79,8 +78,12 @@ export const auth_the_user = async (
       .expire(redisKey, OTP_WINDOW_SECONDS)
       .exec();
 
+    const ttl = await redis.ttl(redisKey);
+    console.log("Redis Key TTL (seconds):", ttl)
+
     const otp = Math.floor(10000 + Math.random() * 90000).toString();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    // const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 1 * 60 * 1000); // 1 minute = 60,000 ms
 
     // otpstore[email] = { otp, expireAt: Date.now() + 5 * 60 * 1000 };
 
@@ -98,7 +101,7 @@ export const auth_the_user = async (
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Your OTP Code",
-      text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+      text: `Your OTP is ${otp}. It is valid for 1 minutes.`,
     };
 
     try {
@@ -110,21 +113,21 @@ export const auth_the_user = async (
         create: { email, otp, expiresAt, lastRequestAt: new Date() },
       });
 
-      const sessionToken = jwt.sign({ email }, "otp_secret", {
-        expiresIn: "10m",
+      const sessionToken = jwt.sign({ email }, user_serect || "", {
+        expiresIn: "1m",
       });
 
-      await redis.set(`session:${sessionToken}`, email, "EX", 10 * 60); // 10 min expiry
+      await redis.set(`session:${sessionToken}`, email, "EX", 1 * 60); // 1 min expiry
 
       res.cookie("sessionToken", sessionToken, {
         httpOnly: true,
-        // secure: true, // Set to true if using HTTPS
+        path: "/",
         secure: secure_cookie == "Production",
-        maxAge: 10 * 60 * 1000, // 10 minutes expiry
-        sameSite: "strict",
+        maxAge: 1 * 60 * 1000, // 1 minutes expiry
+        sameSite: secure_cookie == "Production" ? "none" : "lax",
       });
 
-      res.json({
+      res.status(200).json({
         success: true,
         message: "OTP sent successfully!",
         token: sessionToken,
@@ -152,8 +155,6 @@ export const verify_the_otp = async (
 ): Promise<any> => {
   const error = validationResult(req);
 
-  
-
   if (!error.isEmpty()) {
     return res.status(400).json({ errors: error.array() });
   }
@@ -172,9 +173,7 @@ export const verify_the_otp = async (
       return res.status(400).json({ error: "Session token is required." });
     }
 
-
     const email = await redis.get(`session:${sessionToken}`);
-
 
     if (!email) {
       return res
@@ -184,9 +183,8 @@ export const verify_the_otp = async (
 
     const otpRecord = await Client.otpTable.findUnique({ where: { email } });
 
-
     if (!otpRecord || otpRecord.otp !== (otp as string)) {
-      return res.status(400).json({ error: "Invalid OTP." });
+      return res.status(401).json({ error: "Invalid OTP." });
     }
 
     if (!otpRecord.expiresAt || new Date() > new Date(otpRecord.expiresAt)) {
@@ -195,32 +193,72 @@ export const verify_the_otp = async (
         .json({ error: "OTP expired. Please request a new one." });
     }
 
-
     await Client.otpTable.delete({ where: { email } });
-
 
     res.clearCookie("sessionToken");
 
     await redis.del(`otp:${sessionToken}`);
 
+    const user_data = await Client.users.findUnique({ where: { email: email } });
 
-    const user = await Client.users.create({
-      data: {
-        email: email,
+    let user;
+
+    if (!user_data) {
+      user = await Client.users.create({
+        data: {
+          email: email,
+        },
+      });
+    }
+
+    // const { accessToken }: any = await generateTokens(user?.id);
+
+    const accessToken = jwt.sign(
+      {
+        id: user_data ? user_data.id : user?.id,
+        currRole: "user",
+        role: "authenticated",
+        aud: "authenticated",
+      },
+      serect || "",
+      {
+        expiresIn: ACCESS_TOKEN_EXPIRATION,
+      }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user_data ? user_data.id : user?.id, currRole: "user" },
+      serect || "",
+      {
+        expiresIn: REFRESH_TOKEN_EXPIRATION,
+      }
+    );
+
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+
+    console.log("done3");
+
+    await Client.refresh_token.upsert({
+      where: { userId: user_data ? user_data.id : user?.id },
+      update: { token: refreshToken, expiresAt },
+      create: {
+        userId: user_data ? Number(user_data.id) : Number(user?.id),
+        token: refreshToken,
+        expiresAt,
       },
     });
 
-    const { accessToken }: any = await generateTokens(user?.id);
-
+    // console.log("seller_contoller: ",seller_account)
 
     res.cookie("access_token", accessToken, {
       httpOnly: true,
+      path: "/",
       secure: secure_cookie == "Production",
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000,
+      sameSite: secure_cookie == "Production" ? "none" : "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
     });
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: "OTP verified successfully and stored in cookie!",
       token: accessToken,
@@ -244,27 +282,26 @@ export const logout_user = async (
   res: Response,
   next: NextFunction
 ) => {
-  const user_id = Number(req.user_id)
+  const user_id = Number(req.user_id);
 
   try {
     const user_details = await Client.refresh_token.findUnique({
-      where: { userId: user_id }
-    })
+      where: { userId: user_id },
+    });
 
-    const user_refresh_token = user_details?.token
+    const user_refresh_token = user_details?.token;
 
     await Client.blacklist_token.create({
-      data:{
+      data: {
         token: user_refresh_token || "",
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day from now
-      }
-    })
+      },
+    });
 
     res.clearCookie("access_token");
 
-    res.status(200).json({message: "The user is logged out."})
-
+    res.status(200).json({ message: "The user is logged out." });
   } catch (error: any) {
-    res.status(400).json({message: "Error in logout: " , error: error})
+    res.status(400).json({ message: "Error in logout: ", error: error });
   }
 };

@@ -16,20 +16,30 @@ export const authenticate_User = async (
 ): Promise<any> => {
   const token =
     req.cookies.access_token || req.headers["authorization"]?.split(" ")[1];
+  if (!token) {
+    return res.status(500).json({ message: "Unauthorized" });
+  }
+
+  let user_id: any = null; // ✅ Moved this here
 
   try {
-    if (!token) {
-      return res.status(500).json({ message: "Unauthorized" });
+    let token_exist = null;
+
+    try {
+      token_exist = await Client.blacklist_token.findFirst({
+        where: {
+          token,
+        },
+      });
+      console.log(token_exist, "token exist");
+    } catch (error) {
+      console.error("Error checking blacklist_token:", error);
+      return res
+        .status(500)
+        .json({ message: "Internal error while checking token" });
     }
 
-    const token_exist: any = await Client.blacklist_token.findMany({
-      where: {
-        token,
-      },
-    });
-    console.log(token_exist, "token exist");
-
-    if (token_exist.length > 0) {
+    if (token_exist) {
       res.clearCookie("access_token");
       res.clearCookie("refresh_token");
 
@@ -38,58 +48,64 @@ export const authenticate_User = async (
         .json({ message: "Unauthorized token accessing resource" });
     }
 
-    jwt.verify(token, serect || "", async (err: any, decode: any) => {
-      const decode_token = jwt.decode(token);
+    const decoded: any = jwt.verify(token, serect || "");
 
-      if (!decode_token || typeof decode_token === "string") {
-        return res.status(403).json({ message: "Invalid token" });
-      }
+    if (!decoded || typeof decoded === "string" || !decoded.id) {
+      return res.status(403).json({ message: "Invalid token structure" });
+    }
 
-      const user_id = decode_token?.id;
+    user_id = decoded.id;
+    console.log("seller_idlddvmkmdfkmdsl", user_id);
+    console.log("seller", user_id);
 
-      if (err?.name === "TokenExpiredError") {
-        try {
-          const { accessToken }: any = await generateTokens(user_id);
+    req.user_id = user_id;
+    next();
+  } catch (error: any) {
+    console.error("Token verification failed:", error);
 
-          res.cookie("access_token", accessToken, {
-            httpOnly: true,
-            secure: secure_cookie == "Production",
-            sameSite: "strict",
-            maxAge: 15 * 60 * 1000,
-          });
-          req.user_id = user_id;
-          next();
-        } catch (error) {
-          await Client.blacklist_token.create({
-            data: {
-              token,
-              expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
-            },
-          });
+    const decoded_token: any = jwt.decode(token);
+    user_id = decoded_token?.id;
 
-          res.clearCookie("access_token");
-          res.clearCookie("refresh_token");
+    console.log(user_id);
 
-          return res
-            .status(401)
-            .json({ message: "Session expired. Please log in again." });
+    if (error.name == "TokenExpiredError") {
+      try {
+        const accessToken = await generateTokens(user_id);
+
+        res.cookie("access_token", accessToken, {
+          httpOnly: true,
+          path: "/",
+          secure: secure_cookie == "Production",
+          sameSite: secure_cookie == "Production" ? "none" : "lax",
+          maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
+        });
+
+        if (user_id !== null) {
+          req.user_id = user_id.toString();
         }
-      }
 
-      if (err?.name === "JsonWebTokenError") {
-        return res.status(403).json({ message: "Invalid token" });
-      }
+        next();
+      } catch (error) {
+        await Client.blacklist_token.create({
+          data: {
+            token,
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
+          },
+        });
 
-      if (!err) {
-        if (decode_token && typeof decode_token !== "string") {
-          req.user_id = decode_token.id;
-          next();
-        } else {
-          return res.status(403).json({ message: "Invalid token" });
-        }
+        res.clearCookie("access_token");
+        res.clearCookie("refresh_token");
+
+        return res
+          .status(401)
+          .json({ message: "Session expired. Please log in again." });
       }
-    });
-  } catch (error) {
-    res.status(401).json({ message: "error in the middleware", error: error });
+    } else if (error?.name === "JsonWebTokenError") {
+      return res.status(403).json({ message: "Invalid token" });
+    } else {
+      return res
+        .status(500)
+        .json({ message: "Error in authenticating seller", error: error });
+    }
   }
 };

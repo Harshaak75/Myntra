@@ -1,47 +1,32 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import { backend_url } from "../../config";
-// Replace with your actual backend URL
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// ✅ Async function to check authentication status using Axios
-export const checkAuthStatus = createAsyncThunk(
-  "auth/checkStatus",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await axios.get(`${backend_url}seller/auth/check`, {
-        withCredentials: true, // ✅ Ensure cookies are sent
-      });
-      return response.data; // Assuming backend returns `{ user, isAuthenticated }`
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Authentication failed");
-    }
-  }
-);
+interface Userdata {
+    email: string | null,
+    user_id: string | null,
+}
+
+const initialState: Userdata  = {
+    email: null,
+    user_id: null
+}
 
 const authSlice = createSlice({
-  name: "auth",
-  initialState: {
-    user: null,
-    isAuthenticated: false,
-    loading: true, // 🔹 Ensure loading starts as true
-  },
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(checkAuthStatus.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(checkAuthStatus.fulfilled, (state, action) => {
-        state.user = action.payload.user; // Ensure backend returns `user`
-        state.isAuthenticated = true;
-        state.loading = false; // ✅ Ensure loading becomes false
-      })
-      .addCase(checkAuthStatus.rejected, (state) => {
-        state.user = null;
-        state.isAuthenticated = false;
-        state.loading = false; // ✅ Prevent infinite loading
-      });
-  },
-});
+    name: "auth",
+    initialState,
+    reducers:{
+        setEmail:(state, actions: PayloadAction<{email: string | null}>) =>{
+            state.email = actions.payload.email;
+        },
+        setUserid:(state, actions) =>{
+            state.user_id = actions.payload.user_id;
+        },
+        logOut:(state) =>{
+            state.email = null;
+            state.user_id = null;
+        }
+    }
+})
 
-export default authSlice.reducer;
+
+export const {setEmail, setUserid, logOut} = authSlice.actions;
+export const authReducer = authSlice.reducer;
