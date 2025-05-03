@@ -36,26 +36,11 @@ export const Sidebarmobile = ({ closeMenu }: SidebarmobileProps) => {
                 <div className="bg-gray-700 p-2 rounded-full">
                   <User className="text-white" />
                 </div>
-                <div>
+                <div onClick={() => naviage("/users/login")}>
                   <p className="text-sm font-semibold text-white">Sign In</p>
                 </div>
               </div>
             )}
-
-            {/* part 1 */}
-            {/* <div className="bg-gray-700 p-2 rounded-full">
-              <User className="text-white" />
-            </div>
-            <div>
-            <p className="text-sm font-semibold">Sign In</p>
-          </div> */}
-            {/* part 2 */}
-            {/* <div className="flex flex-col items-center gap-1">
-              <p className="text-[1.2rem] font-semibold text-white">Hey there, 👋</p>
-              <p className="text-xs text-gray-300 font-semibold">
-                Let’s find your look today!
-              </p>
-            </div> */}
           </div>
           <button onClick={closeMenu}>
             <X className="text-white" />
@@ -110,14 +95,16 @@ export const Sidebarmobile = ({ closeMenu }: SidebarmobileProps) => {
 
       {/* secong menu */}
       <div className="flex flex-col mt-4 gap-8 px-6  text-black">
-        <div className="flex items-center justify-between">
-          <button
-            className="text-left text-sm text-gray-500 font-semibold"
-            onClick={() => naviage("/user/account")}
-          >
-            Account
-          </button>
-        </div>
+        {email && (
+          <div className="flex items-center justify-between">
+            <button
+              className="text-left text-sm text-gray-500 font-semibold"
+              onClick={() => naviage("/user/account")}
+            >
+              Account
+            </button>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <button className="ttext-left text-sm text-gray-500 font-semibold ">
             Orders

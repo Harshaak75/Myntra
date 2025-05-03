@@ -33,9 +33,14 @@ export const LoginOTP = () => {
     return () => clearInterval(interval);
   }, [timer]);
 
-  const handleResend = () => {
-    setTimer(59); // Reset to 5 mins (300 sec)
-    // Add your resend OTP logic here (e.g., API call)
+  const handleResend = async () => {
+    try {
+      await axios.post(`${backend_url}userAuth/send-otp`,{email},{withCredentials: true})
+      alert("Send otp")
+      setTimer(59); // Reset to 5 mins (300 sec)
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   // Format timer as MM:SS

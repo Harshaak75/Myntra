@@ -25,7 +25,6 @@ import { categoryTemplate } from "../utils/columnNames";
 import supabase from "../utils/supabase.connect";
 import multer from "multer";
 
-
 import { Decimal } from "@prisma/client/runtime/library"; // Import Decimal
 import { generateCompactPicklistCode } from "../utils/ConvertToSafeBase";
 import {
@@ -34,6 +33,7 @@ import {
   generateNumericPacketCodes,
 } from "../utils/GenerateBrandCode";
 import { generateBarcode, generatePdf } from "../utils/generatePdf";
+import { getDirectDownloadUrl, uploadImageToBucket } from "../utils/UploadImage";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -150,7 +150,7 @@ export const login_seller = async (
           const accessToken = jwt.sign(
             {
               id: existing_seller.id,
-              currRole:"seller",
+              currRole: "seller",
               role: "authenticated",
               aud: "authenticated",
             },
@@ -161,7 +161,7 @@ export const login_seller = async (
           );
 
           const refreshToken = jwt.sign(
-            { id: existing_seller.id , currRole:"seller"},
+            { id: existing_seller.id, currRole: "seller" },
             seller_serect || "",
             {
               expiresIn: REFRESH_TOKEN_EXPIRATION,
@@ -439,7 +439,6 @@ export const Upload_Documats = async (
 
     const randomNumber = Math.floor(1000000 + Math.random() * 9000000);
 
-
     for (const row of rows) {
       if (!row.MRP || !row.brand) {
         console.error("Missing required fields:", row);
@@ -470,7 +469,33 @@ export const Upload_Documats = async (
       });
 
       for (const [key, value] of Object.entries(row)) {
-        if (!["MRP", "brand", "styleId"].includes(key)) {
+        const isImageField = key.toLowerCase().includes("image");
+        const isValidUrl = typeof value === "string" && value.includes("http");
+        const isGoogleDrive = isValidUrl && value.includes("drive.google.com");
+
+        // Special handling for image upload from Google Drive URLs
+        if (isImageField && isGoogleDrive) {
+          const directDownloadUrl = getDirectDownloadUrl(value);
+          if (directDownloadUrl) {
+            const uploadedImageUrl = await uploadImageToBucket(directDownloadUrl, productSKU);
+            if (uploadedImageUrl) {
+              await Client.productAttribute.create({
+                data: {
+                  attributename: key,
+                  attributevalue: uploadedImageUrl,
+                  productId: pro.id,
+                },
+              });
+            } else {
+              console.warn(`Image upload failed for: ${value}`);
+            }
+          } else {
+            console.warn(`Invalid Google Drive link format: ${value}`);
+          }
+        }
+      
+        // All other normal fields (or fallback if image fails)
+        else if (!["MRP", "brand", "styleId"].includes(key)) {
           await Client.productAttribute.create({
             data: {
               attributename: key,
@@ -800,7 +825,10 @@ export const getQuantity = async (
     },
   });
 
-  const totalQuntity = quantity.reduce((acc: any, item: any) => acc + item.quantity, 0);
+  const totalQuntity = quantity.reduce(
+    (acc: any, item: any) => acc + item.quantity,
+    0
+  );
   // console.log(totalQuntity)
   return res.status(200).json({ message: "dont", quantity: totalQuntity });
 };
@@ -931,24 +959,27 @@ export const validateSKU = async (
 
     console.log("productDetails", productDetails);
 
-    res.status(200).json({message: "SKU validated successfully", productDetails });
+    res
+      .status(200)
+      .json({ message: "SKU validated successfully", productDetails });
   } catch (error) {
     console.error("Error validating SKU:", error);
     res.status(500).json({ message: "Failed to validate SKU" });
   }
 };
 
-
-export const addCoverId = async(
+export const addCoverId = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<any> =>{
+): Promise<any> => {
   try {
-    const {coverId, productSku, picklisitCode} = req.body;
+    const { coverId, productSku, picklisitCode } = req.body;
 
-    if(!coverId || !productSku || !picklisitCode) {
-      return res.status(400).json({ message: "Cover ID and Product SKU are required" });
+    if (!coverId || !productSku || !picklisitCode) {
+      return res
+        .status(400)
+        .json({ message: "Cover ID and Product SKU are required" });
     }
 
     // get the theorder id from the order table
@@ -956,21 +987,21 @@ export const addCoverId = async(
     const ProductData = await Client.product.findUnique({
       where: { productSku: productSku },
       select: { id: true },
-    })
+    });
 
-    if(!ProductData) {
+    if (!ProductData) {
       return res.status(404).json({ message: "Product not found" });
     }
 
     // get picklist code
 
     const picklistData = await Client.picklist.findUnique({
-      where: {code: picklisitCode},
-      select: {id: true}
-    })
+      where: { code: picklisitCode },
+      select: { id: true },
+    });
 
-    if(!picklistData){
-      return res.status(404).json({message: "Picklist data not found"})
+    if (!picklistData) {
+      return res.status(404).json({ message: "Picklist data not found" });
     }
 
     const orderData = await Client.order.findFirst({
@@ -978,24 +1009,25 @@ export const addCoverId = async(
         productId: ProductData.id,
         picklistId: picklistData.id,
         coverId: null,
-      }
-    })
+      },
+    });
 
-    if(!orderData){
-      return res.status(404).json({message: "Order data not found"})
+    if (!orderData) {
+      return res.status(404).json({ message: "Order data not found" });
     }
 
     await Client.order.update({
-      where: {id: orderData.id},
+      where: { id: orderData.id },
       data: {
         coverId: coverId,
-        status: "Item Packed"
-      }
-    })
+        status: "Item Packed",
+      },
+    });
 
-    return res.status(200).json({message: "Cover id added succesfully"})
-
+    return res.status(200).json({ message: "Cover id added succesfully" });
   } catch (error) {
-    return res.status(500).json({message: "Error while adding the cover Id", error: error})
+    return res
+      .status(500)
+      .json({ message: "Error while adding the cover Id", error: error });
   }
-}
+};

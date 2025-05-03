@@ -29,4 +29,8 @@ export const bucket_name = process.env.BUCKET_NAME
 export const user_serect = process.env.SERECT_USER_PASSWORD
 
 
+// supabase s3 image
 
+export const supabase_url_image = process.env.SUPABASE_URL_IMAGE;
+export const supabase_key_image = process.env.SUPABASE_SERVICES_ROLE_KEY_IMAGE;
+export const supabase_bucket_name_image = process.env.BUCKET_NAME_IMAGE

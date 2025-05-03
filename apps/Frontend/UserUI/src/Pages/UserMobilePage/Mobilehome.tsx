@@ -5,16 +5,46 @@ import "keen-slider/keen-slider.min.css";
 import { useEffect, useRef, useState } from "react";
 import {
   CircleCheckBig,
+  Facebook,
   Heart,
+  Instagram,
   Menu,
   Package,
   Search,
   ShoppingBag,
   SquarePlus,
+  Twitter,
   User,
   X,
+  Youtube,
 } from "lucide-react";
-import { coin, logo, star } from "../../ImagesCollection";
+import {
+  banner1,
+  category,
+  coin,
+  logo,
+  offer,
+  photo1,
+  photo10,
+  photo11,
+  photo12,
+  photo13,
+  photo14,
+  photo15,
+  photo16,
+  photo17,
+  photo18,
+  photo2,
+  photo3,
+  photo4,
+  photo5,
+  photo6,
+  photo7,
+  photo8,
+  photo9,
+  shipping,
+  star,
+} from "../../ImagesCollection";
 import { useNavigate } from "react-router-dom";
 import { Sidebarmobile } from "@/Components/MobileUsers/Sidebarmobile";
 import { Navbarmobilt } from "@/Components/MobileUsers/Navbarmobile";
@@ -22,6 +52,7 @@ import { Footermobile } from "@/Components/MobileUsers/Footermobie";
 import { useSidebar } from "@/Hooks/SidebarContsxt";
 import { useDispatch, useSelector } from "react-redux";
 import { closeMenu, openMenu } from "@/store/SidebarSlice";
+import ProductCarousel from "@/Components/ProductCarousel";
 
 export function Mobilehome() {
   const categories = [
@@ -35,6 +66,29 @@ export function Mobilehome() {
     "KURTAS",
     "JEANS",
   ];
+
+  const navigate = useNavigate();
+
+  const categories_image = [
+    {
+      menImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/af955959-e154-432a-85cf-8ba0ec5f43a51722596980603-image_png_1851545165.png",
+      womenImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/8ab90130-0d13-4679-b351-82a2971b526b1722596488868-image_png_1119801902.png",
+    },
+    {
+      menImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/99f8940e-ca70-4948-a6cc-d3c6abebeb411722596921405-image_png1367818484.png",
+      womenImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d7e299ae-04f3-4b4d-b3f3-5fab02779df01722236022154-Card_46.png",
+    },
+    {
+      menImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d31abeab-0bf8-4d06-91e2-2a5a18ed08011722236020770-Card_25.png",
+      womenImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/fc7c482c-e400-4b20-8ff9-ffdd6275888c1722596447798-image_png_230248853.png",
+    },
+    {
+      menImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/84511f5f-5465-4d6c-8dff-017e2863b6e91722236021852-Card_26.png",
+      womenImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/cee4c20e-1629-4f61-9f25-bd1bf411b7f01722596082053-image_png739596407.png",
+    },
+    // ...add as many as needed
+  ];
+  
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
@@ -50,26 +104,52 @@ export function Mobilehome() {
     },
   });
 
-  // const [isOpen, setOpen] = useState(false);
+  const homepageProducts = [
+    { title: "AirPods Pro", price: "$199", image: "/products/airpods.jpg" },
+    { title: "MacBook Air", price: "$999", image: "/products/macbook.jpg" },
+    { title: "iPhone 15", price: "$799", image: "/products/iphone.jpg" },
+    { title: "Apple Watch", price: "$399", image: "/products/watch.jpg" },
+    { title: "HomePod Mini", price: "$99", image: "/products/homepod.jpg" },
+    { title: "Magic Mouse", price: "$79", image: "/products/mouse.jpg" },
+    { title: "AirPods Pro", price: "$199", image: "/products/airpods.jpg" },
+    { title: "MacBook Air", price: "$999", image: "/products/macbook.jpg" },
+    { title: "iPhone 15", price: "$799", image: "/products/iphone.jpg" },
+    { title: "Apple Watch", price: "$399", image: "/products/watch.jpg" },
+    { title: "HomePod Mini", price: "$99", image: "/products/homepod.jpg" },
+    { title: "Magic Mouse", price: "$79", image: "/products/mouse.jpg" },
+  ];
 
-  // const openMenu = () => {
-  //   setOpen(true);
-  // };
-
-  // const closeMenu = () => {
-  //   setOpen(false);
-  // };
-
-  // const { isOpen, openMenu, closeMenu } = useSidebar();
+  const photos = [
+    photo1,
+    photo2,
+    photo3,
+    photo4,
+    photo5,
+    photo6,
+    photo7,
+    photo8,
+    photo9,
+    photo10,
+    photo11,
+    photo12,
+    photo13,
+    photo14,
+    photo15,
+    photo16,
+    photo17,
+    photo18,
+  ];
 
   const isOpen = useSelector((state: any) => state.sidebar.isOpen);
   const dispatch = useDispatch();
 
   const banners = [
-    "https://www.karobargain.com/wp-content/uploads/2022/05/Zara-Upcoming-Sales-1.jpg",
-    "https://img1.paisawapas.com/images/2022/06/22133523/Allen-Solly-Offers.jpg",
-    "https://www.levistrauss.com/wp-content/uploads/2019/10/20191024_Velvetone_Hero.jpeg",
-    "https://i.pinimg.com/736x/d7/74/1c/d7741c5294cbcb50f8c137fbd47de8c9.jpg",
+    "https://mir-s3-cdn-cf.behance.net/project_modules/fs/84e85642054547.57bea3c1858d3.png",
+    "https://mir-s3-cdn-cf.behance.net/project_modules/fs/f3299f42054547.57bea3c185f64.png",
+    "https://miro.medium.com/v2/resize:fit:823/1*v0kx5r8ySR1eaWXWEBHSsw.jpeg",
+    "https://indian-retailer.s3.ap-south-1.amazonaws.com/s3fs-public/2024-10/Untitled%20design%20-%202024-10-09T181428.849.jpg",
+    "https://i.pinimg.com/736x/4f/57/47/4f57472c0f1f93776cbfbb7e63946ec3.jpg",
+    "https://images.herzindagi.info/her-zindagi-english/images/2024/09/27/article/image/myntra-sale-1727423186355.jpg",
   ];
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -102,7 +182,7 @@ export function Mobilehome() {
         <Navbarmobilt openMenu={() => dispatch(openMenu())} />
 
         {/* Search Bar */}
-        <div className="p-4">
+        <div className="p-4 lg:hidden">
           <div className="flex items-center gap-2 border border-gray-300 rounded-full px-4 py-2">
             <Search className="text-gray-500" />
             <input
@@ -115,14 +195,10 @@ export function Mobilehome() {
       </div>
 
       {/* Main Scrollable Content */}
-      <main className="flex-1 overflow-y-auto pt-[140px] pb-[70px]">
-        {/* 🔥 pt-[140px] = height of header and search
-            🔥 pb-[70px] = height of bottom nav
-        */}
-
+      <main className="flex-1 overflow-y-auto lg:pt-[80px] pt-[140px] lg:pb-0 pb-[70px] overflow-hidden">
         {/* Categories (No change in your design) */}
-        <div className="p-4">
-          <div className="overflow-x-auto whitespace-nowrap scroll-smooth snap-x snap-mandatory scrollbar-hide px-4 space-x-4 mb-4">
+        <div className="px-4 lg:hidden">
+          <div className="overflow-x-auto whitespace-nowrap scroll-smooth snap-x snap-mandatory scrollbar-hide px-4 space-x-5 mb-5">
             {categories.map((cat, idx) => (
               <div
                 key={idx}
@@ -134,7 +210,7 @@ export function Mobilehome() {
             ))}
           </div>
 
-          <div className="overflow-x-auto whitespace-nowrap scroll-smooth snap-x snap-mandatory scrollbar-hide px-4 space-x-4 mb-4">
+          <div className="overflow-x-auto whitespace-nowrap scroll-smooth snap-x snap-mandatory scrollbar-hide px-4 space-x-5">
             {categories.map((cat, idx) => (
               <div
                 key={idx}
@@ -147,55 +223,284 @@ export function Mobilehome() {
           </div>
         </div>
 
-        {/* Offer Banner (No change in your design) */}
-        <div className="relative">
-          {/* Left Scalloped Edge */}
-          <div className="absolute left-0 top-0 h-full w-6 overflow-hidden">
-            <svg
-              viewBox="0 0 10 100"
-              preserveAspectRatio="none"
-              className="h-full w-full"
-            >
-              <path
-                d="M10,0 Q0,12.5 10,25 Q0,37.5 10,50 Q0,62.5 10,75 Q0,87.5 10,100"
-                fill="#fde4f1"
-              />
-            </svg>
+        {/* Desktop and mobile Banner (Visible only on lg and up) */}
+        <div className="w-full md:p-0 lg:p-6 md:mb-0 lg:mb-4">
+          {/* Offer Image: visible on all screen sizes */}
+          <div className="flex items-center justify-center overflow-hidden w-full px-0 lg:px-4 py-4">
+            <img
+              src={offer}
+              alt="Offer Banner"
+              className="w-full max-w-screen-xl h-auto object-cover rounded-xl"
+            />
           </div>
 
-          {/* Right Scalloped Edge */}
-          <div className="absolute right-0 top-0 h-full w-6 overflow-hidden rotate-180">
-            <svg
-              viewBox="0 0 10 100"
-              preserveAspectRatio="none"
-              className="h-full w-full"
-            >
-              <path
-                d="M10,0 Q0,12.5 10,25 Q0,37.5 10,50 Q0,62.5 10,75 Q0,87.5 10,100"
-                fill="#f6edff"
-              />
-            </svg>
+          {/* Secondary Banner Image: visible only on desktop/laptop */}
+          <div className="hidden lg:block px-4 pt-2">
+            <img
+              src="https://assets.myntassets.com/w_980,c_limit,fl_progressive,dpr_2.0/assets/images/2025/4/29/3cd35a57-2175-41f3-a0c4-e5f6c99b15c41745936562672-Desktop_KV.jpg"
+              alt="Desktop Banner"
+              className="rounded-2xl xl:h-[400px] lg:h-[300px] w-full"
+            />
+          </div>
+        </div>
+
+        <div className="hidden lg:block w-full">
+          <div className="flex justify-center">
+            <img
+              src={banner1}
+              alt=""
+              className="w-[91%] h-[10.2rem] rounded-2xl"
+            />
+          </div>
+        </div>
+
+        <div className="hidden lg:block relative px-20">
+          <ProductCarousel
+            images={[
+              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/fc7c482c-e400-4b20-8ff9-ffdd6275888c1722596447798-image_png_230248853.png",
+              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d7e299ae-04f3-4b4d-b3f3-5fab02779df01722236022154-Card_46.png",
+              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/99f8940e-ca70-4948-a6cc-d3c6abebeb411722596921405-image_png1367818484.png",
+              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d31abeab-0bf8-4d06-91e2-2a5a18ed08011722236020770-Card_25.png",
+              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/84511f5f-5465-4d6c-8dff-017e2863b6e91722236021852-Card_26.png",
+              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/cee4c20e-1629-4f61-9f25-bd1bf411b7f01722596082053-image_png739596407.png",
+              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/caf08c79-22db-4d5e-ab01-86e18cc66d3e1722236021937-Card_49.png",
+              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/566a7b6c-6121-45d0-9d17-a760a4d4e8ea1722236021456-Card_50.png",
+              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/8ab90130-0d13-4679-b351-82a2971b526b1722596488868-image_png_1119801902.png",
+            ]}
+          />
+        </div>
+
+        {/* grid */}
+
+        <div className="hidden lg:grid grid-cols-2 gap-4 h-[640px] p-6 pt-9">
+          {/* Left - Big Image */}
+          <div className="h-[570px] pl-14">
+            <img
+              src="https://i.pinimg.com/564x/01/68/30/016830ef06d08f1a50d5f17a7ab6c511.jpg"
+              alt="Offer or Kids"
+              className="w-full h-full object-fill rounded-xl"
+            />
           </div>
 
-          {/* Main Ribbon */}
-          <div className="bg-gradient-to-r from-[#ffe1e9] via-[#fff0e2] to-[#f6edff] py-4 pl-8 pr-8 ml-6 mr-6 flex justify-between items-center shadow-md">
-            <div className="text-[#ff3d6d] font-bold text-base">
-              Get 25% Off
-              <div className="text-black text-sm font-normal">
-                Up To ₹200 Off*
-              </div>
+          {/* Right - 2 Stacked Images */}
+          <div className="flex flex-col h-full">
+            {/* Top Image - Men */}
+            <div className="h-[280px] pr-15">
+              <img
+                src="https://i.pinimg.com/736x/d7/dd/53/d7dd53f131daa04ea6ac7b1bd6e362c5.jpg"
+                alt="Men"
+                className="w-full h-full object-fill rounded-xl"
+              />
             </div>
-            <div className="bg-white px-3 py-1 text-black text-sm font-semibold rounded">
-              MYNSTARSAVE
-            </div>
-            <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">
-              %
+
+            {/* Bottom Image - Women */}
+            <div className="h-[275px] mt-4 pr-15">
+              <img
+                src="https://cdn.grabon.in/gograbon/images/merchant/1622288977756.jpg"
+                alt="Women"
+                className="w-full h-full object-cover rounded-xl"
+              />
             </div>
           </div>
         </div>
 
-        {/* Banner Carousel */}
-        <div className="w-full max-w-2xl mt-6 mx-auto px-4">
+        {/* category */}
+
+        <div className="w-ful pt-4 hidden lg:block">
+          <div className="category-banner w-full pr-6 pl-12">
+            <img src={category} alt="" className="w-full" />
+          </div>
+          <div className="collection-of-images flex flex-wrap w-[90%] gap-5 items-center justify-center ml-21 pt-6">
+            {photos.map((photo, index) => (
+              <img
+                key={index}
+                src={photo}
+                alt=""
+                className="hover:shadow-lg cursor-pointer rounded-xl"
+                onClick={() => navigate("/user/Products")}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* footer */}
+
+        <footer className="bg-[#FAFBFC] text-gray-700 text-sm mt-8 hidden lg:block">
+          <div className="max-w-screen-xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {/* ONLINE SHOPPING */}
+            <div>
+              <h3 className="font-bold mb-2">ONLINE SHOPPING</h3>
+              <ul className="space-y-2 mt-3 text-gray-600">
+                {[
+                  "Men",
+                  "Women",
+                  "Kids",
+                  "Home",
+                  "Beauty",
+                  "Genz",
+                  "Gift Cards",
+                  "Myntra Insider",
+                ].map((item) => (
+                  <li key={item}>
+                    <a href="#" className="hover:underline">
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* CUSTOMER POLICIES */}
+            <div>
+              <h3 className="font-bold mb-2">CUSTOMER POLICIES</h3>
+              <ul className="space-y-2 mt-3 text-gray-600">
+                {[
+                  "Contact Us",
+                  "FAQ",
+                  "T&C",
+                  "Terms Of Use",
+                  "Track Orders",
+                  "Shipping",
+                  "Cancellation",
+                  "Returns",
+                  "Privacy policy",
+                  "Grievance Redressal",
+                ].map((item) => (
+                  <li key={item}>
+                    <a href="#" className="hover:underline">
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* EXPERIENCE APP */}
+            <div>
+              <h3 className="font-bold mb-2">
+                EXPERIENCE MYNTRA APP ON MOBILE
+              </h3>
+              <div className="flex gap-3 mb-6">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/1280px-Google_Play_Store_badge_EN.svg.png"
+                  alt="Google Play"
+                  className="w-28"
+                />
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Download_on_the_App_Store_RGB_blk.svg/1280px-Download_on_the_App_Store_RGB_blk.svg.png"
+                  alt="App Store"
+                  className="w-28"
+                />
+              </div>
+              <h3 className="font-bold mb-2">KEEP IN TOUCH</h3>
+              <div className="flex gap-4">
+                <a href="#">
+                  <Facebook size={20} />
+                </a>
+                <a href="#">
+                  <Twitter size={20} />
+                </a>
+                <a href="#">
+                  <Youtube size={20} />
+                </a>
+                <a href="#">
+                  <Instagram size={20} />
+                </a>
+              </div>
+            </div>
+
+            {/* USEFUL LINKS */}
+            <div>
+              <h3 className="font-bold mb-2">USEFUL LINKS</h3>
+              <ul className="space-y-2 mt-3 text-gray-600">
+                {[
+                  "Blog",
+                  "Careers",
+                  "Site Map",
+                  "Corporate Information",
+                  "Whitehat",
+                  "Cleartrip",
+                ].map((item) => (
+                  <li key={item}>
+                    <a href="#" className="hover:underline">
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* POPULAR SEARCHES */}
+          <div className="border-t border-gray-300 mt-6 pt-6 px-4 max-w-screen-xl mx-auto text-xs text-gray-600">
+            <h4 className="font-bold mb-2 text-[1rem]">POPULAR SEARCHES</h4>
+            <div className="flex flex-wrap gap-x-2 items-center gap-y-1">
+              {[
+                "Dresses For Girls |",
+                "T-Shirts |",
+                "Blazers For Men |",
+                "Boxers |",
+                "Tops |",
+                "Kurtis |",
+                "Nike |",
+                "Designer Blouse |",
+                "Gowns |",
+                "Punjabi Suits |",
+                "Bikini |",
+                "Mynstars Fashion Show |",
+                "Saree |",
+                "Dresses |",
+                "Lehenga |",
+                "Bras |",
+                "Suit |",
+                "Chinos |",
+                "Designers Sarees |",
+                "Allen Solly |",
+                "Biba |",
+                "Fabindia |",
+                "Levis |",
+                "H&M |",
+                "Raymond | ",
+                "Van Heusen |",
+                "W |",
+                "Peter England |",
+                "Louis Philippe |",
+                "Adidas |",
+                "Pantaloons |",
+                "Pepe Jeans |",
+                "Mufti |",
+                "Flying Machine |",
+                "PUMA",
+              ].map((item, i) => (
+                <span
+                  key={i}
+                  className="whitespace-nowrap hover:underline cursor-pointer text-[0.9rem]"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* BOTTOM BAR */}
+          <div className="border-t border-gray-300 mt-6 pt-13 px-4 max-w-screen-xl mx-auto text-xs text-gray-600 flex flex-col  md:flex-row justify-between items-center gap-2 pb-8">
+            <p className="text-[1rem]">
+              In case of any concern,{" "}
+              <a href="#" className="text-blue-600 font-semibold">
+                Contact Us
+              </a>
+            </p>
+            <p className="text-[1rem]">
+              © 2025 www.mynstars.com. All rights reserved.
+            </p>
+            <p className="text-right text-[1rem]">A Mynstars company</p>
+          </div>
+        </footer>
+
+        {/* mobile */}
+
+        {/* only mobile Banner Carousel */}
+        <div className="w-full max-w-2xl mx-auto px-4 lg:hidden">
           <div
             ref={sliderRef}
             className="keen-slider rounded-lg overflow-hidden shadow-lg aspect-[16/9]"
@@ -229,149 +534,78 @@ export function Mobilehome() {
 
         {/* banner2 */}
 
-        <div className="border border-gray-50 mt-5"></div>
+        <div className="border border-gray-50 mt-5 lg:hidden"></div>
 
-        {/* offer banner */}
+        {/* offer banner star */}
 
-        <div className="relative h-[5.5rem] mx-4 my-3 rounded-2xl bg-gradient-to-r from-green-50 via-blue-50 to-green-50 flex items-center justify-around shadow-md">
-          {/* Left Star */}
-          <div className="absolute -left-5 top-[0.5rem] transform -translate-y-1/2">
-            <img src={star} alt="star" className="w-12 h-12 animate-pulse" />
-          </div>
-
-          {/* 100% Original */}
-          <div className="flex min-w-[6rem] flex-col items-center">
-            <div className="text-md">
-              <CircleCheckBig />
-            </div>
-            <div className="text-[0.9rem] font-semibold mt-2">100%</div>
-            <div className="text-xs text-gray-500">Original Products</div>
-          </div>
-
-          {/* Free Shipping */}
-          <div className="flex items-center flex-col border-l border-gray-300 pl-4">
-            <div className="text-xl">
-              <Package />
-            </div>
-            <div className="text-sm font-semibold flex mt-2">Free Shipping</div>
-            <div className="text-xs text-gray-500">On All Orders</div>
-          </div>
-
-          {/* Easy Returns */}
-          <div className="flex flex-col items-center border-l border-gray-300 pl-4">
-            <div className="text-2xl">₹</div>
-            <div className="text-sm font-semibold ">Easy Returns</div>
-            <div className="text-xs text-gray-500">And Refunds</div>
-          </div>
-
-          {/* Right Star */}
-          <div className="absolute -right-5 top-[5.3rem] transform -translate-y-1/2">
-            <img src={star} alt="star" className="w-12 h-12 animate-pulse" />
+        <div className="block lg:hidden h-auto px-2 py-2">
+          <div className="w-full flex items-center justify-center">
+            <img
+              src={shipping}
+              alt="Shipping"
+              className="w-full max-w-[480px] h-auto object-contain"
+            />
           </div>
         </div>
 
         {/* border */}
 
-        <div className="border border-gray-50 mt-5"></div>
-
-        {/* offers */}
-
-        <div className="flex gap-3 p-4 overflow-x-auto">
-          {/* Card 1 */}
-          <div className="w-[7.5rem] h-[9rem] bg-gradient-to-b border from-white to-pink-100 rounded-3xl p-3 flex flex-col items-center justify-center shadow-md">
-            <p className="text-[1rem] text-gray-700 font-medium mb-2">Under</p>
-            <div className="flex items-center justify-center">
-              <span className="text-pink-500 text-sm font-bold">₹</span>
-              <span className="text-pink-500 text-2xl font-extrabold leading-5">
-                499
-              </span>
-            </div>
-            <p className="text-[1.02rem] text-gray-800 font-bold mt-1">
-              Jewellery
-            </p>
-            <p className="text-gray-600 text-[1.5rem]">→</p>
-          </div>
-
-          {/* Card 2 */}
-          <div className="w-[7.5rem] h-[9rem] bg-gradient-to-b border from-white to-pink-100 rounded-3xl p-3 flex flex-col items-center justify-center shadow-md">
-            <p className="text-[1rem] text-gray-700 font-medium mb-2">Under</p>
-            <div className="flex items-center justify-center">
-              <span className="text-green-600 text-sm font-bold">₹</span>
-              <span className="text-green-600 text-2xl font-extrabold leading-5">
-                99
-              </span>
-            </div>
-            <p className="text-[0.9rem] text-gray-800 font-bold mt-1">Only</p>
-            <p className="text-gray-600 text-[1.5rem]">→</p>
-          </div>
-
-          {/* Card 3 */}
-          <div className="w-[7.5rem] h-[9rem] bg-gradient-to-b border from-white to-pink-100 rounded-3xl p-3 flex flex-col items-center justify-center shadow-md">
-            <p className="text-[1rem] text-gray-700 font-medium mb-2">Flat</p>
-            <div className="flex items-center justify-center">
-              <span className="text-purple-600 text-2xl font-extrabold leading-5">
-                80%
-              </span>
-            </div>
-            <p className="text-[0.9rem] text-gray-800 font-bold mt-1">Off</p>
-            <p className="text-gray-600 text-[1.5rem]">→</p>
-          </div>
-
-          {/* Card 4 */}
-          <div className="w-[7.5rem] h-[9rem] bg-gradient-to-b border from-white to-pink-100 rounded-3xl p-3 flex flex-col items-center justify-center shadow-md">
-            <p className="text-[0.85rem] text-gray-700 font-medium mb-2">
-              Under
-            </p>
-            <div className="flex items-center justify-center">
-              <span className="text-blue-600 text-sm font-bold">₹</span>
-              <span className="text-blue-600 text-2xl font-extrabold leading-5">
-                499
-              </span>
-            </div>
-            <p className="text-[0.9rem] text-gray-800 font-bold mt-1">Only</p>
-            <p className="text-gray-600 text-[1.5rem]">→</p>
-          </div>
-        </div>
-
-        {/* border */}
-
-        <div className="border border-gray-50 mt-5"></div>
+        <div className="border border-gray-50 mt-2 lg:hidden "></div>
 
         {/* main product */}
 
-        <div className="mt-3">
-          <div className="title flex items-center justify-around">
-            <div className="">
-              <h1 className="text-[1.5rem] font-semibold">
+        <div className="mt-3 lg:hidden">
+          {/* Title and Coin */}
+          <div className="title flex items-center justify-between px-4 md:px-6">
+            <div>
+              <h1 className="text-[1.5rem] font-semibold [@media(max-width:320px)]:text-[1.2rem] md:text-[1.7rem]">
                 Pocket Friendly Bargin!
               </h1>
-              <p className="text-gray-500">Where style matches savings</p>
+              <p className="text-gray-500 [@media(max-width:320px)]:text-[0.9rem] md:text-[1rem]">
+                Where style matches savings
+              </p>
             </div>
-            <div className="images w-15 h-15">
-              <img src={coin} alt="" />
+            <div className="images w-15 h-15 [@media(max-width:320px)]:w-11 [@media(max-width:320px)]:h-11 md:w-20 md:h-20">
+              <img
+                src={coin}
+                alt="coin"
+                className="object-contain w-full h-full"
+              />
             </div>
           </div>
-          {/* carasoel */}
-          <div className="overflow-hidden p-4">
+
+          {/* Carousel Section */}
+          <div className="overflow-hidden p-4 pt-7">
             <div
               ref={scrollRef}
               className="flex overflow-x-auto scroll-smooth scrollbar-hide gap-1.5"
             >
-              {categories.map((top, idx) => (
-                <div key={idx} className="flex flex-col items-center">
-                  {/* Top Part */}
+              {categories_image.map((item, idx) => (
+                <div key={idx} className="flex flex-col gap-3 items-center">
+                  {/* Men's Section (Top) */}
                   <div className="h-[11rem] w-[9rem] bg-pink-200 flex items-center justify-center text-sm font-bold mb-2">
-                    {top}
+                    <img
+                      src={item.menImage}
+                      alt={`Men ${idx}`}
+                      className="h-full w-full object-fill"
+                    />
                   </div>
-                  {/* Bottom Part */}
+
+                  {/* Women's Section (Bottom) */}
                   <div className="h-[11rem] w-[9rem] bg-blue-200 flex items-center justify-center text-sm font-bold">
-                    {categories[idx]}
+                    <img
+                      src={item.womenImage}
+                      alt={`Women ${idx}`}
+                      className="h-full w-full object-fill"
+                    />
                   </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
+
+        {/* <div className="">hi</div> */}
       </main>
 
       {/* sidebar */}
@@ -387,7 +621,7 @@ export function Mobilehome() {
       {isOpen && (
         <div
           className="fixed inset-0 h-full bg-black opacity-50 z-25"
-          onClick={() =>dispatch(closeMenu())}
+          onClick={() => dispatch(closeMenu())}
         />
       )}
 

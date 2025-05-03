@@ -25,6 +25,10 @@ import { MobileUserLayout } from "./Components/MobileUsers/MobileUserLayout.js";
 import { Account } from "./Components/MobileUsers/Account.js";
 import { Loginmobile } from "./Pages/UserMobilePage/Loginmobile.js";
 import { LoginOTP } from "./Pages/UserMobilePage/LoginOTP.js";
+import { Wishlistmobile } from "./Pages/UserMobilePage/MobileProfile/Wishlistmobile.js";
+import { Ordermobile } from "./Pages/UserMobilePage/MobileProfile/Ordermobile.js";
+import { Profilemobile } from "./Pages/UserMobilePage/MobileProfile/Profilemobile.js";
+import ProductGrid from "./Pages/UserMobilePage/MobileProfile/ProductGrid.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -45,7 +49,7 @@ function App() {
 
       <Router>
         <Routes>
-          <Route path="/" element={<RouteDecider />} />
+          {/* <Route path="/" element={<RouteDecider />} /> */}
           {/* ✅ Route without Navbar */}
           <Route path="/seller/signin" element={<SellerSignin />} />
           {/* Signin added you can change it */}
@@ -71,23 +75,35 @@ function App() {
           {/* ✅ Routes with User*/}
 
           {/* login page of mobile uders */}
-          <Route path="/users/login" element={<Loginmobile/>} />
-          <Route path="/users/login/otp" element={<LoginOTP/>} />
-          
-          <Route path="/mobile/home" element={<Mobilehome />} />
-          <Route element = {<MobileUserLayout/>}>
-          <Route path="/user/account" element={<Account />} />
+          <Route path="/users/login" element={<Loginmobile />} />
+          <Route path="/users/login/otp" element={<LoginOTP />} />
+
+          <Route path="/" element={<Mobilehome />} />
+
+          {/* wishlist */}
+
+          <Route
+            path="/user/Collection & Wishlist"
+            element={<Wishlistmobile />}
+          />
+
+          <Route element={<MobileUserLayout />}>
+            <Route path="/user/account" element={<Account />} />
+            <Route path="/user/Order" element={<Ordermobile />} />
+            <Route path="/user/Edit Profile" element={<Profilemobile />} />
+            <Route path="/user/Products" element={<ProductGrid/>}/>
           </Route>
 
           {/* <Route path="/user/navbar" element={<UserDashboard />} /> */}
-
-
 
           <Route path="/productAdmin/login" element={<ProductLogin />} />
           {/* routes for product admin */}
           <Route element={<Playout />}>
             <Route path="/productAdmin/dashboard" element={<Dashboard />} />
-            <Route path="/productAdmin/manageProduct" element={<ManageProduct />} />
+            <Route
+              path="/productAdmin/manageProduct"
+              element={<ManageProduct />}
+            />
           </Route>
         </Routes>
       </Router>

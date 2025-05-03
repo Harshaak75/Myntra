@@ -19,7 +19,7 @@ export const Footermobile = () => {
     
   }
   return (
-    <nav className="fixed bottom-0 left-0 w-full bg-white border-t-[0.04rem] flex justify-around items-center py-2 text-sm z-20">
+    <nav className="fixed bottom-0 left-0 w-full bg-white border-t-[0.04rem] flex justify-around items-center py-2 text-sm z-20 lg:hidden ">
       <div className="flex flex-col items-center text-pink-600">
         <img src={logo} className="h-5 mb-1" alt="home" />
         Home
