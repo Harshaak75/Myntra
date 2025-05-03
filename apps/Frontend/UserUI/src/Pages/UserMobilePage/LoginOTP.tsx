@@ -72,7 +72,7 @@ export const LoginOTP = () => {
       );
 
       if (response.status == 200) {
-        navigate("/mobile/home");
+        navigate("/");
       }
     } catch (error: any) {
         
