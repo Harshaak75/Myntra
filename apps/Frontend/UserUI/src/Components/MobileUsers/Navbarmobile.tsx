@@ -22,7 +22,7 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
             src={logo}
             alt="Logo"
             className="h-7 cursor-pointer"
-            onClick={() => navigate("/mobile/home")}
+            onClick={() => navigate("/")}
           />
         </div>
         <div className="flex items-center gap-4">
