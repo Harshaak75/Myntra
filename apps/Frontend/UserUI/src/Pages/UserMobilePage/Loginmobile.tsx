@@ -10,6 +10,7 @@ import { backend_url } from "../../../config";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 export const Loginmobile = () => {
   const [email, setemail] = useState("");
@@ -72,12 +73,12 @@ export const Loginmobile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fff] flex flex-col items-center">
+    <div className="min-h-screen bg-[#fff] flex flex-col items-center justify-center relative">
       {/* Top Banner Image */}
       <img
         src={banner}
         alt="Login Offer Banner"
-        className="w-full object-contain max-h-[220px]"
+        className="w-full object-contain max-h-[220px] lg:w-[25rem] md:w-[25rem]"
       />
 
       {/* Login Box */}
@@ -98,9 +99,7 @@ export const Loginmobile = () => {
             placeholder="Enter your Email"
             className="w-full"
           />
-          {error && (
-            <p className="text-sm font-medium text-red-500">{error}</p>
-          )}
+          {error && <p className="text-sm font-medium text-red-500">{error}</p>}
         </div>
 
         <p className="text-sm text-gray-700 font-medium">
@@ -130,12 +129,21 @@ export const Loginmobile = () => {
 
       {/* Spinner */}
       {loading && (
-        <div className="w-10 h-10 top-[50%] left-[40%] absolute  rounded-full bg-white flex items-center justify-center shadow-2xl border-1 p-1">
-        <div className="w-6 h-6 border-[3px] border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-2xl border-1 p-1">
+            <div className="w-6 h-6 border-[3px] border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
       )}
+
+      {/* Back to Home Arrow */}
+      <div
+        className="absolute top-4 left-4 md:hidden lg:block lg:flex items-center gap-1 cursor-pointer text-pink-600 hover:text-pink-700 transition"
+        onClick={() => navigate("/")}
+      >
+        <ArrowLeft className="w-5 h-5" />
+        <span className="text-sm font-semibold">Home</span>
+      </div>
     </div>
   );
 };
-
-

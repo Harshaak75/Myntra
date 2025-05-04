@@ -1,4 +1,7 @@
 import { logo } from "@/ImagesCollection";
+import { logOut } from "@/store/authSlice";
+import axios from "axios";
+import { backend_url } from "../../../config";
 import {
   Heart,
   Menu,
@@ -7,10 +10,37 @@ import {
   SquarePlus,
   User,
 } from "lucide-react";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
   const navigate = useNavigate();
+  const [loading , setloading] = useState(false)
+
+  const email = useSelector((state: any) => state.auth.email);
+
+  const dispatch = useDispatch();
+
+  const logout = async () => {
+      try {
+        setloading(true);
+        const response = await axios.get(`${backend_url}userAuth/logout`, {
+          withCredentials: true,
+        });
+        console.log(email);
+        dispatch(logOut());
+        navigate("/users/login");
+      } catch (error: any) {
+        if (error.response.data.message == "Unauthorized") {
+          alert("session expired, please login.")
+          dispatch(logOut());
+          navigate("/users/login");
+        }
+      } finally {
+        setloading(false);
+      }
+    };
 
   return (
     <header className="shadow-sm bg-white w-full px-4 lg:py-5 py-3 flex items-center justify-between">
@@ -43,14 +73,24 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
             onClick={() => navigate("/")}
           />
 
-          <nav className="flex gap-6 [@media(min-width:1015px)]:text-[0.71rem] [@media(min-width:1399px)]:text-[0.9rem]
-           font-semibold text-gray-700">
-            <button className="hover:text-pink-500">MEN</button>
-            <button className="hover:text-pink-500">WOMEN</button>
-            <button className="hover:text-pink-500">KIDS</button>
-            <button className="hover:text-pink-500">HOME & LIVING</button>
-            <button className="hover:text-pink-500">BEAUTY</button>
-            <button className="hover:text-pink-500">STUDIO</button>
+          <nav
+            className="flex gap-6 [@media(min-width:1015px)]:text-[0.71rem] [@media(min-width:1399px)]:text-[0.9rem]
+           font-semibold text-gray-700"
+          >
+            <button className="hover:text-pink-500 cursor-pointer">MEN</button>
+            <button className="hover:text-pink-500 cursor-pointer">
+              WOMEN
+            </button>
+            <button className="hover:text-pink-500 cursor-pointer">KIDS</button>
+            <button className="hover:text-pink-500 cursor-pointer">
+              HOME & LIVING
+            </button>
+            <button className="hover:text-pink-500 cursor-pointer">
+              BEAUTY
+            </button>
+            <button className="hover:text-pink-500 cursor-pointer">
+              STUDIO
+            </button>
           </nav>
         </div>
 
@@ -68,20 +108,100 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
 
         {/* Right section: icons */}
         <div className="flex gap-6 items-center text-gray-700 text-sm font-medium [@media(min-width:1015px)]:text-[0.7rem] [@media(min-width:1399px)]:text-[0.9rem]">
-          <div className="flex flex-col items-center hover:text-pink-500">
+          <div className="relative group hidden lg:flex flex-col items-center cursor-pointer">
             <User className="w-5 h-5 mb-0.5" />
-            Profile
+            <span className="text-sm font-medium text-gray-700 group-hover:text-pink-500 transition">
+              Profile
+            </span>
+
+            {/* Dropdown menu with animation */}
+            <div
+              className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-400 delay-250 ease-in-out
+    absolute top-11 right-[-0.5] w-[260px] bg-white shadow-xl border rounded z-50 pointer-events-none group-hover:pointer-events-auto"
+            >
+              <div className="p-4 border-b">
+                <p className="text-sm font-semibold">
+                  {email ? "Hello there," : "Welcome"}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {!email && "To access account and manage orders"}
+                </p>
+                {email ? <p className="pt-1">{email}</p> :
+                  <button
+                    onClick={() => navigate("/users/login")}
+                    className="mt-2 cursor-pointer w-full border border-pink-500 text-pink-500 font-bold py-1 text-sm rounded hover:bg-pink-50"
+                  >
+                    LOGIN / SIGNUP
+                  </button>
+                }
+              </div>
+              <ul className="text-sm py-2">
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                  Orders
+                </li>
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                  Wishlist
+                </li>
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                  Gift Cards
+                </li>
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                  Contact Us
+                </li>
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer flex justify-between items-center">
+                  Mynstars Insider
+                  <span className="bg-pink-500 text-white text-[10px] px-1.5 py-0.5 rounded-full ml-2">
+                    NEW
+                  </span>
+                </li>
+              </ul>
+              <hr />
+              <ul className="text-sm py-2">
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                  Mynstars Credit
+                </li>
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                  Coupons
+                </li>
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                  Saved Cards
+                </li>
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                  Saved VPA
+                </li>
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                  Saved Addresses
+                </li>
+              </ul>
+              <hr />
+              {email && <ul className="text-sm py-2">
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                  <button className="cursor-pointer" onClick={() => navigate("/user/profile/edit")}>Edit Profile</button> 
+                </li>
+                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                  <button className={`${loading ? "cursor-not-allowed" : "cursor-pointer"} `} disabled={loading} onClick={logout}>Logout</button>
+                </li>
+              </ul>}
+            </div>
           </div>
-          <div className="flex flex-col items-center hover:text-pink-500">
+
+          <div className="flex flex-col items-center hover:text-pink-500 cursor-pointer">
             <Heart className="w-5 h-5 mb-0.5" />
             Wishlist
           </div>
-          <div className="flex flex-col items-center hover:text-pink-500">
+          <div className="flex flex-col items-center hover:text-pink-500 cursor-pointer">
             <ShoppingBag className="w-5 h-5 mb-0.5" />
             Bag
           </div>
         </div>
       </div>
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-2xl border-1 p-1">
+            <div className="w-6 h-6 border-[3px] border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

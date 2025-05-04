@@ -3,6 +3,8 @@ import { User } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+
+
 export const Footermobile = () => {
   const navigate = useNavigate();
 

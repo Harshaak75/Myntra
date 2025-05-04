@@ -584,7 +584,7 @@ export function Mobilehome() {
               {categories_image.map((item, idx) => (
                 <div key={idx} className="flex flex-col gap-3 items-center">
                   {/* Men's Section (Top) */}
-                  <div className="h-[11rem] w-[9rem] bg-pink-200 flex items-center justify-center text-sm font-bold mb-2">
+                  <div className="h-[11rem] w-[9rem] bg-pink-200 flex items-center justify-center text-sm font-bold mb-2 cursor-pointer" onClick={() => navigate("/user/Products")}>
                     <img
                       src={item.menImage}
                       alt={`Men ${idx}`}

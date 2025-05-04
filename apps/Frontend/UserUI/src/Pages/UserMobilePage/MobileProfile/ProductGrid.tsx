@@ -23,6 +23,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
 import MobileFilterSortBar from "@/Components/MobileUsers/MobileFilterSortBar";
+import MobileFilterModal from "@/Components/MobileUsers/MobileFilterModal";
 
 interface Product {
   name: string;
@@ -182,8 +183,14 @@ export default function ProductGrid() {
     }
   });
 
+  const clearAllFilters = () => {
+    setSelectedBrands([]);
+    setTempMaxPrice(10000);
+    setMaxPrice(10000);
+  };
+
   return (
-    <div className="flex min-h-screen mt-20 border-t relative">
+    <div className="flex min-h-screen lg:mt-20 md:mt-0 border-t relative">
       {/* Breadcrumbs */}
       <p className="mb-5 absolute top-3 z-10 pl-7 hidden lg:block">
         <span className="text-[0.8rem]">Home</span> /{" "}
@@ -196,7 +203,7 @@ export default function ProductGrid() {
       </p>
 
       {/* Filter Sidebar */}
-      <aside className="w-64 pt-20 bg-white self-start h-fit hidden md:block">
+      <aside className="w-64 pt-20 md:pt-12 lg:pt-20 bg-white self-start h-fit hidden md:block">
         <div className="border-r p-4">
           <h2 className="text-xl font-semibold p-1 pl-3">Filters</h2>
           <hr />
@@ -279,56 +286,86 @@ export default function ProductGrid() {
         />
       </div>
 
-      {showFilterModal && (
-        <div className="fixed inset-0 bg-white z-30 overflow-auto p-4">
-          {/* Reuse your filter UI here, or extract into a new component */}
-          <button onClick={() => setShowFilterModal(false)}>Close</button>
-          {/* Brand + Price filter only */}
-        </div>
-      )}
+      <AnimatePresence>
+        {showFilterModal && (
+          <MobileFilterModal
+            onClose={() => setShowFilterModal(false)}
+            onClearAll={clearAllFilters}
+            selectedBrands={selectedBrands}
+            onBrandChange={handleBrandChange}
+            tempMaxPrice={tempMaxPrice}
+            setTempMaxPrice={setTempMaxPrice}
+            setMaxPrice={setMaxPrice}
+          />
+        )}
+      </AnimatePresence>
 
-      {showSortModal && (
-        <div className="fixed inset-0 bg-white z-30 overflow-auto p-4">
-          <h2 className="font-semibold mb-4">Sort By</h2>
-          <ul className="space-y-2">
-            <li>
-              <button
-                onClick={() => {
-                  setSortOption("recommended");
-                  setShowSortModal(false);
-                }}
-              >
-                Recommended
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => {
-                  setSortOption("priceLowToHigh");
-                  setShowSortModal(false);
-                }}
-              >
-                Price: Low to High
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => {
-                  setSortOption("priceHighToLow");
-                  setShowSortModal(false);
-                }}
-              >
-                Price: High to Low
-              </button>
-            </li>
-          </ul>
-        </div>
-      )}
+      <AnimatePresence>
+        {showSortModal && (
+          <>
+            {/* Optional backdrop */}
+            <motion.div
+              className="fixed inset-0 bg-black/50 z-20"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSortModal(false)}
+            />
+
+            {/* Bottom Sheet Modal */}
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "tween", duration: 0.3 }}
+              className="fixed inset-x-0 bottom-0 bg-white z-30 rounded-t-xl shadow-lg h-1/2 p-4"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="font-semibold text-[#ff3f6ce0]">SORT BY</h2>
+                <button onClick={() => setShowSortModal(false)}>Close</button>
+              </div>
+              <ul className="space-y-2">
+                {[
+                  { key: "recommended", label: "Recommended", icon: "🔥" },
+                  {
+                    key: "priceLowToHigh",
+                    label: "Price: Low to High",
+                    icon: "₹",
+                  },
+                  {
+                    key: "priceHighToLow",
+                    label: "Price: High to Low",
+                    icon: "₹",
+                  },
+                ].map((option) => {
+                  const isSelected = sortOption === option.key;
+                  return (
+                    <li key={option.key}>
+                      <button
+                        onClick={() => {
+                          setSortOption(option.key);
+                          setShowSortModal(false);
+                        }}
+                        className={`flex items-center w-full px-3 py-2 text-left transition-all border-l-1
+            ${isSelected ? "text-[#ff3f6c] font-semibold  border-l-4 border-[#ff3f6c]" : "text-gray-800"}
+            hover:bg-gray-100`}
+                      >
+                        <span className="text-lg w-6">{option.icon}</span>
+                        <span className="ml-2">{option.label}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Product Grid */}
       <main className="flex-1 p-4 bg-white">
-        <div className="flex justify-between items-center ">
-          <div className="pb-20 flex flex-col items-center gap-5 h-[6rem]"></div>
+        <div className="flex justify-between items-center">
+          <div className="lg:pb-20 flex flex-col items-center md:h-0 pb-10 lg:gap-5 lg:h-[6rem]"></div>
 
           <div className="flex justify-end mb-4 lg:block hidden">
             <select
@@ -343,7 +380,7 @@ export default function ProductGrid() {
           </div>
         </div>
 
-        <div className=" flex flex-wrap gap-3">
+        <div className="flex flex-wrap justify-center pb-10 gap-3 md:flex md:flex-wrap md:justify-center lg:justify-start lg:gap-y-10 lg:pl-18">
           <AnimatePresence>
             {sortedProducts.map((item, index) => (
               <motion.div

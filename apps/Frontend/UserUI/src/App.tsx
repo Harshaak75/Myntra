@@ -29,6 +29,7 @@ import { Wishlistmobile } from "./Pages/UserMobilePage/MobileProfile/Wishlistmob
 import { Ordermobile } from "./Pages/UserMobilePage/MobileProfile/Ordermobile.js";
 import { Profilemobile } from "./Pages/UserMobilePage/MobileProfile/Profilemobile.js";
 import ProductGrid from "./Pages/UserMobilePage/MobileProfile/ProductGrid.js";
+import AccountPage from "./Components/MobileUsers/AccountPage.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -92,6 +93,7 @@ function App() {
             <Route path="/user/Order" element={<Ordermobile />} />
             <Route path="/user/Edit Profile" element={<Profilemobile />} />
             <Route path="/user/Products" element={<ProductGrid/>}/>
+            <Route path="/user/profile/edit" element={<AccountPage/>} />
           </Route>
 
           {/* <Route path="/user/navbar" element={<UserDashboard />} /> */}
