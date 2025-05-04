@@ -22,6 +22,8 @@ export const LoginOTP = () => {
 
   const [error, seterror] = useState("");
 
+  const [loading, setloading] = useState(false);
+
   // Start countdown timer
   useEffect(() => {
     if (timer <= 0) return;
@@ -35,11 +37,19 @@ export const LoginOTP = () => {
 
   const handleResend = async () => {
     try {
-      await axios.post(`${backend_url}userAuth/send-otp`,{email},{withCredentials: true})
-      alert("Send otp")
+      setloading(true);
+      await axios.post(
+        `${backend_url}userAuth/send-otp`,
+        { email },
+        { withCredentials: true }
+      );
+      seterror("Sent OTP")
+      setOtpValues(Array(5).fill(""))
       setTimer(59); // Reset to 5 mins (300 sec)
     } catch (error) {
-      console.log(error)
+      console.log(error);
+    } finally {
+      setloading(false);
     }
   };
 
@@ -63,6 +73,7 @@ export const LoginOTP = () => {
     // console.log(fullOtp,typeof(fullOtp))
 
     try {
+      setloading(true);
       const response = await axios.post(
         `${backend_url}userAuth/verify-otp`,
         {
@@ -75,7 +86,6 @@ export const LoginOTP = () => {
         navigate("/");
       }
     } catch (error: any) {
-        
       if (error.code == "ERR_NETWORK") {
         seterror("Network Problem. Please try again");
         return;
@@ -90,13 +100,15 @@ export const LoginOTP = () => {
         alert("Failed to verify the OTP.");
       }
       console.log("something error", error);
+    } finally {
+      setloading(false);
     }
   };
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d?$/.test(value)) return; // Only allow digits
 
-    seterror("")
+    seterror("");
 
     const updated = [...otpValues];
     updated[index] = value;
@@ -189,6 +201,11 @@ export const LoginOTP = () => {
           </a>
         </p>
       </div>
+      {loading && (
+        <div className="w-10 h-10 top-[50%] left-[40%] absolute  rounded-full bg-white flex items-center justify-center shadow-2xl border-1 p-1">
+          <div className="w-6 h-6 border-[3px] border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
     </div>
   );
 };

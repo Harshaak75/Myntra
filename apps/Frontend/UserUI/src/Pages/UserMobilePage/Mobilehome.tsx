@@ -175,7 +175,7 @@ export function Mobilehome() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-white overflow-hidden">
+    <div className="flex relative flex-col h-screen bg-white overflow-hidden">
       {/* Fixed Header (Navbar + Search) */}
       <div className="fixed top-0 left-0 w-full bg-white z-20 shadow">
         {/* navbar */}
@@ -194,8 +194,10 @@ export function Mobilehome() {
         </div>
       </div>
 
+
+
       {/* Main Scrollable Content */}
-      <main className="flex-1 overflow-y-auto lg:pt-[80px] pt-[140px] lg:pb-0 pb-[70px] overflow-hidden">
+      <main className="flex-1 overflow-y-auto  lg:pt-[80px] pt-[140px] lg:pb-0 pb-[70px] overflow-hidden">
         {/* Categories (No change in your design) */}
         <div className="px-4 lg:hidden">
           <div className="overflow-x-auto whitespace-nowrap scroll-smooth snap-x snap-mandatory scrollbar-hide px-4 space-x-5 mb-5">
@@ -303,7 +305,6 @@ export function Mobilehome() {
             </div>
           </div>
         </div>
-
         {/* category */}
 
         <div className="w-ful pt-4 hidden lg:block">
@@ -604,6 +605,8 @@ export function Mobilehome() {
             </div>
           </div>
         </div>
+
+
 
         {/* <div className="">hi</div> */}
       </main>

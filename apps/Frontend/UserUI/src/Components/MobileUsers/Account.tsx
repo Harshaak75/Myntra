@@ -15,10 +15,12 @@ import { Button } from "../ui/button";
 import axios from "axios";
 import { backend_url } from "../../../config";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export const Account = () => {
   const isOpen = useSelector((state: any) => state.sidebar.isOpen);
   const dispatch = useDispatch();
+  const [loading, setloading] = useState(false);
 
   const email = useSelector((state: any) => state.auth.email);
 
@@ -26,41 +28,78 @@ export const Account = () => {
 
   const logout = async () => {
     try {
+      setloading(true);
       const response = await axios.get(`${backend_url}userAuth/logout`, {
         withCredentials: true,
       });
       console.log(email);
       dispatch(logOut());
       navigate("/users/login");
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      if (error.response.data.message == "Unauthorized") {
+        alert("session expired, please login.")
+        dispatch(logOut());
+        navigate("/users/login");
+      }
+    } finally {
+      setloading(false);
     }
   };
 
   const menuItems = [
-    { label: "Order",describe : "Check your order status", icon: <Package size={18} />, onClick: () => {} },
+    {
+      label: "Order",
+      describe: "Check your order status",
+      icon: <Package size={18} />,
+      onClick: () => {},
+    },
     {
       label: "Collection & Wishlist",
-      describe : "All your current product collections",
+      describe: "All your current product collections",
       icon: <Heart size={18} />,
       onClick: () => {},
     },
-    { label: "Saved Cards",describe : "Save your cards for faster checkouts", icon: <CreditCard size={18} />, onClick: () => {} },
-    { label: "Saved UPI",describe : "View your saved UPI", icon: <CreditCard size={18} />, onClick: () => {} },
-    { label: "Wallets",describe : "View your saved Wallet", icon: <CreditCard size={18} />, onClick: () => {} },
+    {
+      label: "Saved Cards",
+      describe: "Save your cards for faster checkouts",
+      icon: <CreditCard size={18} />,
+      onClick: () => {},
+    },
+    {
+      label: "Saved UPI",
+      describe: "View your saved UPI",
+      icon: <CreditCard size={18} />,
+      onClick: () => {},
+    },
+    {
+      label: "Wallets",
+      describe: "View your saved Wallet",
+      icon: <CreditCard size={18} />,
+      onClick: () => {},
+    },
     {
       label: "Address",
-      describe : "Save addresses for a hassle-free checkout",
+      describe: "Save addresses for a hassle-free checkout",
       icon: <MapPin size={18} />,
       onClick: () => {},
     },
-    { label: "Coupons",describe : "Manage coupons for additional discount", icon: <Bell size={18} />, onClick: () => {} },
+    {
+      label: "Coupons",
+      describe: "Manage coupons for additional discount",
+      icon: <Bell size={18} />,
+      onClick: () => {},
+    },
 
-    { label: "Edit Profile",describe : "Change your profile details", icon: <User size={18} />, onClick: () => {} },
+    {
+      label: "Edit Profile",
+      describe: "Change your profile details",
+      icon: <User size={18} />,
+      onClick: () => {},
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-50">
+    <div className="min-h-screen relative bg-gradient-to-b from-gray-50 to-gray-50">
       {isOpen && (
         <div
           className="fixed inset-0 bg-black opacity-50 z-25"
@@ -129,12 +168,20 @@ export const Account = () => {
         <div className=" p-3">
           <Button
             onClick={logout}
-            className="w-full h-[3rem] bg-[#ff3f6ce0] text-md font-semibold"
+            className={`w-full h-[3rem] bg-[#ff3f6ce0] text-md font-semibold ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}
+            disabled={loading}
           >
             LOGOUT
           </Button>
         </div>
       </div>
+      {loading && (
+        <div className="fixed inset-0 z-50 bg-white flex items-center justify-center no-scrollbar">
+          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-2xl border-1 p-1">
+            <div className="w-8 h-8 border-[3px] border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
