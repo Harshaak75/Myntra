@@ -3,6 +3,7 @@ import { backend_url } from "../../../config";
 import { background, logo } from "../../ImagesCollection";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getValidToken } from "@/Utiles/ValidateToken";
 
 export function SellerLogin() {
   const [loading, setloading] = useState(false);
@@ -53,12 +54,24 @@ export function SellerLogin() {
           withCredentials: true,
         }
       )
-      .then((response) =>{
-        localStorage.setItem("authorization", response.data.sellerToken); // Save token
-        alert(
-          "Login successful! Thanks for logging in"
-        );
-        navigate("/seller/dashboard")
+      .then(async (response) =>{
+        // localStorage.setItem("authorization", response.data.sellerToken); // Save token
+
+        const {token} = await getValidToken();
+
+        console.log("token", token)
+
+        if(response.data.isVerified){
+          alert(
+            "Login successful! Thanks for logging in"
+          );
+          navigate("/seller/dashboard")
+        }
+        else{
+          alert("Account under review. Redirecting to verification page.");
+          navigate("/seller/pending-verification"); // 👈 custom pending page
+        }
+        
       })
       .catch((error) => {
 

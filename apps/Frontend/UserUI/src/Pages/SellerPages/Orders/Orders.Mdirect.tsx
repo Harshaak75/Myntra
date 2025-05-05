@@ -54,7 +54,7 @@ export function OrdersMdirect() {
       // const token = localStorage.getItem("authorization");
       // console.log(localStorage.getItem("authorization"));
       setLoading(true);
-      const token = await getValidToken();
+      const {token} = await getValidToken();
 
       if (!token) {
         setError("Token not found. Please login again.");

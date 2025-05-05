@@ -30,6 +30,8 @@ import { Ordermobile } from "./Pages/UserMobilePage/MobileProfile/Ordermobile.js
 import { Profilemobile } from "./Pages/UserMobilePage/MobileProfile/Profilemobile.js";
 import ProductGrid from "./Pages/UserMobilePage/MobileProfile/ProductGrid.js";
 import AccountPage from "./Components/MobileUsers/AccountPage.js";
+import { PendingVerification } from "./Components/PendingVerification.js";
+import SellerApprovalPanel from "./Components/ProductAdmin/SellerApprovalPanel.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -56,12 +58,14 @@ function App() {
           {/* Signin added you can change it */}
           <Route path="/SellerLogin" element={<SellerLogin />} />
           {/* ✅ Routes with Navbar (Wrapped inside Layout) */}
+          <Route path="/seller/pending-verification" element={<PendingVerification/>}/>
           <Route element={<Layout />}>
             <Route path="/seller/dashboard" element={<GridSellerDashboard />} />
             <Route path="/seller/cataloguing" element={<SellerCatalog />} />
             <Route path="/accountDetails" element={<SellerForm />} />
             <Route path="/manage-shop" element={<SellerDeatils />} />
           </Route>
+          
           {/* orders seller */}
           <Route element={<OrderLayout />}>
             <Route path="/Orders/Search" element={<OrdersMdirect />} />
@@ -106,6 +110,7 @@ function App() {
               path="/productAdmin/manageProduct"
               element={<ManageProduct />}
             />
+            <Route path="/admin/approval" element={<SellerApprovalPanel/>}/>
           </Route>
         </Routes>
       </Router>

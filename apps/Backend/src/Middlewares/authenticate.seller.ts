@@ -77,7 +77,7 @@ export const authenticate_Seller = async (
           httpOnly: true,
           secure: secure_cookie == "Production",
           path: "/",
-          maxAge: 15 * 60 * 1000,
+          maxAge: 30 * 24 * 60 * 60 * 1000,
           sameSite: secure_cookie == "Production" ? "none" : "lax",
         });
 

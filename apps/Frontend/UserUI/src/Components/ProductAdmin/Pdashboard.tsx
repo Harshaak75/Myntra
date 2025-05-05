@@ -95,60 +95,66 @@ export default function Pdashboard() {
     // { name: "Under Review", value: 0 },
   ]);
 
-  const [loading, setloading] = useState(false)
+  const [loading, setloading] = useState(false);
 
   useEffect(() => {
-    
     async function fetchSummary() {
       // Fetch Products
-      setloading(true)
-      const token = await AdminValidToken();
+      setloading(true);
 
-      if (!token) {
-        return;
+      try {
+        const token = await AdminValidToken();
+
+        if (!token) {
+          return;
+        }
+        const supabase = getSupabaseClient(token);
+
+        const { count: totalProducts } = await supabase
+          .from("Product")
+          .select("*", { count: "exact", head: true });
+
+        // Fetch Sellers
+        const { data: sellers } = await supabase.from("Product").select("*");
+        console.log(sellers);
+
+        if (sellers) {
+          const approved = sellers.filter(
+            (s) => s.status === "Approved"
+          ).length;
+          const pending = sellers.filter((s) => s.status === "Pending").length;
+          const rejected = sellers.filter(
+            (s) => s.status === "Rejected"
+          ).length;
+          // const underReview = sellers.filter(
+          //   (s) => s.status === "under_review"
+          // ).length;
+
+          const sellerIds = sellers.map((s) => s.sellerId); // 👈 Extract seller_id
+          const uniqueIds = Array.from(new Set(sellerIds));
+
+          setSummary([
+            { title: "Total Products", value: totalProducts || 0 },
+            { title: "Total Sellers", value: uniqueIds.length },
+            { title: "Approved", value: approved },
+            { title: "Pending", value: pending },
+            { title: "Rejected", value: rejected },
+          ]);
+
+          setApprovalData([
+            { name: "Approved", value: approved },
+            { name: "Pending", value: pending },
+            { name: "Rejected", value: rejected },
+            // { name: "Under Review", value: underReview },
+          ]);
+        }
+      } catch (error) {
+      } finally {
+        setloading(false);
       }
-      const supabase = getSupabaseClient(token);
-
-      const { count: totalProducts } = await supabase
-        .from("Product")
-        .select("*", { count: "exact", head: true });
-
-      // Fetch Sellers
-      const { data: sellers } = await supabase.from("Product").select("*");
-      console.log(sellers)
-
-      if (sellers) {
-        const approved = sellers.filter((s) => s.status === "Approved").length;
-        const pending = sellers.filter((s) => s.status === "Pending").length;
-        const rejected = sellers.filter((s) => s.status === "Rejected").length;
-        // const underReview = sellers.filter(
-        //   (s) => s.status === "under_review"
-        // ).length;
-
-        const sellerIds = sellers.map((s) => s.sellerId); // 👈 Extract seller_id
-        const uniqueIds = Array.from(new Set(sellerIds));
-
-        setSummary([
-          { title: "Total Products", value: totalProducts || 0 },
-          { title: "Total Sellers", value: uniqueIds.length },
-          { title: "Approved", value: approved },
-          { title: "Pending", value: pending },
-          { title: "Rejected", value: rejected },
-        ]);
-
-        setApprovalData([
-          { name: "Approved", value: approved },
-          { name: "Pending", value: pending },
-          { name: "Rejected", value: rejected },
-          // { name: "Under Review", value: underReview },
-        ]);
-      }
-      setloading(false)
     }
 
     fetchSummary();
-
-    
   }, []);
   return (
     <div className="p-6 space-y-8">
@@ -360,10 +366,10 @@ export default function Pdashboard() {
         </Card>
       </div>
       {loading && (
-          <div className="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50">
-            <div className="loader"></div>
-          </div>
-        )}
+        <div className="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50">
+          <div className="loader"></div>
+        </div>
+      )}
     </div>
   );
 }

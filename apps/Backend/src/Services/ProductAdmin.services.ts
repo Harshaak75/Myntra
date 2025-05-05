@@ -6,8 +6,8 @@ import { admin_serect } from "../config";
 
 const Client = new PrismaClient();
 
-const ACCESS_TOKEN_EXPIRATION = "5m"; // 5 minutes
-const REFRESH_TOKEN_EXPIRATION = "1d"; // 1 day
+const ACCESS_TOKEN_EXPIRATION = "15m"; // 5 minutes
+const REFRESH_TOKEN_EXPIRATION = "30d"; // 1 day
 
 export const login_productAdmin = async (email: string, password: string) => {
   try {
@@ -55,7 +55,7 @@ export const login_productAdmin = async (email: string, password: string) => {
       }
     );
 
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 day
 
     console.log("4");
 

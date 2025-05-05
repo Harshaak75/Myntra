@@ -39,8 +39,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 const Client = new PrismaClient();
 
-const ACCESS_TOKEN_EXPIRATION = "5m"; // 5 minutes
-const REFRESH_TOKEN_EXPIRATION = "1d"; // 1 day
+const ACCESS_TOKEN_EXPIRATION = "15m"; // 5 minutes
+const REFRESH_TOKEN_EXPIRATION = "30d"; // 1 day
 
 export const register_seller = async (
   req: Request,
@@ -75,26 +75,27 @@ export const register_seller = async (
 
     console.log("done3");
 
-    const seller_account = await Create_Seller_account(
+    const {accessToken, isVerified} = await Create_Seller_account(
       new_seller_data,
       hashedPassword
     );
 
     console.log("done7");
 
-    res.cookie("sell_access_token", seller_account, {
+    res.cookie("sell_access_token", accessToken, {
       httpOnly: true,
       secure: secure_cookie === "Production",
       path: "/",
-      maxAge: 5 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
       sameSite: secure_cookie == "Production" ? "none" : "lax",
     });
 
-    console.log("token in controller: ", seller_account);
+    console.log("token in controller: ", accessToken);
 
     res.status(200).json({
       message: "the seller account was created",
-      sellerToken: seller_account,
+      sellerToken: accessToken,
+      isVerified
     });
   } catch (error) {
     res.status(500).json({ message: "Error registering seller", error });
@@ -147,12 +148,15 @@ export const login_seller = async (
         if (result) {
           // const seller_account = await generateTokensSeller(existing_seller.id);
 
+          const seller = await Client.seller.findUnique({ where: { id: existing_seller.id } });
+
           const accessToken = jwt.sign(
             {
               id: existing_seller.id,
               currRole: "seller",
               role: "authenticated",
               aud: "authenticated",
+              isVerified: seller?.isVerified ?? false
             },
             seller_serect || "",
             {
@@ -168,7 +172,7 @@ export const login_seller = async (
             }
           );
 
-          const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+          const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 day
 
           console.log("done3");
 
@@ -188,13 +192,14 @@ export const login_seller = async (
             httpOnly: true,
             path: "/",
             secure: secure_cookie === "Production",
-            maxAge: 5 * 60 * 1000,
+            maxAge: 30 * 24 * 60 * 60 * 1000,
             sameSite: secure_cookie == "Production" ? "none" : "lax",
           });
 
           res.status(200).json({
             message: "Seller logged in successfully",
             sellerToken: accessToken,
+            isVerified: seller?.isVerified ?? false
           });
         } else {
           return res.status(422).json({ message: "Invalid credentials" });

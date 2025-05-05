@@ -78,7 +78,7 @@ export default function SellerCatalog() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = await getValidToken();
+        const {token} = await getValidToken();
         if (!token) {
           console.error("Token missing.");
           return;

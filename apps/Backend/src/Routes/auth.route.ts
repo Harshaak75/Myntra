@@ -10,6 +10,8 @@ import { authenticate_User } from "../Middlewares/authenticate.user";
 import { authenticate_Seller } from "../Middlewares/authenticate.seller";
 import { authenticate_Admin_User } from "../Middlewares/authenticate.admin";
 
+import jwt, { JwtPayload } from "jsonwebtoken";
+
 const router = express.Router();
 
 router.post(
@@ -54,6 +56,36 @@ router.get("/validate-token-admin", authenticate_Admin_User, (req,res) =>{
     res.setHeader("x-new-access-token", newToken);
   }
   res.status(200).json({ message: "Token valid" });
+})
+
+router.get("/getAuth" , (req, res) =>{
+  const token = req.cookies.sell_access_token;
+  
+  if(!token){
+    res.status(500).json({message: "The token not found"})
+  }
+
+  try {
+    const decoded = jwt.decode(token)
+
+    if(typeof decoded === "object" && decoded !== null){
+      const {id,  isVerified } = decoded as JwtPayload & {id?: Number; isVerified?: boolean };
+      // const {id} =   decoded as JwtPayload & {id?: Number}
+
+      res.status(200).json({
+        message: "Token decoded successfully",
+        isVerified: isVerified ?? false,
+        token,
+        sellerId: id
+      });
+    }
+    else{
+      res.status(400).json({ message: "Invalid token structure" });
+    }
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    res.status(500).json({ message: "Failed to decode token" });
+  }
 })
 
 export default router;

@@ -5,8 +5,8 @@ import { seller_serect } from "../config";
 
 const Client = new PrismaClient();
 
-const ACCESS_TOKEN_EXPIRATION = "5m"; // 5 minutes
-const REFRESH_TOKEN_EXPIRATION = "1d"; // 1 day
+const ACCESS_TOKEN_EXPIRATION = "15m"; // 5 minutes
+const REFRESH_TOKEN_EXPIRATION = "30d"; // 1 day
 
 export const Create_Seller_account = async (
   sellerData: any,
@@ -24,8 +24,10 @@ export const Create_Seller_account = async (
     });
     console.log("done4")
 
+    const seller = await Client.seller.findUnique({ where: { id: seller_account.id } });
+
     const accessToken = jwt.sign(
-      { id: seller_account.id,currRole:"seller", role: "authenticated" , aud: "authenticated" },
+      { id: seller_account.id,currRole:"seller", role: "authenticated" , aud: "authenticated", isVerified: seller?.isVerified ?? false },
       seller_serect || "",
       {
         expiresIn: ACCESS_TOKEN_EXPIRATION,
@@ -40,7 +42,7 @@ export const Create_Seller_account = async (
       }
     );
 
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 day
 
     await Client.refresh_token_seller.upsert({
       where: { sellerId: seller_account.id },
@@ -53,7 +55,7 @@ export const Create_Seller_account = async (
     // const seller_token = await generateTokensSeller(seller_account.id);
     // console.log("token in services: ",seller_token)
 
-    return accessToken;
+    return {accessToken, isVerified: seller_account.isVerified ?? false };
   } catch (error: any) {
     throw new Error(`Error registering seller: ${error.message}`);
   }

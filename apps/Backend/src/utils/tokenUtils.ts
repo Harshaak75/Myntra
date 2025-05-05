@@ -5,8 +5,8 @@ import { JwtPayload, Secret } from "jsonwebtoken";
 
 const Client = new PrismaClient();
 
-const ACCESS_TOKEN_EXPIRATION = "15m"; // 5 minutes
-const REFRESH_TOKEN_EXPIRATION = "1d"; // 1 day
+const ACCESS_TOKEN_EXPIRATION = "15m"; // 15 minutes
+const REFRESH_TOKEN_EXPIRATION = "30d"; // 30 day
 
 // Function to generate tokens
 export const generateTokens = async (user_id: any) => {
@@ -143,14 +143,24 @@ export const generateTokensAdmin = async (user_id: any) => {
 //seller token generation
 
 export const generateTokensSeller = async (user_id: any) => {
-  const accessToken = jwt.sign({ id: user_id,currRole:"seller", role: "authenticated" , aud: "authenticated"}, seller_serect || "", {
+  
+
+  const seller = await Client.seller.findUnique({ where: { id: user_id } });
+
+  
+
+  const accessToken = jwt.sign({ id: user_id,currRole:"seller", role: "authenticated" , aud: "authenticated", isVerified: seller?.isVerified ?? false}, seller_serect || "", {
     expiresIn: ACCESS_TOKEN_EXPIRATION,
   });
+
+  
 
   try {
     const existingRefreshToken = await Client.refresh_token_seller.findFirst({
       where: { sellerId: user_id },
     });
+
+    
 
     if (existingRefreshToken) {
       try {
@@ -163,22 +173,31 @@ export const generateTokensSeller = async (user_id: any) => {
           const current_time = Math.floor(Date.now() / 1000);
           const timeRemaining = decoded.exp - current_time;
 
+          
+
           // If token is still valid and issued within last 22 hours, reuse it
           if (timeRemaining > refresh_token_renew_time) {
+            
             return accessToken;
           }
           else{
+            
             const refreshToken = jwt.sign({ id: user_id, currRole:"seller" }, seller_serect || "", {
               expiresIn: REFRESH_TOKEN_EXPIRATION,
             });
+            
 
-            const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+            const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 day
+
+            
 
             await Client.refresh_token_seller.upsert({
               where: { sellerId: user_id },
               update: { token: refreshToken, expiresAt },
               create: { sellerId: user_id, token: refreshToken, expiresAt },
             });
+
+            
 
             return accessToken;
           }

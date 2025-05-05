@@ -3,15 +3,28 @@ import { backend_url } from "../../../config";
 import { background, logo } from "../../ImagesCollection";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getValidToken } from "@/Utiles/ValidateToken";
 
 export function SellerSignin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("authorization");
-    if (token) {
-      navigate("/seller/dashboard"); // Redirect if token exists
+    // const token = localStorage.getItem("authorization");
+
+    async function fetchdata(){
+      const {token ,isVerified} = await getValidToken();
+
+      console.log("token", token)
+      
+      if (token && isVerified) {
+        navigate("/seller/dashboard"); // Redirect if token exists
+      }
+      else if(!isVerified){
+        navigate("/seller/pending-verification")
+      }
     }
+
+    fetchdata();
   }, []);
 
   const [loading, setloading] = useState(false);
@@ -73,8 +86,20 @@ export function SellerSignin() {
 
       if (response.status === 200) {
         localStorage.setItem("authorization", response.data.sellerToken); // Save token
-        alert("Registration successful!");
-        navigate("/seller/dashboard");
+
+        const {token} = await getValidToken();
+
+        console.log("token", token)
+
+        if (response.data.isVerfied) {
+          navigate("/seller/dashboard");
+        } else {
+          alert("Account under review. Redirecting to verification page.");
+          navigate("/seller/pending-verification"); // 👈 custom pending page
+        }
+
+        // alert("Registration successful!");
+        // navigate("/seller/dashboard");
       } else {
         alert("Failed to register. Please try again later.");
       }
@@ -160,7 +185,12 @@ export function SellerSignin() {
             {loading ? "Please wait" : "Register"}
           </button>
 
-          <h1>Already have an account? <a href="/SellerLogin" className="text-[#FF3F6C] font-medium">Login</a></h1>
+          <h1>
+            Already have an account?{" "}
+            <a href="/SellerLogin" className="text-[#FF3F6C] font-medium">
+              Login
+            </a>
+          </h1>
         </form>
       </div>
     </div>

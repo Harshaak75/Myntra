@@ -26,9 +26,13 @@ import { authenticate_Seller } from "../Middlewares/authenticate.seller";
 import { authorizeAdmin } from "../utils/adminAuthUtils";
 import { getOrderDetails } from "../Controller/user.controller";
 
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { generateTokensSeller } from "../utils/tokenUtils";
+import { secure_cookie } from "../config";
+
 const SellerRoute = express.Router();
 
-const upload = multer({ storage: multer.memoryStorage()});
+const upload = multer({ storage: multer.memoryStorage() });
 
 // login profile
 
@@ -56,7 +60,7 @@ SellerRoute.post(
 
 SellerRoute.get("/seller_profile", authenticate_Seller, SellerProfile);
 
-// add product is removed for now 
+// add product is removed for now
 
 // SellerRoute.post(
 //   "/add_product",
@@ -109,39 +113,89 @@ SellerRoute.get("/seller_profile", authenticate_Seller, SellerProfile);
 
 SellerRoute.put("/product/:id", authenticate_Seller, updateProduct);
 
-SellerRoute.post("/download_excel", [
-  body("category").isString().withMessage("Category must be a string"),
-],authenticate_Seller,
-downloadExcel);
-
+SellerRoute.post(
+  "/download_excel",
+  [body("category").isString().withMessage("Category must be a string")],
+  authenticate_Seller,
+  downloadExcel
+);
 
 SellerRoute.post("/updateSeller", authenticate_Seller, updateSeller);
 
-SellerRoute.post("/updatesellershop", authenticate_Seller, updateSellerShopDetails);
+SellerRoute.post(
+  "/updatesellershop",
+  authenticate_Seller,
+  updateSellerShopDetails
+);
 
-SellerRoute.post("/upload_documents",authenticate_Seller,upload.single("file"),Upload_Documats)
+SellerRoute.post(
+  "/upload_documents",
+  authenticate_Seller,
+  upload.single("file"),
+  Upload_Documats
+);
 
-SellerRoute.get("/logoutSeller", authenticate_Seller, logoutSeller)
+SellerRoute.get("/logoutSeller", authenticate_Seller, logoutSeller);
 
-SellerRoute.get("/auth/check",authenticate_Seller, checkSeller)
+SellerRoute.get("/auth/check", authenticate_Seller, checkSeller);
 
-SellerRoute.get("/email", authenticate_Seller, getEmail)
+SellerRoute.get("/email", authenticate_Seller, getEmail);
 
-SellerRoute.post("/generatePicklist", authenticate_Seller, GeneratePicklist)
+SellerRoute.post("/generatePicklist", authenticate_Seller, GeneratePicklist);
 
-SellerRoute.post("/getOrderDetails", authenticate_Seller, getProductDetails)
+SellerRoute.post("/getOrderDetails", authenticate_Seller, getProductDetails);
 
-SellerRoute.get("/getQuantity",authenticate_Seller,getQuantity)
+SellerRoute.get("/getQuantity", authenticate_Seller, getQuantity);
 
-SellerRoute.post("/getPicklistDetails", authenticate_Seller, getPicklistDetails)
+SellerRoute.post(
+  "/getPicklistDetails",
+  authenticate_Seller,
+  getPicklistDetails
+);
 
-SellerRoute.post("/validateSKU", authenticate_Seller, validateSKU)
+SellerRoute.post("/validateSKU", authenticate_Seller, validateSKU);
 
-SellerRoute.post("/addCoverId", authenticate_Seller, addCoverId)
+SellerRoute.post("/addCoverId", authenticate_Seller, addCoverId);
 
-SellerRoute.get("/get-sellerId", authenticate_Seller, (req,res) =>{
-    console.log("Seller ID:", req.seller_id); // Log the seller ID
-    res.status(200).json({ sellerId: req.seller_id }); // Send the seller ID in the response
-})
+SellerRoute.get("/get-sellerId", authenticate_Seller, (req, res) => {
+  console.log("Seller ID:", req.seller_id); // Log the seller ID
+  res.status(200).json({ sellerId: req.seller_id }); // Send the seller ID in the response
+});
+
+SellerRoute.get("/newToken", async (req, res) => {
+  const token = req.cookies.sell_access_token;
+
+  console.log("tooo", token)
+
+  try {
+    const decoded = jwt.decode(token);
+
+    console.log("HI")
+
+    if (typeof decoded === "object" && decoded !== null) {
+      console.log("HI")
+      const { id } = decoded as JwtPayload & { id?: Number };
+      console.log(id)
+
+      const accessToken = await generateTokensSeller(id);
+
+      console.log("HI")
+
+      console.log("tooooo", accessToken)
+
+      res.cookie("sell_access_token", accessToken, {
+        httpOnly: true,
+        secure: secure_cookie == "Production",
+        path: "/",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        sameSite: secure_cookie == "Production" ? "none" : "lax",
+      });
+
+      res.status(200).json({message: "done"})
+    }
+  } catch (error) {
+    res.status(500).json({error})
+  }
+});
 
 export default SellerRoute;
