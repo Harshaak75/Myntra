@@ -13,7 +13,7 @@ export const authenticate_Admin_User = async (
   next: NextFunction
 ): Promise<any> => {
   const token =
-    req.cookies.access_token || req.headers["authorization"]?.split(" ")[1];
+    req.cookies.admin_access_token || req.headers["authorization"]?.split(" ")[1];
 
     console.log("auth in seller", token);
 
