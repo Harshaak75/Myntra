@@ -58,6 +58,11 @@ router.get("/validate-token-admin", authenticate_Admin_User, (req,res) =>{
   res.status(200).json({ message: "Token valid" });
 })
 
+router.get("/getinfo", (req,res) =>{
+  const token = req.cookies.access_token
+  res.status(200).json({token})
+})
+
 router.get("/getAuth" , (req, res) =>{
   const token = req.cookies.sell_access_token;
   
