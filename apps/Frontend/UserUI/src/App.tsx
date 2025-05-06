@@ -96,7 +96,7 @@ function App() {
             <Route path="/user/account" element={<Account />} />
             <Route path="/user/Order" element={<Ordermobile />} />
             <Route path="/user/Edit Profile" element={<Profilemobile />} />
-            <Route path="/user/Products" element={<ProductGrid/>}/>
+            <Route path="/user/Products/:category" element={<ProductGrid/>}/>
             <Route path="/user/profile/edit" element={<AccountPage/>} />
           </Route>
 

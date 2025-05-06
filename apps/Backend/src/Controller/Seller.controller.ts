@@ -33,7 +33,10 @@ import {
   generateNumericPacketCodes,
 } from "../utils/GenerateBrandCode";
 import { generateBarcode, generatePdf } from "../utils/generatePdf";
-import { getDirectDownloadUrl, uploadImageToBucket } from "../utils/UploadImage";
+import {
+  getDirectDownloadUrl,
+  uploadImageToBucket,
+} from "../utils/UploadImage";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -75,7 +78,7 @@ export const register_seller = async (
 
     console.log("done3");
 
-    const {accessToken, isVerified} = await Create_Seller_account(
+    const { accessToken, isVerified } = await Create_Seller_account(
       new_seller_data,
       hashedPassword
     );
@@ -95,7 +98,7 @@ export const register_seller = async (
     res.status(200).json({
       message: "the seller account was created",
       sellerToken: accessToken,
-      isVerified
+      isVerified,
     });
   } catch (error) {
     res.status(500).json({ message: "Error registering seller", error });
@@ -148,7 +151,9 @@ export const login_seller = async (
         if (result) {
           // const seller_account = await generateTokensSeller(existing_seller.id);
 
-          const seller = await Client.seller.findUnique({ where: { id: existing_seller.id } });
+          const seller = await Client.seller.findUnique({
+            where: { id: existing_seller.id },
+          });
 
           const accessToken = jwt.sign(
             {
@@ -156,7 +161,7 @@ export const login_seller = async (
               currRole: "seller",
               role: "authenticated",
               aud: "authenticated",
-              isVerified: seller?.isVerified ?? false
+              isVerified: seller?.isVerified ?? false,
             },
             seller_serect || "",
             {
@@ -199,7 +204,7 @@ export const login_seller = async (
           res.status(200).json({
             message: "Seller logged in successfully",
             sellerToken: accessToken,
-            isVerified: seller?.isVerified ?? false
+            isVerified: seller?.isVerified ?? false,
           });
         } else {
           return res.status(422).json({ message: "Invalid credentials" });
@@ -318,19 +323,17 @@ export const downloadExcel = async (
   next: NextFunction
 ): Promise<any> => {
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
   try {
     const workbook = new ExcelJs.Workbook();
-
     const { category } = req.body;
 
-    // sheet1 instruction
     console.log("cat", category);
 
+    // Instruction Sheet
     const instructionSheet = workbook.addWorksheet("__Instruction");
     instructionSheet.addRow(["Instructions for using this template:"]);
     instructionSheet.addRow([
@@ -341,15 +344,62 @@ export const downloadExcel = async (
     ]);
     instructionSheet.addRow(["3. Do not modify the headers."]);
 
-    // sheet2
-
     if (categoryTemplate[category]) {
       const categoryColumns = categoryTemplate[category];
 
-      const categorySheet = workbook.addWorksheet(
-        category.charAt(0).toUpperCase() + category.slice(1)
-      );
+      const sheetName = category.charAt(0).toUpperCase() + category.slice(1);
+      const categorySheet = workbook.addWorksheet(sheetName);
       categorySheet.columns = categoryColumns;
+
+      // Add dropdown options per column key
+      const dropdownOptions: Record<string, string[]> = {
+        Gender: ["Men", "Women", "Unisex"],
+        season: ["Summer", "Winter", "Autumn", "Spring"],
+        fashionType: ["Ethnic", "Western", "Fusion"],
+        ageGroup: ["Kids", "Teen", "Adult"],
+        size: ["XS", "S", "M", "L", "XL", "XXL"],
+        isStandardSize: ["Yes", "No"],
+        usage: [
+          "Casual",
+          "Formal",
+          "Sportswear",
+          "Men Activewear",
+          "Women Activewear",
+          "Western wear",
+          "Lounge wear",
+          "Kids wear",
+          "Office wear",
+          "Men ethnic wear",
+          "inclusive styles",
+          "Sleep wear",
+          "Inner wear",
+          "Lingerie",
+        ],
+        pattern: ["Solid", "Printed", "Striped", "Checked", "Embroidered"],
+      };
+
+      const headerRow = categorySheet.getRow(1);
+      headerRow.font = { bold: true };
+
+      // Add dropdowns from row 2 to 500
+      for (let colIndex = 1; colIndex <= categoryColumns.length; colIndex++) {
+        const column = categoryColumns[colIndex - 1];
+        const options = dropdownOptions[column.key];
+
+        if (options && options.length > 0) {
+          for (let rowIndex = 2; rowIndex <= 500; rowIndex++) {
+            categorySheet.getCell(rowIndex, colIndex).dataValidation = {
+              type: "list",
+              allowBlank: true,
+              formulae: [`"${options.join(",")}"`],
+              showErrorMessage: true,
+              errorStyle: "error",
+              errorTitle: "Invalid Choice",
+              error: `Please select a valid ${column.header} from dropdown.`,
+            };
+          }
+        }
+      }
 
       res.setHeader(
         "Content-Type",
@@ -360,10 +410,8 @@ export const downloadExcel = async (
         `attachment; filename="${category}-template.xlsx"`
       );
 
-      console.log(`Excel template for ${category} generated successfully!`);
-
-      // Write workbook to buffer & send response
       const buffer = await workbook.xlsx.writeBuffer();
+      console.log(`Excel template for ${category} generated successfully!`);
       res.send(Buffer.from(buffer));
     } else {
       return res.status(400).json({ message: "Invalid category selected!" });
@@ -482,7 +530,10 @@ export const Upload_Documats = async (
         if (isImageField && isGoogleDrive) {
           const directDownloadUrl = getDirectDownloadUrl(value);
           if (directDownloadUrl) {
-            const uploadedImageUrl = await uploadImageToBucket(directDownloadUrl, productSKU);
+            const uploadedImageUrl = await uploadImageToBucket(
+              directDownloadUrl,
+              productSKU
+            );
             if (uploadedImageUrl) {
               await Client.productAttribute.create({
                 data: {
@@ -498,7 +549,7 @@ export const Upload_Documats = async (
             console.warn(`Invalid Google Drive link format: ${value}`);
           }
         }
-      
+
         // All other normal fields (or fallback if image fails)
         else if (!["MRP", "brand", "styleId"].includes(key)) {
           await Client.productAttribute.create({
@@ -1034,5 +1085,78 @@ export const addCoverId = async (
     return res
       .status(500)
       .json({ message: "Error while adding the cover Id", error: error });
+  }
+};
+
+export const getData = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  const { usage } = req.body;
+  if (!usage) return res.status(400).json({ error: "Usage category required" });
+
+  try {
+    const products = await Client.product.findMany({
+      where: {
+        isActive: true,
+        approved: false,
+        productAttribute: {
+          some: {
+            attributename: {
+              equals: "Usage",
+              mode: "insensitive",
+            },
+            attributevalue: {
+              equals: usage,
+              mode: "insensitive",
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        productAttribute: {
+          where: {
+            attributename: {
+              in: ["brand", "Front Image", "Back Image", "Product Title"],
+              mode: "insensitive",
+            },
+          },
+          select: {
+            attributename: true,
+            attributevalue: true,
+          },
+        },
+      },
+    });
+
+    console.log("pro", products);
+
+    const formatted = products.map((p) => {
+      const attrs: Record<string, string> = {};
+      p.productAttribute.forEach((attr) => {
+        attrs[attr.attributename] = attr.attributevalue;
+      });
+
+      return {
+        id: p.id,
+        name:  attrs["Product Title"]|| "",
+        price: p.price,
+        brand: p.name || "",
+        frontImage: attrs["Front Image"] || "", // match DB key exactly
+        backImage: attrs["Back Image"] || "", // match DB key exactly
+        offer: "15% OFF",
+      };
+    });
+
+    console.log(formatted);
+
+    res.json(formatted);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch products" });
   }
 };

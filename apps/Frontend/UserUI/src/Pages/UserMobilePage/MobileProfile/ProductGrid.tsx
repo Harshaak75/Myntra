@@ -24,6 +24,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import MobileFilterSortBar from "@/Components/MobileUsers/MobileFilterSortBar";
 import MobileFilterModal from "@/Components/MobileUsers/MobileFilterModal";
+import { useParams } from "react-router-dom";
+import { fetchProductsByCategory } from "@/Utiles/api";
 
 interface Product {
   name: string;
@@ -34,120 +36,120 @@ interface Product {
   images: string[];
 }
 
-const products: Product[] = [
-  {
-    name: "Classic Denim Jacket",
-    brand: "WOOSTRO",
-    price: 1299,
-    originalPrice: 2599,
-    discount: "50% OFF",
-    images: [p1, p2, p3],
-  },
-  {
-    name: "Slim Fit T-Shirt",
-    brand: "Roadster",
-    price: 499,
-    originalPrice: 999,
-    discount: "50% OFF",
-    images: [p5, p4, p6],
-  },
-  {
-    name: "Casual Checked Shirt",
-    brand: "HIGHLANDER",
-    price: 899,
-    originalPrice: 1799,
-    discount: "50% OFF",
-    images: [p7, p8],
-  },
-  {
-    name: "Formal Blue Shirt",
-    brand: "Van Heusen",
-    price: 1099,
-    originalPrice: 2199,
-    discount: "50% OFF",
-    images: [p9, p10],
-  },
-  {
-    name: "Men’s Chino Pants",
-    brand: "WOOSTRO",
-    price: 1399,
-    originalPrice: 2799,
-    discount: "50% OFF",
-    images: [p11, p12],
-  },
-  {
-    name: "Printed Casual Tee",
-    brand: "Roadster",
-    price: 699,
-    originalPrice: 1399,
-    discount: "50% OFF",
-    images: [p13, p14],
-  },
-  {
-    name: "Printed Tee",
-    brand: "Roadster",
-    price: 499,
-    originalPrice: 1199,
-    discount: "50% OFF",
-    images: [p15, p16],
-  },
-  {
-    name: "Classic Denim Jacket",
-    brand: "WOOSTRO",
-    price: 1299,
-    originalPrice: 2599,
-    discount: "50% OFF",
-    images: [p1, p2, p3],
-  },
-  {
-    name: "Slim Fit T-Shirt",
-    brand: "Roadster",
-    price: 499,
-    originalPrice: 999,
-    discount: "50% OFF",
-    images: [p5, p4, p6],
-  },
-  {
-    name: "Casual Checked Shirt",
-    brand: "HIGHLANDER",
-    price: 899,
-    originalPrice: 1799,
-    discount: "50% OFF",
-    images: [p7, p8],
-  },
-  {
-    name: "Formal Blue Shirt",
-    brand: "Van Heusen",
-    price: 1099,
-    originalPrice: 2199,
-    discount: "50% OFF",
-    images: [p9, p10],
-  },
-  {
-    name: "Men’s Chino Pants",
-    brand: "WOOSTRO",
-    price: 1399,
-    originalPrice: 2799,
-    discount: "50% OFF",
-    images: [p11, p12],
-  },
-  {
-    name: "Printed Casual Tee",
-    brand: "Roadster",
-    price: 699,
-    originalPrice: 1399,
-    discount: "50% OFF",
-    images: [p13, p14],
-  },
-  {
-    name: "Printed Tee",
-    brand: "Roadster",
-    price: 499,
-    originalPrice: 1199,
-    discount: "50% OFF",
-    images: [p15, p16],
-  },
-];
+// const products: Product[] = [
+//   {
+//     name: "Classic Denim Jacket",
+//     brand: "WOOSTRO",
+//     price: 1299,
+//     originalPrice: 2599,
+//     discount: "50% OFF",
+//     images: [p1, p2, p3],
+//   },
+//   {
+//     name: "Slim Fit T-Shirt",
+//     brand: "Roadster",
+//     price: 499,
+//     originalPrice: 999,
+//     discount: "50% OFF",
+//     images: [p5, p4, p6],
+//   },
+//   {
+//     name: "Casual Checked Shirt",
+//     brand: "HIGHLANDER",
+//     price: 899,
+//     originalPrice: 1799,
+//     discount: "50% OFF",
+//     images: [p7, p8],
+//   },
+//   {
+//     name: "Formal Blue Shirt",
+//     brand: "Van Heusen",
+//     price: 1099,
+//     originalPrice: 2199,
+//     discount: "50% OFF",
+//     images: [p9, p10],
+//   },
+//   {
+//     name: "Men’s Chino Pants",
+//     brand: "WOOSTRO",
+//     price: 1399,
+//     originalPrice: 2799,
+//     discount: "50% OFF",
+//     images: [p11, p12],
+//   },
+//   {
+//     name: "Printed Casual Tee",
+//     brand: "Roadster",
+//     price: 699,
+//     originalPrice: 1399,
+//     discount: "50% OFF",
+//     images: [p13, p14],
+//   },
+//   {
+//     name: "Printed Tee",
+//     brand: "Roadster",
+//     price: 499,
+//     originalPrice: 1199,
+//     discount: "50% OFF",
+//     images: [p15, p16],
+//   },
+//   {
+//     name: "Classic Denim Jacket",
+//     brand: "WOOSTRO",
+//     price: 1299,
+//     originalPrice: 2599,
+//     discount: "50% OFF",
+//     images: [p1, p2, p3],
+//   },
+//   {
+//     name: "Slim Fit T-Shirt",
+//     brand: "Roadster",
+//     price: 499,
+//     originalPrice: 999,
+//     discount: "50% OFF",
+//     images: [p5, p4, p6],
+//   },
+//   {
+//     name: "Casual Checked Shirt",
+//     brand: "HIGHLANDER",
+//     price: 899,
+//     originalPrice: 1799,
+//     discount: "50% OFF",
+//     images: [p7, p8],
+//   },
+//   {
+//     name: "Formal Blue Shirt",
+//     brand: "Van Heusen",
+//     price: 1099,
+//     originalPrice: 2199,
+//     discount: "50% OFF",
+//     images: [p9, p10],
+//   },
+//   {
+//     name: "Men’s Chino Pants",
+//     brand: "WOOSTRO",
+//     price: 1399,
+//     originalPrice: 2799,
+//     discount: "50% OFF",
+//     images: [p11, p12],
+//   },
+//   {
+//     name: "Printed Casual Tee",
+//     brand: "Roadster",
+//     price: 699,
+//     originalPrice: 1399,
+//     discount: "50% OFF",
+//     images: [p13, p14],
+//   },
+//   {
+//     name: "Printed Tee",
+//     brand: "Roadster",
+//     price: 499,
+//     originalPrice: 1199,
+//     discount: "50% OFF",
+//     images: [p15, p16],
+//   },
+// ];
 
 export default function ProductGrid() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
@@ -159,13 +161,40 @@ export default function ProductGrid() {
 
   const [sortOption, setSortOption] = useState("recommended");
 
+
+  const { category } = useParams();
+  const [product, setProduct] = useState<Product[]>([]);
+
+  const[loading, setloading] = useState(true);
+
+  useEffect(() => {
+    if (category) {
+      setloading(true);
+      fetchProductsByCategory(decodeURIComponent(category))
+        .then((data) => {
+          const normalized = data.map((item: any) => ({
+            ...item,
+            images: [item.frontImage, item.backImage].filter(Boolean),
+          }));
+          setProduct(normalized);
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {
+          setloading(false);
+        });
+    }
+  }, [category]);
+  
+
   const handleBrandChange = (brand: string) => {
     setSelectedBrands((prev) =>
       prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
     );
   };
 
-  const filteredProducts = products.filter(
+  const filteredProducts = product.filter(
     (product) =>
       (selectedBrands.length === 0 || selectedBrands.includes(product.brand)) &&
       product.price <= maxPrice
@@ -395,7 +424,15 @@ export default function ProductGrid() {
             ))}
           </AnimatePresence>
         </div>
+        
       </main>
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-2xl border-1 p-1">
+            <div className="w-6 h-6 border-[3px] border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

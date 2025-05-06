@@ -63,7 +63,7 @@ export const categoryTemplate: any = {
     { header: "Side Image", key: "sideImage", width: 40 },
     { header: "Back Image", key: "backImage", width: 40 },
     { header: "Detail Angle", key: "detailAngle", width: 40 },
-    { header: "Gender", key: "gender", width: 20 },
+    { header: "Gender", key: "Gender", width: 20 },
   ],
   tShirt: [
     { header: "styleId", key: "styleId", width: 20 },
@@ -78,11 +78,19 @@ export const categoryTemplate: any = {
     { header: "Fit Type", key: "fitType", width: 20 },
     { header: "Neck Type", key: "neckType", width: 25 },
     { header: "Sleeve Type", key: "sleeveType", width: 25 },
+    { header: "Pattern", key: "pattern", width: 25 },
+    { header: "Usage", key: "usage", width: 25 },
+
+    { header: "isStandardSize", key: "isStandardSize", width: 25 },
+    { header: "FashionType", key: "fashionType", width: 25 },
+    { header: "Season", key: "season", width: 25 },
+
+
     { header: "MRP", key: "mrp", width: 15 },
     { header: "Wash Care", key: "washCare", width: 30 },
     { header: "Front Image", key: "frontImage", width: 40 },
     { header: "Back Image", key: "backImage", width: 40 },
-    { header: "Gender", key: "gender", width: 20 },
+    { header: "Gender", key: "Gender", width: 20 },
   ],
 
   jeans: [
@@ -99,11 +107,17 @@ export const categoryTemplate: any = {
     { header: "Material", key: "material", width: 30 },
     { header: "Pattern", key: "pattern", width: 25 },
     { header: "Closure", key: "closure", width: 20 },
+    { header: "Pattern", key: "pattern", width: 25 },
+    { header: "Usage", key: "usage", width: 25 },
+
+    { header: "isStandardSize", key: "isStandardSize", width: 25 },
+    { header: "FashionType", key: "fashionType", width: 25 },
+    { header: "Season", key: "season", width: 25 },
     { header: "MRP", key: "mrp", width: 15 },
     { header: "Wash Care", key: "washCare", width: 30 },
     { header: "Front Image", key: "frontImage", width: 40 },
     { header: "Back Image", key: "backImage", width: 40 },
-    { header: "Gender", key: "gender", width: 20 },
+    { header: "Gender", key: "Gender", width: 20 },
   ],
 
   kurti: [
@@ -120,11 +134,17 @@ export const categoryTemplate: any = {
     { header: "Length", key: "length", width: 20 },
     { header: "Work Type", key: "workType", width: 30 },
     { header: "Color", key: "color", width: 20 },
+    { header: "Pattern", key: "pattern", width: 25 },
+    { header: "Usage", key: "usage", width: 25 },
+
+    { header: "isStandardSize", key: "isStandardSize", width: 25 },
+    { header: "FashionType", key: "fashionType", width: 25 },
+    { header: "Season", key: "season", width: 25 },
     { header: "MRP", key: "mrp", width: 15 },
     { header: "Wash Care", key: "washCare", width: 30 },
     { header: "Front Image", key: "frontImage", width: 40 },
     { header: "Back Image", key: "backImage", width: 40 },
-    { header: "Gender", key: "gender", width: 20 },
+    { header: "Gender", key: "Gender", width: 20 },
   ],
 
   jacket: [
@@ -140,10 +160,16 @@ export const categoryTemplate: any = {
     { header: "Hooded", key: "hooded", width: 15 },
     { header: "Sleeve Type", key: "sleeveType", width: 25 },
     { header: "Color", key: "color", width: 20 },
+    { header: "Pattern", key: "pattern", width: 25 },
+    { header: "Usage", key: "usage", width: 25 },
+
+    { header: "isStandardSize", key: "isStandardSize", width: 25 },
+    { header: "FashionType", key: "fashionType", width: 25 },
+    { header: "Season", key: "season", width: 25 },
     { header: "MRP", key: "mrp", width: 15 },
     { header: "Wash Care", key: "washCare", width: 30 },
     { header: "Front Image", key: "frontImage", width: 40 },
     { header: "Back Image", key: "backImage", width: 40 },
-    { header: "Gender", key: "gender", width: 20 },
+    { header: "Gender", key: "Gender", width: 20 },
   ],
 };

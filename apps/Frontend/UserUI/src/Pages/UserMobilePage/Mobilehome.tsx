@@ -140,6 +140,28 @@ export function Mobilehome() {
     photo18,
   ];
 
+  const categoryPhotos = [
+    { image: photo1, category: "Casual" },
+    { image: photo2, category: "Men Activewear" },
+    { image: photo3, category: "Women Activewear" },
+    { image: photo4, category: "Western wear" },
+    { image: photo5, category: "Sportswear" },
+    { image: photo6, category: "Lounge wear" },
+    { image: photo7, category: "Kids wear" },
+    { image: photo8, category: "Office wear" },
+    { image: photo9, category: "Men ethnic wear" },
+    { image: photo10, category: "inclusive styles" },
+    { image: photo11, category: "inclusive styles" },
+    { image: photo12, category: "Sleep wear" },
+    { image: photo13, category: "Office wear" },
+    { image: photo14, category: "Office wear" },
+    { image: photo15, category: "Casual" },
+    { image: photo16, category: "Women Activewear" },
+    { image: photo17, category: "Inner wear" },
+    { image: photo18, category: "Lingerie" },
+    // Add all 18 accordingly
+  ];
+
   const isOpen = useSelector((state: any) => state.sidebar.isOpen);
   const dispatch = useDispatch();
 
@@ -173,6 +195,11 @@ export function Mobilehome() {
 
     return () => clearInterval(interval);
   }, []);
+
+  const handleClick = (cat: any) => {
+    console.log(cat)
+    navigate(`/user/Products/${cat}`);
+  };
 
   return (
     <div className="flex relative flex-col h-screen bg-white overflow-hidden">
@@ -312,13 +339,13 @@ export function Mobilehome() {
             <img src={category} alt="" className="w-full" />
           </div>
           <div className="collection-of-images flex flex-wrap w-[90%] gap-5 items-center justify-center ml-21 pt-6">
-            {photos.map((photo, index) => (
+            {categoryPhotos.map((photo, index) => (
               <img
                 key={index}
-                src={photo}
+                src={photo.image}
                 alt=""
                 className="hover:shadow-lg cursor-pointer rounded-xl"
-                onClick={() => navigate("/user/Products")}
+                onClick={() =>handleClick(photo.category)}
               />
             ))}
           </div>
