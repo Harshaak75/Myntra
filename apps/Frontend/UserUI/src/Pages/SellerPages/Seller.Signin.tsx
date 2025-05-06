@@ -19,7 +19,7 @@ export function SellerSignin() {
       if (token && isVerified) {
         navigate("/seller/dashboard"); // Redirect if token exists
       }
-      else if(!isVerified){
+      else if(token && !isVerified){
         navigate("/seller/pending-verification")
       }
     }
