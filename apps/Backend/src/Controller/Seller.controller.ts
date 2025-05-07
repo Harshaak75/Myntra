@@ -25,6 +25,8 @@ import { categoryTemplate } from "../utils/columnNames";
 import supabase from "../utils/supabase.connect";
 import multer from "multer";
 
+import { uploadQueue } from "../queue/uploadQueue";
+
 import { Decimal } from "@prisma/client/runtime/library"; // Import Decimal
 import { generateCompactPicklistCode } from "../utils/ConvertToSafeBase";
 import {
@@ -37,6 +39,7 @@ import {
   getDirectDownloadUrl,
   uploadImageToBucket,
 } from "../utils/UploadImage";
+import { randomUUID } from "crypto";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -422,6 +425,174 @@ export const downloadExcel = async (
   }
 };
 
+// export const Upload_Documats = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ): Promise<any> => {
+//   if (!req.file) {
+//     return res.status(400).json({ message: "File is required" });
+//   }
+//   try {
+//     const file_name = `excel/${Date.now()}_${req.file.originalname}`;
+
+//     if (!bucket_name) {
+//       return res.status(400).json({ message: "Bucket name is required" });
+//     }
+
+//     console.log("1111");
+
+//     const { data, error } = await supabase.storage
+//       .from(bucket_name)
+//       .upload(file_name, req.file.buffer, { contentType: req.file.mimetype });
+
+//     if (error) {
+//       return res
+//         .status(500)
+//         .json({ message: "Error uploading file", error: error });
+//     }
+
+//     //Create workbook and store in database
+
+//     const filename = req.file.originalname;
+//     const category = filename.split("-")[0].toUpperCase();
+//     console.log("category", category);
+
+//     const workbook = new ExcelJs.Workbook();
+//     await workbook.xlsx.load(req.file.buffer);
+
+//     const worksheet = workbook.worksheets[1];
+
+//     const headerRowIndex = 1;
+
+//     const header: string[] = [];
+//     worksheet.getRow(headerRowIndex).eachCell((cell) => {
+//       header.push(String(cell.value).trim());
+//     });
+
+//     // console.log(header)
+
+//     const rows: any = [];
+
+//     worksheet.eachRow((row, rowNumber) => {
+//       // console.log(row);
+//       if (rowNumber == headerRowIndex) return;
+//       const product: any = {};
+//       row.eachCell((cell, colnumber) => {
+//         const key = header[colnumber - 1];
+//         if (key) {
+//           product[key] = cell.value;
+//         }
+//       });
+//       rows.push(product);
+//     });
+
+//     // console.log(rows);
+
+//     // add the name and price to the product table
+
+//     // lot id
+
+//     const randomNumber = Math.floor(1000000 + Math.random() * 9000000);
+
+//     const attributeData: any[] = [];
+
+//     for (const row of rows) {
+//       if (!row.MRP || !row.brand) {
+//         console.error("Missing required fields:", row);
+//         continue;
+//       }
+
+//       // product code generation
+
+//       const brandCode: any = await generateBrandCode(row.brand);
+//       console.log(brandCode);
+//       const CleanedCategory = category.replace(/[^a-zA-Z]/g, "");
+//       const categoryCode = CleanedCategory.slice(0, 3).toUpperCase();
+//       console.log(categoryCode);
+//       const uniqueCode = generateCustomCode();
+//       const productSKU = `${brandCode}${categoryCode}${uniqueCode}`;
+//       console.log("productSKU", productSKU);
+
+      
+
+//       const pro = await Client.product.create({
+//         data: {
+//           name: `${row.brand}`,
+//           price: new Decimal(row.MRP),
+//           sellerId: Number(req.seller_id),
+//           productSku: productSKU,
+//           sellerSku: row.vendorSkuCode ? row.vendorSkuCode : productSKU,
+//           productType: filename.split("-")[0],
+//           lotId: randomNumber.toString(),
+//         },
+//       });
+
+//       for (const [key, value] of Object.entries(row)) {
+//         const isImageField = key.toLowerCase().includes("image");
+//         const isValidUrl = typeof value === "string" && value.includes("http");
+//         const isGoogleDrive = isValidUrl && value.includes("drive.google.com");
+
+//         // Special handling for image upload from Google Drive URLs
+//         if (isImageField && isGoogleDrive) {
+//           const directDownloadUrl = getDirectDownloadUrl(value);
+//           if (directDownloadUrl) {
+//             const uploadedImageUrl = await uploadImageToBucket(
+//               directDownloadUrl,
+//               productSKU
+//             );
+//             if (uploadedImageUrl) {
+//               await Client.productAttribute.create({
+//                 data: {
+//                   attributename: key,
+//                   attributevalue: uploadedImageUrl,
+//                   productId: pro.id,
+//                 },
+//               });
+//             } else {
+//               console.warn(`Image upload failed for: ${value}`);
+//             }
+//           } else {
+//             console.warn(`Invalid Google Drive link format: ${value}`);
+//           }
+//         }
+
+//         // All other normal fields (or fallback if image fails)
+//         else if (!["MRP", "brand", "styleId"].includes(key)) {
+//           // await Client.productAttribute.create({
+//           //   data: {
+//           //     attributename: key,
+//           //     attributevalue: String(value),
+//           //     productId: pro.id,
+//           //   },
+//           // });
+
+//           attributeData.push({
+//             attributename: key,
+//             attributevalue: String(value),
+//             productId: pro.id,
+//           })
+//         }
+//       }
+//     }
+
+//     await Client.productAttribute.createMany({
+//       data: attributeData,
+//     });
+
+//     await Client.sellerDocuments.create({
+//       data: {
+//         sellerId: Number(req.seller_id),
+//         documentUrl: file_name,
+//       },
+//     });
+
+//     return res.status(200).json({ message: "File uploaded successfully" });
+//   } catch (error) {
+//     return res.status(500).json({ message: "Error uploading file", error });
+//   }
+// };
+
 export const Upload_Documats = async (
   req: Request,
   res: Response,
@@ -430,6 +601,7 @@ export const Upload_Documats = async (
   if (!req.file) {
     return res.status(400).json({ message: "File is required" });
   }
+
   try {
     const file_name = `excel/${Date.now()}_${req.file.originalname}`;
 
@@ -437,11 +609,11 @@ export const Upload_Documats = async (
       return res.status(400).json({ message: "Bucket name is required" });
     }
 
-    console.log("1111");
-
     const { data, error } = await supabase.storage
       .from(bucket_name)
-      .upload(file_name, req.file.buffer, { contentType: req.file.mimetype });
+      .upload(file_name, req.file.buffer, {
+        contentType: req.file.mimetype,
+      });
 
     if (error) {
       return res
@@ -449,120 +621,7 @@ export const Upload_Documats = async (
         .json({ message: "Error uploading file", error: error });
     }
 
-    //Create workbook and store in database
-
-    const filename = req.file.originalname;
-    const category = filename.split("-")[0].toUpperCase();
-    console.log("category", category);
-
-    const workbook = new ExcelJs.Workbook();
-    await workbook.xlsx.load(req.file.buffer);
-
-    const worksheet = workbook.worksheets[1];
-
-    const headerRowIndex = 1;
-
-    const header: string[] = [];
-    worksheet.getRow(headerRowIndex).eachCell((cell) => {
-      header.push(String(cell.value).trim());
-    });
-
-    // console.log(header)
-
-    const rows: any = [];
-
-    worksheet.eachRow((row, rowNumber) => {
-      // console.log(row);
-      if (rowNumber == headerRowIndex) return;
-      const product: any = {};
-      row.eachCell((cell, colnumber) => {
-        const key = header[colnumber - 1];
-        if (key) {
-          product[key] = cell.value;
-        }
-      });
-      rows.push(product);
-    });
-
-    // console.log(rows);
-
-    // add the name and price to the product table
-
-    // lot id
-
-    const randomNumber = Math.floor(1000000 + Math.random() * 9000000);
-
-    for (const row of rows) {
-      if (!row.MRP || !row.brand) {
-        console.error("Missing required fields:", row);
-        continue;
-      }
-
-      // product code generation
-
-      const brandCode: any = await generateBrandCode(row.brand);
-      console.log(brandCode);
-      const CleanedCategory = category.replace(/[^a-zA-Z]/g, "");
-      const categoryCode = CleanedCategory.slice(0, 3).toUpperCase();
-      console.log(categoryCode);
-      const uniqueCode = generateCustomCode();
-      const productSKU = `${brandCode}${categoryCode}${uniqueCode}`;
-      console.log("productSKU", productSKU);
-
-      const pro = await Client.product.create({
-        data: {
-          name: `${row.brand}`,
-          price: new Decimal(row.MRP),
-          sellerId: Number(req.seller_id),
-          productSku: productSKU,
-          sellerSku: row.vendorSkuCode ? row.vendorSkuCode : productSKU,
-          productType: filename.split("-")[0],
-          lotId: randomNumber.toString(),
-        },
-      });
-
-      for (const [key, value] of Object.entries(row)) {
-        const isImageField = key.toLowerCase().includes("image");
-        const isValidUrl = typeof value === "string" && value.includes("http");
-        const isGoogleDrive = isValidUrl && value.includes("drive.google.com");
-
-        // Special handling for image upload from Google Drive URLs
-        if (isImageField && isGoogleDrive) {
-          const directDownloadUrl = getDirectDownloadUrl(value);
-          if (directDownloadUrl) {
-            const uploadedImageUrl = await uploadImageToBucket(
-              directDownloadUrl,
-              productSKU
-            );
-            if (uploadedImageUrl) {
-              await Client.productAttribute.create({
-                data: {
-                  attributename: key,
-                  attributevalue: uploadedImageUrl,
-                  productId: pro.id,
-                },
-              });
-            } else {
-              console.warn(`Image upload failed for: ${value}`);
-            }
-          } else {
-            console.warn(`Invalid Google Drive link format: ${value}`);
-          }
-        }
-
-        // All other normal fields (or fallback if image fails)
-        else if (!["MRP", "brand", "styleId"].includes(key)) {
-          await Client.productAttribute.create({
-            data: {
-              attributename: key,
-              attributevalue: String(value),
-              productId: pro.id,
-            },
-          });
-        }
-      }
-    }
-
+    // Save reference to uploaded file in DB
     await Client.sellerDocuments.create({
       data: {
         sellerId: Number(req.seller_id),
@@ -570,8 +629,32 @@ export const Upload_Documats = async (
       },
     });
 
-    return res.status(200).json({ message: "File uploaded successfully" });
+    // Queue the processing job
+    const jobId = randomUUID();
+
+    await uploadQueue.add(
+      "process-excel-upload",
+      {
+        fileBuffer: req.file.buffer,
+        originalname: req.file.originalname,
+        sellerId: req.seller_id,
+        file_name,
+        bucket_name,
+      },
+      {
+        jobId,
+        attempts: 3,
+        removeOnComplete: true,
+        backoff: { type: "exponential", delay: 1000 },
+      }
+    );
+
+    return res.status(202).json({
+      message: "File uploaded and queued for processing",
+      jobId,
+    });
   } catch (error) {
+    console.error("❌ Upload/Queue error:", error);
     return res.status(500).json({ message: "Error uploading file", error });
   }
 };
@@ -1100,7 +1183,7 @@ export const getData = async (
     const products = await Client.product.findMany({
       where: {
         isActive: true,
-        approved: false,
+        approved: true,
         productAttribute: {
           some: {
             attributename: {

@@ -161,32 +161,39 @@ export default function ProductGrid() {
 
   const [sortOption, setSortOption] = useState("recommended");
 
-
   const { category } = useParams();
   const [product, setProduct] = useState<Product[]>([]);
 
-  const[loading, setloading] = useState(true);
+  const [loading, setloading] = useState(true);
 
   useEffect(() => {
-    if (category) {
-      setloading(true);
-      fetchProductsByCategory(decodeURIComponent(category))
-        .then((data) => {
-          const normalized = data.map((item: any) => ({
-            ...item,
-            images: [item.frontImage, item.backImage].filter(Boolean),
-          }));
-          setProduct(normalized);
-        })
-        .catch((error) => {
-          console.error(error);
-        })
-        .finally(() => {
-          setloading(false);
-        });
+    function fetchData() {
+      if (category) {
+        setloading(true);
+        fetchProductsByCategory(decodeURIComponent(category))
+          .then((data) => {
+            const normalized = data.map((item: any) => ({
+              ...item,
+              images: [item.frontImage, item.backImage].filter(Boolean),
+            }));
+            setProduct(normalized);
+          })
+          .catch((error) => {
+            if (error.response?.status === 503 && error.response?.data?.retry) {
+              console.log("Network error");
+              setTimeout(fetchData, 5000);
+            }
+
+            console.error(error);
+          })
+          .finally(() => {
+            setloading(false);
+          });
+      }
     }
+
+    fetchData();
   }, [category]);
-  
 
   const handleBrandChange = (brand: string) => {
     setSelectedBrands((prev) =>
@@ -228,7 +235,9 @@ export default function ProductGrid() {
       </p>
       <p className="absolute top-11 z-10 pl-7 hidden lg:block">
         <span className="font-semibold text-[0.9rem]">Mens Apparel</span> -{" "}
-        <span className="text-[0.9rem] text-gray-400">762961 items</span>{" "}
+        <span className="text-[0.9rem] text-gray-400">
+          {product.length} items
+        </span>{" "}
       </p>
 
       {/* Filter Sidebar */}
@@ -424,7 +433,6 @@ export default function ProductGrid() {
             ))}
           </AnimatePresence>
         </div>
-        
       </main>
       {loading && (
         <div className="fixed inset-0 flex items-center justify-center z-50">

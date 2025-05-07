@@ -10,7 +10,14 @@ interface Product {
 }
 
 const ProductItem = ({ item }: { item: Product }) => {
-  const validImages = item.images.filter((img) => !!img); // filter out empty/invalid strings
+  console.log("first", item.images)
+  const validImages = item.images.filter((img) => {
+    // if(img && img != " "){
+    //   return img;
+    // }
+
+    return img && img != " " ? img : '';
+  }); // filter out empty/invalid strings
   const [imageIndex, setImageIndex] = useState(0);
   const [hovering, setHovering] = useState(false);
 
@@ -25,6 +32,8 @@ const ProductItem = ({ item }: { item: Product }) => {
     }
     return () => clearInterval(interval);
   }, [hovering, validImages]);
+
+  console.log("images", validImages)
 
   return (
     <div
@@ -55,7 +64,7 @@ const ProductItem = ({ item }: { item: Product }) => {
             <div
               className="flex transition-transform duration-700 ease-in-out h-full w-full"
               style={{
-                width: `${validImages.length * 100}%`,
+                width: `${validImages.length * 120}%`,
                 transform: `translateX(-${
                   imageIndex * (100 / validImages.length)
                 }%)`,

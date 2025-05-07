@@ -4,6 +4,7 @@ import { admin_serect, secure_cookie, serect } from "../config";
 import { generateTokens } from "../utils/tokenUtils";
 
 import { PrismaClient } from "@prisma/client";
+import { isPrismaConnectionError } from "../utils/CheckError";
 
 const Client = new PrismaClient();
 
@@ -16,24 +17,29 @@ export const authenticate_User = async (
 ): Promise<any> => {
   const token =
     req.cookies.access_token || req.headers["authorization"]?.split(" ")[1];
+
   if (!token) {
-    return res.status(500).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
-  let user_id: any = null; // ✅ Moved this here
+  let user_id: any = null;
 
   try {
     let token_exist = null;
 
     try {
       token_exist = await Client.blacklist_token.findFirst({
-        where: {
-          token,
-        },
+        where: { token },
       });
-      console.log(token_exist, "token exist");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error checking blacklist_token:", error);
+
+      if (isPrismaConnectionError(error)) {
+        return res
+          .status(503)
+          .json({ message: "Database temporarily unreachable", retry: true });
+      }
+
       return res
         .status(500)
         .json({ message: "Internal error while checking token" });
@@ -42,7 +48,6 @@ export const authenticate_User = async (
     if (token_exist) {
       res.clearCookie("access_token");
       res.clearCookie("refresh_token");
-
       return res
         .status(401)
         .json({ message: "Unauthorized token accessing resource" });
@@ -55,41 +60,50 @@ export const authenticate_User = async (
     }
 
     user_id = decoded.id;
-    console.log("seller_idlddvmkmdfkmdsl", user_id);
-    console.log("seller", user_id);
-
     req.user_id = user_id;
-    next();
+    return next();
   } catch (error: any) {
     console.error("Token verification failed:", error);
+
+    if (isPrismaConnectionError(error)) {
+      return res
+        .status(503)
+        .json({ message: "Database temporarily unreachable", retry: true });
+    }
 
     const decoded_token: any = jwt.decode(token);
     user_id = decoded_token?.id;
 
-    console.log(user_id);
-
-    if (error.name == "TokenExpiredError") {
+    if (error.name === "TokenExpiredError") {
       try {
         const accessToken = await generateTokens(user_id);
 
         res.cookie("access_token", accessToken, {
           httpOnly: true,
           path: "/",
-          secure: secure_cookie == "Production",
-          sameSite: secure_cookie == "Production" ? "none" : "lax",
-          maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
+          secure: secure_cookie === "Production",
+          sameSite: secure_cookie === "Production" ? "none" : "lax",
+          maxAge: 30 * 24 * 60 * 60 * 1000,
         });
 
         if (user_id !== null) {
           req.user_id = user_id.toString();
         }
 
-        next();
-      } catch (error) {
+        return next();
+      } catch (refreshError: any) {
+        console.error("Error refreshing token:", refreshError);
+
+        if (isPrismaConnectionError(refreshError)) {
+          return res
+            .status(503)
+            .json({ message: "Database temporarily unreachable", retry: true });
+        }
+
         await Client.blacklist_token.create({
           data: {
             token,
-            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
           },
         });
 
@@ -100,12 +114,13 @@ export const authenticate_User = async (
           .status(401)
           .json({ message: "Session expired. Please log in again." });
       }
-    } else if (error?.name === "JsonWebTokenError") {
+    } else if (error.name === "JsonWebTokenError") {
       return res.status(403).json({ message: "Invalid token" });
     } else {
-      return res
-        .status(500)
-        .json({ message: "Error in authenticating seller", error: error });
+      return res.status(500).json({
+        message: "Error in authenticating seller",
+        error: error?.message || error,
+      });
     }
   }
 };

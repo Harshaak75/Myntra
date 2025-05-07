@@ -11,6 +11,8 @@ import adminRouter from "./Routes/admin.route";
 import SellerRoute from "./Routes/Seller.route";
 import productAdmin from "./Routes/ProductAdmin.route";
 
+import "./utils/uploadQueue"
+
 dotenv.config();
 
 const app = express();
