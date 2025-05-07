@@ -6,7 +6,7 @@
     "build": "tsc",
     "dev": "pnpm run build && nodemon dist/servers.js",
     "start": "node dist/servers.js",
-    "postinstall": "PUPPETEER_CACHE_DIR=.puppeteer-cache npx puppeteer browsers install chrome && pnpm run build"
+    "postinstall": "cross-env PUPPETEER_CACHE_DIR=.puppeteer-cache npx puppeteer browsers install chrome && pnpm run build"
   },
   "keywords": [],
   "author": "",
@@ -50,6 +50,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.15.15",
+    "cross-env": "^7.0.3",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
