@@ -24,7 +24,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import MobileFilterSortBar from "@/Components/MobileUsers/MobileFilterSortBar";
 import MobileFilterModal from "@/Components/MobileUsers/MobileFilterModal";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { fetchProductsByCategory } from "@/Utiles/api";
 
 interface Product {
@@ -225,16 +225,18 @@ export default function ProductGrid() {
     setMaxPrice(10000);
   };
 
+  const navigate = useNavigate();
+
   return (
     <div className="flex min-h-screen lg:mt-20 md:mt-0 border-t relative">
       {/* Breadcrumbs */}
       <p className="mb-5 absolute top-3 z-10 pl-7 hidden lg:block">
-        <span className="text-[0.8rem]">Home</span> /{" "}
+        <span onClick={() => navigate("/")} className="text-[0.8rem] cursor-pointer hover:text-gray-600">Home</span> /{" "}
         <span className="text-[0.8rem]">Clothing</span> /{" "}
-        <span className="text-[0.9rem] font-semibold">Mens Apparel</span>
+        <span className="text-[0.9rem] font-semibold">{category}</span>
       </p>
       <p className="absolute top-11 z-10 pl-7 hidden lg:block">
-        <span className="font-semibold text-[0.9rem]">Mens Apparel</span> -{" "}
+        <span className="font-semibold text-[0.9rem]">{category}</span> -{" "}
         <span className="text-[0.9rem] text-gray-400">
           {product.length} items
         </span>{" "}
