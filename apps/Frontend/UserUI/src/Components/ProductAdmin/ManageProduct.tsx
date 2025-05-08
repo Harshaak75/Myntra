@@ -234,8 +234,8 @@ export function ManageProduct() {
                     <td className="px-6 py-4">{cleanCategory(p.productType)}</td>
                     <td className="px-6 py-4">{p.status}</td>
                     <td className="px-6 py-4 flex gap-2">
-                      <button onClick={() => handleApproval(p.id, "Approved")} className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md text-sm">Accept</button>
-                      <button onClick={() => handleApproval(p.id, "Rejected")} className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md text-sm">Reject</button>
+                      <button onClick={() => handleApproval(p.id, "Approved")} className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md text-sm cursor-pointer">Accept</button>
+                      <button onClick={() => handleApproval(p.id, "Rejected")} className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md text-sm cursor-pointer">Reject</button>
                     </td>
                   </tr>
                 ))

@@ -71,24 +71,39 @@ export function Mobilehome() {
 
   const categories_image = [
     {
-      menImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/af955959-e154-432a-85cf-8ba0ec5f43a51722596980603-image_png_1851545165.png",
-      womenImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/8ab90130-0d13-4679-b351-82a2971b526b1722596488868-image_png_1119801902.png",
+      menImage:
+        "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/af955959-e154-432a-85cf-8ba0ec5f43a51722596980603-image_png_1851545165.png",
+      menCategory : "Casual",
+      womenImage:
+        "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/8ab90130-0d13-4679-b351-82a2971b526b1722596488868-image_png_1119801902.png",
+      womenCategory : "Women Activewear"
     },
     {
-      menImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/99f8940e-ca70-4948-a6cc-d3c6abebeb411722596921405-image_png1367818484.png",
-      womenImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d7e299ae-04f3-4b4d-b3f3-5fab02779df01722236022154-Card_46.png",
+      menImage:
+        "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/99f8940e-ca70-4948-a6cc-d3c6abebeb411722596921405-image_png1367818484.png",
+      menCategory : "Men Activewear",
+      womenImage:
+        "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d7e299ae-04f3-4b4d-b3f3-5fab02779df01722236022154-Card_46.png",
+      womenCategory : "Western wear"
     },
     {
-      menImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d31abeab-0bf8-4d06-91e2-2a5a18ed08011722236020770-Card_25.png",
-      womenImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/fc7c482c-e400-4b20-8ff9-ffdd6275888c1722596447798-image_png_230248853.png",
+      menImage:
+        "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d31abeab-0bf8-4d06-91e2-2a5a18ed08011722236020770-Card_25.png",
+      menCategory : "Sportswear",
+      womenImage:
+        "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/fc7c482c-e400-4b20-8ff9-ffdd6275888c1722596447798-image_png_230248853.png",
+      womenCategory : "Western wear"
     },
     {
-      menImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/84511f5f-5465-4d6c-8dff-017e2863b6e91722236021852-Card_26.png",
-      womenImage: "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/cee4c20e-1629-4f61-9f25-bd1bf411b7f01722596082053-image_png739596407.png",
+      menImage:
+        "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/84511f5f-5465-4d6c-8dff-017e2863b6e91722236021852-Card_26.png",
+      menCategory : "Sportswear",
+      womenImage:
+        "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/cee4c20e-1629-4f61-9f25-bd1bf411b7f01722596082053-image_png739596407.png",
+      womenCategory : "Office wear"
     },
     // ...add as many as needed
   ];
-  
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
@@ -117,27 +132,6 @@ export function Mobilehome() {
     { title: "Apple Watch", price: "$399", image: "/products/watch.jpg" },
     { title: "HomePod Mini", price: "$99", image: "/products/homepod.jpg" },
     { title: "Magic Mouse", price: "$79", image: "/products/mouse.jpg" },
-  ];
-
-  const photos = [
-    photo1,
-    photo2,
-    photo3,
-    photo4,
-    photo5,
-    photo6,
-    photo7,
-    photo8,
-    photo9,
-    photo10,
-    photo11,
-    photo12,
-    photo13,
-    photo14,
-    photo15,
-    photo16,
-    photo17,
-    photo18,
   ];
 
   const categoryPhotos = [
@@ -197,7 +191,7 @@ export function Mobilehome() {
   }, []);
 
   const handleClick = (cat: any) => {
-    console.log(cat)
+    console.log(cat);
     navigate(`/user/Products/${cat}`);
   };
 
@@ -220,8 +214,6 @@ export function Mobilehome() {
           </div>
         </div>
       </div>
-
-
 
       {/* Main Scrollable Content */}
       <main className="flex-1 overflow-y-auto  lg:pt-[80px] pt-[140px] lg:pb-0 pb-[70px] overflow-hidden">
@@ -345,7 +337,7 @@ export function Mobilehome() {
                 src={photo.image}
                 alt=""
                 className="hover:shadow-lg cursor-pointer rounded-xl"
-                onClick={() =>handleClick(photo.category)}
+                onClick={() => handleClick(photo.category)}
               />
             ))}
           </div>
@@ -611,7 +603,10 @@ export function Mobilehome() {
               {categories_image.map((item, idx) => (
                 <div key={idx} className="flex flex-col gap-3 items-center">
                   {/* Men's Section (Top) */}
-                  <div className="h-[11rem] w-[9rem] bg-pink-200 flex items-center justify-center text-sm font-bold mb-2 cursor-pointer" onClick={() => navigate("/user/Products")}>
+                  <div
+                    className="h-[11rem] w-[9rem] bg-pink-200 flex items-center justify-center text-sm font-bold mb-2 cursor-pointer"
+                    onClick={() => handleClick(item.menCategory)}
+                  >
                     <img
                       src={item.menImage}
                       alt={`Men ${idx}`}
@@ -625,6 +620,7 @@ export function Mobilehome() {
                       src={item.womenImage}
                       alt={`Women ${idx}`}
                       className="h-full w-full object-fill"
+                      onClick={() => handleClick(item.womenCategory)}
                     />
                   </div>
                 </div>
@@ -632,8 +628,6 @@ export function Mobilehome() {
             </div>
           </div>
         </div>
-
-
 
         {/* <div className="">hi</div> */}
       </main>
