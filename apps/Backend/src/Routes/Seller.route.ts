@@ -8,7 +8,6 @@ import {
   // addProduct,
   downloadExcel,
   GeneratePicklist,
-  getData,
   getEmail,
   getPicklistDetails,
   getProductDetails,
@@ -199,6 +198,6 @@ SellerRoute.get("/newToken", async (req, res) => {
   }
 });
 
-SellerRoute.post("/by-category", authenticate_Seller, getData)
+// SellerRoute.post("/by-category", authenticate_Seller, getData)
 
 export default SellerRoute;

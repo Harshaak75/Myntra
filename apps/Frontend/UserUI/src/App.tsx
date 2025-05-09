@@ -32,6 +32,9 @@ import ProductGrid from "./Pages/UserMobilePage/MobileProfile/ProductGrid.js";
 import AccountPage from "./Components/MobileUsers/AccountPage.js";
 import { PendingVerification } from "./Components/PendingVerification.js";
 import SellerApprovalPanel from "./Components/ProductAdmin/SellerApprovalPanel.js";
+import { SidebarAccount } from "./Components/MobileUsers/AccountComp/SidebarAccount.js";
+import { SidebarLayout } from "./Components/MobileUsers/SidebarLayout.js";
+import Wishlists from "./Components/MobileUsers/Wishlists.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -97,7 +100,10 @@ function App() {
             <Route path="/user/Order" element={<Ordermobile />} />
             <Route path="/user/Edit Profile" element={<Profilemobile />} />
             <Route path="/user/Products/:category" element={<ProductGrid/>}/>
+            <Route path="/my/wishlist" element={<Wishlists/>}/>
+            <Route element= {<SidebarLayout/>}>
             <Route path="/user/profile/edit" element={<AccountPage/>} />
+            </Route>
           </Route>
 
           {/* <Route path="/user/navbar" element={<UserDashboard />} /> */}

@@ -1,4 +1,7 @@
+import axios from "axios";
+import { Heart, Star } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import ProductHeart from "./ProductHeart";
 
 interface Product {
   name: string;
@@ -7,19 +10,22 @@ interface Product {
   originalPrice: number;
   discount: string;
   images: string[];
+  id: number;
 }
 
 const ProductItem = ({ item }: { item: Product }) => {
-  console.log("first", item.images)
+  console.log("first", item.images);
   const validImages = item.images.filter((img) => {
     // if(img && img != " "){
     //   return img;
     // }
 
-    return img && img != " " ? img : '';
+    return img && img != " " ? img : "";
   }); // filter out empty/invalid strings
   const [imageIndex, setImageIndex] = useState(0);
   const [hovering, setHovering] = useState(false);
+
+  const [wishlist, setWishlist] = useState(false); // wishlist toggle
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -33,11 +39,11 @@ const ProductItem = ({ item }: { item: Product }) => {
     return () => clearInterval(interval);
   }, [hovering, validImages]);
 
-  console.log("images", validImages)
+  console.log("images", validImages);
 
   return (
     <div
-      className="p-2 
+      className="p-2 relative
       w-[8.5rem] h-[17rem] 
       sm:w-[10.3rem] sm:h-[19rem]
       md:w-[9.2rem] md:h-[18rem]
@@ -50,6 +56,8 @@ const ProductItem = ({ item }: { item: Product }) => {
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
       >
+        <ProductHeart item={item}/>
+
         {/* Image container */}
         <div
           className="overflow-hidden relative bg-gray-200 mb-2 cursor-pointer
@@ -106,10 +114,20 @@ const ProductItem = ({ item }: { item: Product }) => {
             </p>
           </div>
         </div>
+
+        <div className="absolute bottom-18 left-5 w-[5.5rem] h-[1.5rem] items-center bg-[rgba(255,255,255,0.7)] flex">
+          <div className="flex items-center p-2">
+            <p className="text-[0.8rem] font-semibold">4.3</p>{" "}
+            <Star className="h-[0.8rem] fill-green-800 text-green-800" />
+            <div className="border-l-2 h-[1.3rem] ml-1 border-black"></div>
+          </div>
+          <div className="">
+            <p className="text-[0.8rem] font-semibold">59</p>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
-
 
 export default ProductItem;

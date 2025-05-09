@@ -5,6 +5,7 @@ import {
   getProfile,
   logout_user,
   verify_the_otp,
+  verify_the_otp2,
 } from "../Controller/auth.controller";
 import { authenticate_User } from "../Middlewares/authenticate.user";
 import { authenticate_Seller } from "../Middlewares/authenticate.seller";
@@ -32,6 +33,14 @@ router.post(
     body("otp").notEmpty().withMessage("Enter the OTP. "),
   ],
   verify_the_otp
+);
+
+router.post(
+  "/verify-otp2",
+  [
+    body("otp").notEmpty().withMessage("Enter the OTP. "),
+  ],
+  verify_the_otp2
 );
 
 // router.post("/edit profile", authenticate_User, editProfile)

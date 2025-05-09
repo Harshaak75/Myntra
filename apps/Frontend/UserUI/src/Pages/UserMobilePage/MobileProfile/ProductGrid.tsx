@@ -34,6 +34,7 @@ interface Product {
   originalPrice: number;
   discount: string;
   images: string[];
+  id: number;
 }
 
 // const products: Product[] = [
@@ -172,6 +173,7 @@ export default function ProductGrid() {
         setloading(true);
         fetchProductsByCategory(decodeURIComponent(category))
           .then((data) => {
+            console.log("hi", data)
             const normalized = data.map((item: any) => ({
               ...item,
               images: [item.frontImage, item.backImage].filter(Boolean),

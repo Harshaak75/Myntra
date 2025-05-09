@@ -270,6 +270,68 @@ export const verify_the_otp = async (
   }
 };
 
+export const verify_the_otp2 = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  const error = validationResult(req);
+
+  if (!error.isEmpty()) {
+    return res.status(400).json({ errors: error.array() });
+  }
+
+  const { otp } = req.body;
+
+  const sessionToken =
+    req.cookies.sessionToken || req.headers["authorization"]?.split(" ")[1];
+
+  console.log(sessionToken);
+
+  try {
+    // checking the otp provided by user is correct or not
+
+    if (!sessionToken) {
+      return res.status(400).json({ error: "Session token is required." });
+    }
+
+    const email = await redis.get(`session:${sessionToken}`);
+
+    if (!email) {
+      return res
+        .status(400)
+        .json({ error: "Invalid or expired session token." });
+    }
+
+    const otpRecord = await Client.otpTable.findUnique({ where: { email } });
+
+    if (!otpRecord || otpRecord.otp !== (otp as string)) {
+      return res.status(401).json({ error: "Invalid OTP." });
+    }
+
+    if (!otpRecord.expiresAt || new Date() > new Date(otpRecord.expiresAt)) {
+      return res
+        .status(400)
+        .json({ error: "OTP expired. Please request a new one." });
+    }
+
+    await Client.otpTable.delete({ where: { email } });
+
+    res.clearCookie("sessionToken");
+
+    await redis.del(`otp:${sessionToken}`);
+
+    res.status(200).json({
+      success: true,
+      message: "OTP verified successfully and stored in cookie!",
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to verify OTP", error });
+  }
+};
+
 // checking for middleware logic
 
 export const getProfile = (req: Request, res: Response, next: NextFunction) => {

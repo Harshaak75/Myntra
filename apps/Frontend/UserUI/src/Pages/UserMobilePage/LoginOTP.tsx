@@ -92,6 +92,8 @@ export const LoginOTP = () => {
       );
 
       if (response.status == 200) {
+        setOtpValues(Array(5).fill(""));
+        alert("verified")
         navigate("/");
       }
     } catch (error: any) {

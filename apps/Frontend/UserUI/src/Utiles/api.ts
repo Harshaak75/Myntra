@@ -8,7 +8,7 @@ export const fetchProductsByCategory = async (category: string) => {
   const token = await Gettoken();
   console.log("hiiiiiiiiiiiii",token)
   const res = await axios.post(
-    `${backend_url}seller/by-category`,
+    `${backend_url}user/by-category`,
     { usage: category },
     {
       headers: {

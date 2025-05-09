@@ -16,31 +16,31 @@ import { useNavigate } from "react-router-dom";
 
 export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
   const navigate = useNavigate();
-  const [loading , setloading] = useState(false)
+  const [loading, setloading] = useState(false);
 
   const email = useSelector((state: any) => state.auth.email);
 
   const dispatch = useDispatch();
 
   const logout = async () => {
-      try {
-        setloading(true);
-        const response = await axios.get(`${backend_url}userAuth/logout`, {
-          withCredentials: true,
-        });
-        console.log(email);
+    try {
+      setloading(true);
+      const response = await axios.get(`${backend_url}userAuth/logout`, {
+        withCredentials: true,
+      });
+      console.log(email);
+      dispatch(logOut());
+      navigate("/users/login");
+    } catch (error: any) {
+      if (error.response.data.message == "Unauthorized") {
+        alert("session expired, please login.");
         dispatch(logOut());
         navigate("/users/login");
-      } catch (error: any) {
-        if (error.response.data.message == "Unauthorized") {
-          alert("session expired, please login.")
-          dispatch(logOut());
-          navigate("/users/login");
-        }
-      } finally {
-        setloading(false);
       }
-    };
+    } finally {
+      setloading(false);
+    }
+  };
 
   return (
     <header className="shadow-sm bg-white w-full px-4 lg:py-5 py-3 flex items-center justify-between">
@@ -126,14 +126,16 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
                 <p className="text-xs text-gray-500">
                   {!email && "To access account and manage orders"}
                 </p>
-                {email ? <p className="pt-1">{email}</p> :
+                {email ? (
+                  <p className="pt-1">{email}</p>
+                ) : (
                   <button
                     onClick={() => navigate("/users/login")}
                     className="mt-2 cursor-pointer w-full border border-pink-500 text-pink-500 font-bold py-1 text-sm rounded hover:bg-pink-50"
                   >
                     LOGIN / SIGNUP
                   </button>
-                }
+                )}
               </div>
               <ul className="text-sm py-2">
                 <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
@@ -174,20 +176,33 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
                 </li>
               </ul>
               <hr />
-              {email && <ul className="text-sm py-2">
-                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
-                  <button className="cursor-pointer" onClick={() => navigate("/user/profile/edit")}>Edit Profile</button> 
-                </li>
-                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
-                  <button className={`${loading ? "cursor-not-allowed" : "cursor-pointer"} `} disabled={loading} onClick={logout}>Logout</button>
-                </li>
-              </ul>}
+              {email && (
+                <ul className="text-sm py-2">
+                  <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                    <button
+                      className="cursor-pointer"
+                      onClick={() => navigate("/user/profile/edit")}
+                    >
+                      Edit Profile
+                    </button>
+                  </li>
+                  <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                    <button
+                      className={`${loading ? "cursor-not-allowed" : "cursor-pointer"} `}
+                      disabled={loading}
+                      onClick={logout}
+                    >
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              )}
             </div>
           </div>
 
-          <div className="flex flex-col items-center hover:text-pink-500 cursor-pointer">
+          <div className="flex flex-col items-center cursor-pointer" onClick={() => navigate("/my/wishlist")}>
             <Heart className="w-5 h-5 mb-0.5" />
-            Wishlist
+            <span className="hover:text-pink-500">Wishlist</span>
           </div>
           <div className="flex flex-col items-center hover:text-pink-500 cursor-pointer">
             <ShoppingBag className="w-5 h-5 mb-0.5" />
