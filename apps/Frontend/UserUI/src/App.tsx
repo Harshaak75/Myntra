@@ -35,6 +35,9 @@ import SellerApprovalPanel from "./Components/ProductAdmin/SellerApprovalPanel.j
 import { SidebarAccount } from "./Components/MobileUsers/AccountComp/SidebarAccount.js";
 import { SidebarLayout } from "./Components/MobileUsers/SidebarLayout.js";
 import Wishlists from "./Components/MobileUsers/Wishlists.js";
+import { ShoppingBag } from "lucide-react";
+import ShoppingBagComp from "./Components/MobileUsers/ShoppingBagComp.js";
+import { Address } from "./Components/MobileUsers/Address.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -88,6 +91,8 @@ function App() {
 
           <Route path="/" element={<Mobilehome />} />
 
+          <Route path="/checkout/cart" element={<ShoppingBagComp/>}/>
+
           {/* wishlist */}
 
           <Route
@@ -103,6 +108,7 @@ function App() {
             <Route path="/my/wishlist" element={<Wishlists/>}/>
             <Route element= {<SidebarLayout/>}>
             <Route path="/user/profile/edit" element={<AccountPage/>} />
+            <Route path="/user/my/address" element={<Address/>} />
             </Route>
           </Route>
 

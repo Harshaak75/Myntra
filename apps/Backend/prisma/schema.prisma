@@ -18,6 +18,7 @@ model users {
   userProfile   userProfile?
   phoneNumber   PhoneNumber?
   Wishlist      Wishlist[]
+  CartItem      CartItem[]
 }
 
 model userProfile {
@@ -33,12 +34,15 @@ model userProfile {
 model userAddress {
   id            Int     @id @default(autoincrement())
   userId        Int     @unique
-  address       String?
-  city          String?
-  state         String?
-  pincode       String?
-  Locality      String?
-  typeOfAddress String? @default("home")
+  name          String
+  mobile        String
+  pincode       String
+  state         String
+  address       String // House No, Street, Area
+  locality      String // Locality / Town
+  city          String // City / District
+  typeOfAddress String  @default("home")
+  isDefault     Boolean @default(false)
   user          users   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -122,6 +126,7 @@ model Product {
   seller           Seller             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   productAttribute productAttribute[]
   Wishlist         Wishlist[]
+  CartItem         CartItem[]
 }
 
 model Seller {
@@ -244,5 +249,15 @@ model Wishlist {
   userId    Int
   product   Product  @relation(fields: [productId], references: [id])
   productId Int
+  createdAt DateTime @default(now())
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  user      users    @relation(fields: [userId], references: [id])
+  userId    Int
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  size      String
   createdAt DateTime @default(now())
 }

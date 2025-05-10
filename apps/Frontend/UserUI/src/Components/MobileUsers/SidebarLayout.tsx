@@ -7,7 +7,7 @@ export const SidebarLayout = () => {
     <div className=" mt-20 bg-white px-4 py-10 md:px-16 lg:px-28 flex gap-10">
       <SidebarAccount />
 
-      <div className="mt-8 w-[70%]">
+      <div className="mt-8 w-[70%] bg-white">
         <Outlet />
       </div>
     </div>

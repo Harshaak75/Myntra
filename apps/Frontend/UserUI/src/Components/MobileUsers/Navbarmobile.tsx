@@ -204,9 +204,9 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
             <Heart className="w-5 h-5 mb-0.5" />
             <span className="hover:text-pink-500">Wishlist</span>
           </div>
-          <div className="flex flex-col items-center hover:text-pink-500 cursor-pointer">
+          <div className="flex flex-col items-center cursor-pointer" onClick={() => navigate("/checkout/cart")}>
             <ShoppingBag className="w-5 h-5 mb-0.5" />
-            Bag
+            <span className="hover:text-pink-500">Bag</span>
           </div>
         </div>
       </div>

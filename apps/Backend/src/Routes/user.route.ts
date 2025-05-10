@@ -5,7 +5,7 @@ import { body } from "express-validator";
 import { authenticate_User } from "../Middlewares/authenticate.user";
 import {
   CreateOrder,
-  editAddress,
+  // editAddress,
   editProfile,
   getData,
   getOrderDetails,
@@ -52,24 +52,24 @@ userRouter.post(
   editProfile
 );
 
-userRouter.post(
-  "/editAddress",
-  [
-    body("address").isString().withMessage("Address must be a string"),
-    body("city").isString().withMessage("City must be a string"),
-    body("state").isString().withMessage("State must be a string"),
-    body("pincode").isPostalCode("any").withMessage("Invalid pincode"),
-    body("locality")
-      .optional()
-      .isString()
-      .withMessage("Landmark must be a string"),
-    body("addressType")
-      .isIn(["Home", "Work", "Other"])
-      .withMessage("Invalid address type"),
-  ],
-  authenticate_User,
-  editAddress
-);
+// userRouter.post(
+//   "/editAddress",
+//   [
+//     body("address").isString().withMessage("Address must be a string"),
+//     body("city").isString().withMessage("City must be a string"),
+//     body("state").isString().withMessage("State must be a string"),
+//     body("pincode").isPostalCode("any").withMessage("Invalid pincode"),
+//     body("locality")
+//       .optional()
+//       .isString()
+//       .withMessage("Landmark must be a string"),
+//     body("addressType")
+//       .isIn(["Home", "Work", "Other"])
+//       .withMessage("Invalid address type"),
+//   ],
+//   authenticate_User,
+//   editAddress
+// );
 
 userRouter.post("/updateEmail", authenticate_User, async (req, res) => {
   const userId = req.user_id;
@@ -161,7 +161,7 @@ userRouter.get("/wishlist", authenticate_User, async (req, res) => {
           where: {
             productId: item.product.id,
             attributename: {
-              in: ["Front Image", "Back Image"], // only fetch image attributes
+              in: ["Front Image", "Product Description"], // only fetch image attributes
             },
           },
         });
@@ -176,7 +176,7 @@ userRouter.get("/wishlist", authenticate_User, async (req, res) => {
       })
     );
 
-    console.log(wishlistWithAttributes)
+    console.log(wishlistWithAttributes);
 
     res.status(200).json(wishlistWithAttributes);
   } catch (err) {
@@ -186,5 +186,131 @@ userRouter.get("/wishlist", authenticate_User, async (req, res) => {
 });
 
 userRouter.post("/by-category", authenticate_User, getData);
+
+// Example: Express/Next.js handler
+userRouter.post("/cart/add", authenticate_User, async (req, res) => {
+  const { productId, size } = req.body;
+  const userId = Number(req.user_id);
+
+  if (!productId || !size) {
+    res.status(400).json({ error: "Missing fields" });
+  }
+
+  const newCartItem = await Client.cartItem.create({
+    data: {
+      userId,
+      productId,
+      size,
+    },
+  });
+
+  res.status(200).json(newCartItem);
+});
+
+userRouter.get("/cart", authenticate_User, async (req, res) => {
+  const userId = Number(req.user_id);
+
+  try {
+    const response = await Client.cartItem.findMany({
+      where: { userId: userId },
+      include: {
+        product: {
+          include: {
+            productAttribute: true, // includes image URLs or any other attributes
+          },
+        },
+      },
+    });
+    res.status(200).json({ response });
+  } catch (error) {
+    console.error("Wishlist fetch error:", error);
+    res.status(500).json({ error: "Failed to fetch cartItems" });
+  }
+});
+
+// update address
+
+userRouter.post("/editAddress", authenticate_User, async (req, res) => {
+  const {
+    name,
+    mobile,
+    pincode,
+    state,
+    address,
+    locality,
+    city,
+    typeOfAddress,
+    isDefault,
+  } = req.body.data;
+
+  const userId = Number(req.user_id);
+  console.log(userId)
+
+  console.log(req.body.data)
+  console.log(name, mobile,pincode,state,address,locality,city,typeOfAddress,isDefault)
+
+  try {
+    if (isDefault) {
+      await Client.userAddress.updateMany({
+        where: { userId },
+        data: { isDefault: false },
+      });
+    }
+
+    const newAddress = await Client.userAddress.create({
+      data: {
+        userId,
+        name,
+        mobile,
+        pincode,
+        state,
+        address,
+        locality,
+        city,
+        typeOfAddress,
+        isDefault: isDefault || false,
+      },
+    });
+
+    res.status(200).json({ newAddress });
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+});
+
+userRouter.get("/getAddresses", authenticate_User, async (req,res) =>{
+  const userId = Number(req.user_id);
+
+  try {
+    const response = await Client.userAddress.findMany({
+      where: {userId}
+    })
+    res.status(200).json({ addresses: response })
+  } catch (error) {
+    res.status(500).json({error: error})
+  }
+})
+
+userRouter.delete("/address/:id", authenticate_User, async (req, res) => {
+  const addressId = parseInt(req.params.id);
+
+  try {
+    // Assuming you have the user's ID from authenticate_User middleware
+    const userId = Number(req.user_id);
+
+    await Client.userAddress.deleteMany({
+      where: {
+        id: addressId,
+        userId, // Make sure address belongs to the authenticated user
+      },
+    });
+
+    res.status(200).json({ message: "Address deleted successfully." });
+  } catch (error) {
+    console.error("Delete address error:", error);
+    res.status(500).json({ error: "Something went wrong while deleting the address." });
+  }
+});
+
 
 export default userRouter;

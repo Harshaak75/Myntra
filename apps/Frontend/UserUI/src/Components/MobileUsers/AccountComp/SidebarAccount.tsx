@@ -1,4 +1,12 @@
+import { useLocation, useNavigate } from "react-router-dom";
+
 export function SidebarAccount() {
+  const navigate = useNavigate();
+
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
+
   return (
     <div className="">
     <div className="flex border-t-1 border-gray-300 rounded-sm overflow-hidden ">
@@ -49,13 +57,17 @@ export function SidebarAccount() {
               Account
             </p>
             <ul className="space-y-2">
-              <li className="text-pink-600 font-semibold cursor-pointer">
+              <li className={`cursor-pointer ${isActive("/user/profile/edit")
+                      ? "text-pink-600 font-semibold"
+                      : "text-gray-800"}`} onClick={() => navigate("/user/profile/edit")}>
                 Profile
               </li>
               <li className="cursor-pointer">Saved Cards</li>
               <li className="cursor-pointer">Saved UPI</li>
               <li className="cursor-pointer">Saved Wallets/BNPL</li>
-              <li className="cursor-pointer">Addresses</li>
+              <li className={`cursor-pointer ${isActive("/user/my/address")
+                      ? "text-green-600 font-semibold"
+                      : "text-gray-800"}`} onClick={() => navigate("/user/my/address")}>Addresses</li>
             </ul>
           </div>
         </nav>

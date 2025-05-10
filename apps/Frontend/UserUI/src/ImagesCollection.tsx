@@ -50,6 +50,7 @@ import p13 from "./assets/images/p13.jpg"
 import p14 from "./assets/images/p14.jpg"
 import p15 from "./assets/images/p15.jpg"
 import p16 from "./assets/images/p16.jpg"
+import wishlist from "./assets/images/wishlist.png"
 
 export {
     myntralogo,
@@ -103,6 +104,7 @@ export {
     p13,
     p14,
     p15,
-    p16
+    p16,
+    wishlist
     // Add more logos here if needed
 };
