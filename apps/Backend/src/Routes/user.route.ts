@@ -228,6 +228,27 @@ userRouter.get("/cart", authenticate_User, async (req, res) => {
   }
 });
 
+userRouter.get("/cart/check/:id", authenticate_User, async (req, res) => {
+  const userId = Number(req.user_id);
+
+  const id = Number(req.params.id);
+
+  console.log(userId, id);
+
+  try {
+    const response = await Client.cartItem.findMany({
+      where: {
+        AND: [{ productId: id }, { userId: userId }],
+      },
+    });
+
+    res.status(200).json({ inCart: response.length > 0, size: response[0].size });
+  } catch (error) {
+    console.error("Wishlist fetch error:", error);
+    res.status(500).json({ error: "Failed to fetch cartItems" });
+  }
+});
+
 // update address
 
 userRouter.post("/editAddress", authenticate_User, async (req, res) => {
@@ -244,10 +265,20 @@ userRouter.post("/editAddress", authenticate_User, async (req, res) => {
   } = req.body.data;
 
   const userId = Number(req.user_id);
-  console.log(userId)
+  console.log(userId);
 
-  console.log(req.body.data)
-  console.log(name, mobile,pincode,state,address,locality,city,typeOfAddress,isDefault)
+  console.log(req.body.data);
+  console.log(
+    name,
+    mobile,
+    pincode,
+    state,
+    address,
+    locality,
+    city,
+    typeOfAddress,
+    isDefault
+  );
 
   try {
     if (isDefault) {
@@ -278,18 +309,18 @@ userRouter.post("/editAddress", authenticate_User, async (req, res) => {
   }
 });
 
-userRouter.get("/getAddresses", authenticate_User, async (req,res) =>{
+userRouter.get("/getAddresses", authenticate_User, async (req, res) => {
   const userId = Number(req.user_id);
 
   try {
     const response = await Client.userAddress.findMany({
-      where: {userId}
-    })
-    res.status(200).json({ addresses: response })
+      where: { userId },
+    });
+    res.status(200).json({ addresses: response });
   } catch (error) {
-    res.status(500).json({error: error})
+    res.status(500).json({ error: error });
   }
-})
+});
 
 userRouter.delete("/address/:id", authenticate_User, async (req, res) => {
   const addressId = parseInt(req.params.id);
@@ -308,9 +339,27 @@ userRouter.delete("/address/:id", authenticate_User, async (req, res) => {
     res.status(200).json({ message: "Address deleted successfully." });
   } catch (error) {
     console.error("Delete address error:", error);
-    res.status(500).json({ error: "Something went wrong while deleting the address." });
+    res
+      .status(500)
+      .json({ error: "Something went wrong while deleting the address." });
   }
 });
 
+userRouter.get("/cart/:id", authenticate_User, async (req, res) => {
+  const id = Number(req.params.id);
+
+  try {
+    const ProductData = await Client.product.findMany({
+      where: { id: id },
+      include: {
+        productAttribute: true,
+      },
+    });
+    console.log(ProductData);
+    res.status(200).json({ ProductData });
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+});
 
 export default userRouter;

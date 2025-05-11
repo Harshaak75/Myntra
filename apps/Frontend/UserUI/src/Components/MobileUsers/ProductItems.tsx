@@ -2,6 +2,7 @@ import axios from "axios";
 import { Heart, Star } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import ProductHeart from "./ProductHeart";
+import { useNavigate } from "react-router-dom";
 
 interface Product {
   name: string;
@@ -26,6 +27,14 @@ const ProductItem = ({ item }: { item: Product }) => {
   const [hovering, setHovering] = useState(false);
 
   const [wishlist, setWishlist] = useState(false); // wishlist toggle
+
+  const navigate = useNavigate();
+
+  const slugify = (name: any) =>
+    name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9\-]/g, "");
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -56,7 +65,7 @@ const ProductItem = ({ item }: { item: Product }) => {
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
       >
-        <ProductHeart item={item}/>
+        <ProductHeart item={item} />
 
         {/* Image container */}
         <div
@@ -84,6 +93,12 @@ const ProductItem = ({ item }: { item: Product }) => {
                   src={img}
                   alt={item.name}
                   className="w-full h-full object-cover"
+                  onClick={() =>
+                    window.open(
+                      `/cart/${slugify(item.name)}/${item.id}`,
+                      "_blank"
+                    )
+                  }
                 />
               ))}
             </div>
@@ -92,12 +107,20 @@ const ProductItem = ({ item }: { item: Product }) => {
               src={validImages[0]}
               alt={item.name}
               className="w-full h-full object-cover"
+              onClick={() =>
+                window.open(`/cart/${slugify(item.name)}/${item.id}`, "_blank")
+              }
             />
           ) : null}
         </div>
 
         {/* Product info */}
-        <div className="px-2">
+        <div
+          onClick={() =>
+            window.open(`/cart/${slugify(item.name)}/${item.id}`, "_blank")
+          }
+          className="px-2"
+        >
           <h4 className="font-semibold text-[0.85rem] md:text-base lg:text-base truncate">
             {item.name}
           </h4>

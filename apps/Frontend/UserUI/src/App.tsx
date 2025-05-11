@@ -38,6 +38,7 @@ import Wishlists from "./Components/MobileUsers/Wishlists.js";
 import { ShoppingBag } from "lucide-react";
 import ShoppingBagComp from "./Components/MobileUsers/ShoppingBagComp.js";
 import { Address } from "./Components/MobileUsers/Address.js";
+import Productshowcase from "./Components/MobileUsers/Productshowcase.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -106,6 +107,7 @@ function App() {
             <Route path="/user/Edit Profile" element={<Profilemobile />} />
             <Route path="/user/Products/:category" element={<ProductGrid/>}/>
             <Route path="/my/wishlist" element={<Wishlists/>}/>
+            <Route path="/cart/:name/:id" element={<Productshowcase/>}/>
             <Route element= {<SidebarLayout/>}>
             <Route path="/user/profile/edit" element={<AccountPage/>} />
             <Route path="/user/my/address" element={<Address/>} />
