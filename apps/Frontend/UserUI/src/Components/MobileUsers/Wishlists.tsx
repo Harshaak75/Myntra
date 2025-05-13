@@ -240,7 +240,7 @@ export default function Wishlists() {
         </div>
       )}
 
-      {!!wishlistItems && (
+      {wishlistItems.length === 0 && (
         <div className="w-full h-[80vh] flex justify-center">
           <div className="w-[24rem] flex flex-col items-center text-center p-6">
             {/* Title */}
