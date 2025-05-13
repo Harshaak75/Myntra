@@ -64,7 +64,7 @@ export const auth_the_user = async (
     const requestCount = await redis.get(redisKey);
 
     const ttll = await redis.ttl(redisKey);
-    console.log("Redis Key TTL (seconds):", ttll)
+    console.log("Redis Key TTL (seconds):", ttll);
 
     if (requestCount && parseInt(requestCount) >= OTP_LIMIT) {
       return res
@@ -79,7 +79,7 @@ export const auth_the_user = async (
       .exec();
 
     const ttl = await redis.ttl(redisKey);
-    console.log("Redis Key TTL (seconds):", ttl)
+    console.log("Redis Key TTL (seconds):", ttl);
 
     const otp = Math.floor(10000 + Math.random() * 90000).toString();
     // const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
@@ -199,7 +199,9 @@ export const verify_the_otp = async (
 
     await redis.del(`otp:${sessionToken}`);
 
-    const user_data = await Client.users.findUnique({ where: { email: email } });
+    const user_data = await Client.users.findUnique({
+      where: { email: email },
+    });
 
     let user;
 
@@ -360,7 +362,12 @@ export const logout_user = async (
       },
     });
 
-    res.clearCookie("access_token");
+    res.clearCookie("access_token", {
+      httpOnly: true,
+      path: "/",
+      secure: secure_cookie == "Production",
+      sameSite: secure_cookie == "Production" ? "none" : "lax",
+    });
 
     res.status(200).json({ message: "The user is logged out." });
   } catch (error: any) {
