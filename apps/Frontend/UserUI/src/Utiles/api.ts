@@ -5,16 +5,16 @@ import { getValidToken } from "./ValidateToken";
 import { Gettoken } from "./Gettoken";
 
 export const fetchProductsByCategory = async (category: string) => {
-  const token = await Gettoken();
-  console.log("hiiiiiiiiiiiii",token)
+  // const token = await Gettoken();
+  // console.log("hiiiiiiiiiiiii",token)
   const res = await axios.post(
     `${backend_url}user/by-category`,
     { usage: category },
     {
-      headers: {
-        authorization: `Bearer ${token}`,
-        "Cache-Control": "no-cache", // Prevent caching
-      },
+      // headers: {
+      //   authorization: `Bearer ${token}`,
+      //   "Cache-Control": "no-cache", // Prevent caching
+      // },
       withCredentials: true,
     }
     // if cookies/token required

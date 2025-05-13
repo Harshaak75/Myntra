@@ -19,6 +19,7 @@ import { MapPinHouse } from "lucide-react";
 import axios from "axios";
 import { Gettoken } from "@/Utiles/Gettoken";
 import { backend_url } from "../../../config";
+import { useNavigate } from "react-router-dom";
 
 const addressSchema = z.object({
 id: z.number().optional(),
@@ -41,6 +42,8 @@ export function Address() {
 
   const [addresses, setAddresses] = useState<AddressFormData[]>([]);
 
+  const navigate = useNavigate();
+
   const fetchAddresses = async () => {
     setloading(true)
     const token = Gettoken();
@@ -53,7 +56,10 @@ export function Address() {
       });
       setAddresses(res.data.addresses || []);
       console.log(addresses)
-    } catch (err) {
+    } catch (err: any) {
+      if(err.status === 403 && err.response.data.message === "Invalid token"){
+        navigate("/users/login")
+      }
       console.error("Error fetching addresses:", err);
     }
     finally{

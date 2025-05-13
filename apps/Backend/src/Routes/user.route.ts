@@ -185,7 +185,7 @@ userRouter.get("/wishlist", authenticate_User, async (req, res) => {
   }
 });
 
-userRouter.post("/by-category", authenticate_User, getData);
+userRouter.post("/by-category", getData);
 
 // Example: Express/Next.js handler
 userRouter.post("/cart/add", authenticate_User, async (req, res) => {

@@ -40,6 +40,8 @@ export default function Wishlists() {
 
   const [addedtobag, setaddedtobag] = useState(false);
 
+  const [showLogin, setshowLogin] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,7 +57,13 @@ export default function Wishlists() {
         });
 
         setwishlistItems(response.data);
-      } catch (error) {
+      } catch (error: any) {
+        if (
+          error.status === 403 &&
+          error.response.data.message === "Invalid token"
+        ) {
+          setshowLogin(true);
+        }
         console.error("Failed to load wishlist:", error);
       } finally {
         setloading(false);
@@ -240,7 +248,7 @@ export default function Wishlists() {
         </div>
       )}
 
-      {wishlistItems.length === 0 && (
+      {wishlistItems.length === 0 && !showLogin ? (
         <div className="w-full h-[80vh] flex justify-center">
           <div className="w-[24rem] flex flex-col items-center text-center p-6">
             {/* Title */}
@@ -269,6 +277,39 @@ export default function Wishlists() {
               onClick={() => navigate("/")}
             >
               CONTINUE SHOPPING
+            </button>
+          </div>
+        </div>
+      ): null}
+
+      {showLogin && (
+        <div className="w-full h-[80vh] flex justify-center">
+          <div className="w-[24rem] flex flex-col items-center text-center p-6">
+            {/* Title */}
+            <h1 className="text-xl font-bold text-gray-800 mb-2">
+              PLEASE LOG IN
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-gray-500 text-sm mb-6">
+              Login to view items in your wishlist.
+            </p>
+
+            {/* Image */}
+            <div className="w-[6rem] h-[6rem] mb-6">
+              <img
+                src={wishlist}
+                alt="Empty Wishlist"
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            {/* Button */}
+            <button
+              className="border border-blue-500 text-blue-600 font-semibold px-6 py-2 rounded hover:bg-blue-50 transition cursor-pointer"
+              onClick={() => navigate("/users/login")}
+            >
+              LOGIN
             </button>
           </div>
         </div>

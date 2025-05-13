@@ -3,9 +3,12 @@ import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { backend_url } from "../../../config";
 import { Gettoken } from "@/Utiles/Gettoken";
+import { useNavigate } from "react-router-dom";
 
 function ProductHeart({ item, userId }: any) {
   const [wishlist, setWishlist] = useState(false);
+
+  const navigate = useNavigate();
 
   // Load wishlist status on mount
   useEffect(() => {
@@ -50,12 +53,16 @@ function ProductHeart({ item, userId }: any) {
       );
 
       setWishlist(res.data.isWishlisted); // backend should return updated status
-    } catch (err) {
+    } catch (err: any) {
+      console.log("err",err)
+      if(err.status == 403 && err.response.data.message === "Invalid token"){
+        navigate("/users/login")
+      }
       console.error("Wishlist toggle failed:", err);
 
       setWishlist(previousState);
 
-      alert("Failed to update wishlist. Please try again.");
+      // alert("Failed to update wishlist. Please try again.");
     }
   };
 
