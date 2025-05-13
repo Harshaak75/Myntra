@@ -92,12 +92,12 @@ export default function Productshowcase() {
   useEffect(() => {
     const fetchData = async () => {
       setloading(true);
-      const token = Gettoken();
+      // const token = Gettoken();
       try {
         const response = await axios.get(`${backend_url}user/cart/${id}`, {
-          headers: {
-            authorization: `bearer ${token}`,
-          },
+          // headers: {
+          //   authorization: `bearer ${token}`,
+          // },
           withCredentials: true,
         });
         console.log(response.data);
@@ -219,7 +219,10 @@ export default function Productshowcase() {
         { headers: { authorization: `Bearer ${token}` }, withCredentials: true }
       );
       setAddedToBag(true);
-    } catch (error) {
+    } catch (error: any) {
+      if(error.status === 403 && error.response.data.message === "Invalid token"){
+        navigate("/users/login")
+      }
       console.error("Failed to add to bag:", error);
     } finally {
       setloading(false);
@@ -251,12 +254,16 @@ export default function Productshowcase() {
       );
 
       setWishlist(res.data.isWishlisted); // backend should return updated status
-    } catch (err) {
+    } catch (err: any) {
+
+      if(err.status === 403 && err.response.data.message == "Invalid token"){
+        navigate("/users/login")
+      }
       console.error("Wishlist toggle failed:", err);
 
       setWishlist(previousState)
 
-      alert("Failed to update wishlist. Please try again.");
+      // alert("Failed to update wishlist. Please try again.");
     }
   };
 

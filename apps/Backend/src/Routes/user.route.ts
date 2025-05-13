@@ -347,7 +347,7 @@ userRouter.delete("/address/:id", authenticate_User, async (req, res) => {
   }
 });
 
-userRouter.get("/cart/:id", authenticate_User, async (req, res) => {
+userRouter.get("/cart/:id", async (req, res) => {
   const id = Number(req.params.id);
 
   try {
