@@ -12,11 +12,11 @@ function ProductHeart({ item, userId }: any) {
     const fetchData = async () => {
       const token = await Gettoken();
       axios
-        .get(`${backend_url}user/wishlist/check?productId=${item.id}`,{
-            headers:{
-                authorization: `bearer ${token}`
-            },
-            withCredentials: true
+        .get(`${backend_url}user/wishlist/check?productId=${item.id}`, {
+          headers: {
+            authorization: `bearer ${token}`,
+          },
+          withCredentials: true,
         })
         .then((res) => {
           setWishlist(res.data.exists); // boolean from backend
@@ -30,21 +30,32 @@ function ProductHeart({ item, userId }: any) {
   const handleToggle = async (e: any) => {
     e.stopPropagation();
 
+    const previousState = wishlist;
+    setWishlist(!wishlist);
+
     const token = await Gettoken();
 
     try {
-      const res = await axios.post(`${backend_url}user/wishlist/toggle`, {
-        productId: item.id,
-      },{
-        headers:{
-            authorization: `bearer ${token}`
+      const res = await axios.post(
+        `${backend_url}user/wishlist/toggle`,
+        {
+          productId: item.id,
         },
-        withCredentials: true
-      });
+        {
+          headers: {
+            authorization: `bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
 
       setWishlist(res.data.isWishlisted); // backend should return updated status
     } catch (err) {
       console.error("Wishlist toggle failed:", err);
+
+      setWishlist(previousState);
+
+      alert("Failed to update wishlist. Please try again.");
     }
   };
 

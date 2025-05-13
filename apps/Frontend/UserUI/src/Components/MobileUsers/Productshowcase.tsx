@@ -231,6 +231,9 @@ export default function Productshowcase() {
   const handleToggle = async (e: any) => {
     e.stopPropagation();
 
+    const previousState = wishlist;
+    setWishlist(!wishlist);
+
     const token = await Gettoken();
 
     try {
@@ -250,6 +253,10 @@ export default function Productshowcase() {
       setWishlist(res.data.isWishlisted); // backend should return updated status
     } catch (err) {
       console.error("Wishlist toggle failed:", err);
+
+      setWishlist(previousState)
+
+      alert("Failed to update wishlist. Please try again.");
     }
   };
 

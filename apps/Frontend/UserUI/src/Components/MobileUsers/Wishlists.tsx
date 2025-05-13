@@ -65,81 +65,78 @@ export default function Wishlists() {
     fetchWishlist();
   }, []);
 
-const onRemove = async (productId: number, showToast: boolean = true) => {
-  setloading(true);
-  const token = await Gettoken();
-  try {
-    await axios.post(
-      `${backend_url}user/wishlist/toggle`,
-      { productId },
-      {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
+  const onRemove = async (productId: number, showToast: boolean = true) => {
+    setloading(true);
+    const token = await Gettoken();
+    try {
+      await axios.post(
+        `${backend_url}user/wishlist/toggle`,
+        { productId },
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      setwishlistItems((prev) =>
+        prev.filter((item) => item.product.id !== productId)
+      );
+
+      // ✅ Show "removed" toast only if flag is true
+      if (showToast) {
+        setshowSuccess(true);
+        setTimeout(() => {
+          setshowSuccess(false);
+        }, 2000);
       }
-    );
-
-    setwishlistItems((prev) =>
-      prev.filter((item) => item.product.id !== productId)
-    );
-
-    // ✅ Show "removed" toast only if flag is true
-    if (showToast) {
-      setshowSuccess(true);
-      setTimeout(() => {
-        setshowSuccess(false);
-      }, 2000);
+    } catch (error) {
+      console.error("Failed to remove item:", error);
+    } finally {
+      setloading(false);
     }
-  } catch (error) {
-    console.error("Failed to remove item:", error);
-  } finally {
-    setloading(false);
-  }
-};
-
+  };
 
   const onMoveToBag = (product: Product) => {
     setSelectedProduct(product);
   };
 
-const handleAddtoBag = async () => {
-  if (!selectedProduct) return;
+  const handleAddtoBag = async () => {
+    if (!selectedProduct) return;
 
-  setloading(true)
+    setloading(true);
 
-  const token = await Gettoken();
+    const token = await Gettoken();
 
-  try {
-    await axios.post(
-      `${backend_url}user/cart/add`,
-      {
-        productId: selectedProduct.id,
-        size: selectedSize,
-      },
-      {
-        headers: {
-          authorization: `Bearer ${token}`,
+    try {
+      await axios.post(
+        `${backend_url}user/cart/add`,
+        {
+          productId: selectedProduct.id,
+          size: selectedSize,
         },
-        withCredentials: true,
-      }
-    );
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
 
-    // ✅ Don't show the "removed" toast when moving to bag
-    await onRemove(selectedProduct.id, false);
+      // ✅ Don't show the "removed" toast when moving to bag
+      await onRemove(selectedProduct.id, false);
 
-    setaddedtobag(true);
-    setTimeout(() => setaddedtobag(false), 2000);
+      setaddedtobag(true);
+      setTimeout(() => setaddedtobag(false), 2000);
 
-    setSelectedProduct(null);
-  } catch (error) {
-    console.error("Failed to move item to bag:", error);
-  }
-  finally{
-    setloading(false)
-  }
-};
-
+      setSelectedProduct(null);
+    } catch (error) {
+      console.error("Failed to move item to bag:", error);
+    } finally {
+      setloading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-white relative">

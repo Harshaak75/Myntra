@@ -242,7 +242,9 @@ userRouter.get("/cart/check/:id", authenticate_User, async (req, res) => {
       },
     });
 
-    res.status(200).json({ inCart: response.length > 0, size: response[0].size });
+    res
+      .status(200)
+      .json({ inCart: response.length > 0, size: response[0].size });
   } catch (error) {
     console.error("Wishlist fetch error:", error);
     res.status(500).json({ error: "Failed to fetch cartItems" });
@@ -359,6 +361,25 @@ userRouter.get("/cart/:id", authenticate_User, async (req, res) => {
     res.status(200).json({ ProductData });
   } catch (error) {
     res.status(500).json({ error: error });
+  }
+});
+
+userRouter.delete("/delete/cartItem/:id", authenticate_User, async (req, res) => {
+  const id = req.params.id;
+  const userId = Number(req.user_id);
+
+  console.log(id,userId)
+  try {
+    const response = await Client.cartItem.delete({
+      where:{
+        id: Number(id), userId: userId
+      }
+    })
+    console.log("hi",response)
+
+    res.status(200).json({message: "The cart is deleted"})
+  } catch (error) {
+    res.status(500).json({error: error})
   }
 });
 

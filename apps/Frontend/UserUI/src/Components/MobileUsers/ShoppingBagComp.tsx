@@ -37,7 +37,9 @@ const ShoppingBagComp = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const [pincode, setpincode] = useState("")
+  const [pincode, setpincode] = useState("");
+
+  const [showSuccess, setshowSuccess] = useState(false)
 
   const navigate = useNavigate();
 
@@ -86,18 +88,48 @@ const ShoppingBagComp = () => {
   console.log(totalDiscount);
   const finalPrice = totalMRP - totalDiscount;
 
+  const handleRemove = async (id: any) => {
+    const token = await Gettoken();
+
+    try {
+      setLoading(true);
+      await axios.delete(`${backend_url}user/delete/cartItem/${id}`, {
+        headers: {
+          authorization: `bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+
+      setCartItems((prev) => prev.filter((item) => item.id !== id));
+
+      setshowSuccess(true)
+
+      setTimeout(() => setshowSuccess(false), 2000)
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white p-4 md:p-10">
       {/* Top Navbar */}
       <div className="flex items-center justify-between border-b pb-4">
-        <img src={logo} alt="Logo" className="h-8 cursor-pointer" onClick={() => navigate("/")}/>
+        <img
+          src={logo}
+          alt="Logo"
+          className="h-8 cursor-pointer"
+          onClick={() => navigate("/")}
+        />
         <div className="flex items-center gap-6 text-sm font-medium">
           <span className="text-green-600">BAG</span>
           <span className="text-gray-400">ADDRESS</span>
           <span className="text-gray-400">PAYMENT</span>
         </div>
         <div className="flex items-center gap-1 text-green-600 text-sm">
-          <ShieldCheck/><span>100% SECURE</span>
+          <ShieldCheck />
+          <span>100% SECURE</span>
         </div>
       </div>
 
@@ -107,7 +139,12 @@ const ShoppingBagComp = () => {
           <Card className="p-4">
             <Label>Check delivery time & services</Label>
             <div className="flex mt-2 gap-2">
-              <Input onChange={(e) => setpincode(e.target.value)} value={pincode} placeholder="Enter PIN code" className="w-1/2" />
+              <Input
+                onChange={(e) => setpincode(e.target.value)}
+                value={pincode}
+                placeholder="Enter PIN code"
+                className="w-1/2"
+              />
               <Button className="cursor-pointer">Enter</Button>
             </div>
           </Card>
@@ -135,9 +172,19 @@ const ShoppingBagComp = () => {
                 )?.attributevalue || "";
 
               return (
-                <div key={item.id} className="flex gap-4 mt-4 border-t pt-4">
+                <div
+                  key={item.id}
+                  className="flex relative gap-4 mt-4 border-t pt-4"
+                >
+                  <button
+                    onClick={() => handleRemove(item.id)} // Define this function
+                    className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors text-sm cursor-pointer"
+                    title="Remove from cart"
+                  >
+                    ✕
+                  </button>
                   <Checkbox
-                  className="cursor-pointer"
+                    className="cursor-pointer"
                     checked={item.selected}
                     onCheckedChange={(checked) => {
                       const updated = [...cartItems];
@@ -167,7 +214,7 @@ const ShoppingBagComp = () => {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">
+                    <p className="font-semibold mt-5">
                       ₹{item.product.price}{" "}
                       {item.product.originalPrice && (
                         <span className="line-through text-gray-400 text-sm ml-1">
@@ -206,7 +253,9 @@ const ShoppingBagComp = () => {
               <p className="text-xs text-gray-600">
                 Gift Packaging and personalised message on card, Only for ₹35
               </p>
-              <Button className="mt-2 text-xs cursor-pointer">Add Gift Package</Button>
+              <Button className="mt-2 text-xs cursor-pointer">
+                Add Gift Package
+              </Button>
             </div>
           </Card>
 
@@ -217,7 +266,11 @@ const ShoppingBagComp = () => {
             </div>
             <div className="flex gap-2 mt-2">
               {[10, 20, 50, 100].map((amt) => (
-                <Button key={amt} variant="outline" className="text-xs cursor-pointer">
+                <Button
+                  key={amt}
+                  variant="outline"
+                  className="text-xs cursor-pointer"
+                >
                   ₹{amt}
                 </Button>
               ))}
@@ -262,6 +315,12 @@ const ShoppingBagComp = () => {
       {loading && (
         <div className="fixed inset-0 flex items-center justify-center bg-white/50 z-50">
           <div className="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+
+      {showSuccess && (
+        <div className="fixed top-10 left-[60rem] transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded shadow-lg animate-slide-in-out z-50">
+          Item removed from the bag
         </div>
       )}
     </div>

@@ -116,8 +116,8 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
 
             {/* Dropdown menu with animation */}
             <div
-              className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-400 delay-250 ease-in-out
-    absolute top-11 right-[-0.5] w-[260px] bg-white shadow-xl border rounded z-50 pointer-events-none group-hover:pointer-events-auto"
+              className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-500 delay-300 ease-in-out
+    absolute top-10 right-[-0.5] w-[260px] bg-white shadow-xl border rounded z-50 pointer-events-none group-hover:pointer-events-auto"
             >
               <div className="p-4 border-b">
                 <p className="text-sm font-semibold">
@@ -138,14 +138,11 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
                 )}
               </div>
               <ul className="text-sm py-2">
-                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                <li onClick={() => navigate("/checkout/cart")} className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
                   Orders
                 </li>
-                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                <li onClick={() => navigate("my/wishlist")} className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
                   Wishlist
-                </li>
-                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
-                  Gift Cards
                 </li>
                 <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
                   Contact Us
@@ -160,18 +157,12 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
               <hr />
               <ul className="text-sm py-2">
                 <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
-                  Mynstars Credit
-                </li>
-                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
-                  Coupons
-                </li>
-                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
                   Saved Cards
                 </li>
                 <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
                   Saved VPA
                 </li>
-                <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                <li onClick={() => navigate("/user/my/address")} className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
                   Saved Addresses
                 </li>
               </ul>
@@ -200,11 +191,17 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
             </div>
           </div>
 
-          <div className="flex flex-col items-center cursor-pointer" onClick={() => navigate("/my/wishlist")}>
+          <div
+            className="flex flex-col items-center cursor-pointer"
+            onClick={() => navigate("/my/wishlist")}
+          >
             <Heart className="w-5 h-5 mb-0.5" />
             <span className="hover:text-pink-500">Wishlist</span>
           </div>
-          <div className="flex flex-col items-center cursor-pointer" onClick={() => navigate("/checkout/cart")}>
+          <div
+            className="flex flex-col items-center cursor-pointer"
+            onClick={() => navigate("/checkout/cart")}
+          >
             <ShoppingBag className="w-5 h-5 mb-0.5" />
             <span className="hover:text-pink-500">Bag</span>
           </div>
