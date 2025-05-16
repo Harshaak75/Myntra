@@ -4,6 +4,8 @@ import { Button } from "@/Components/ui/button";
 import { Card } from "@/Components/ui/card";
 import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
+// import {Carousel, CarouselContent, CarouselItem, type CarouselApi} from "@/Components/ui/carousel"
+import useEmblaCarousel from "embla-carousel-react";
 import {
   CheckCircle,
   Heart,
@@ -14,7 +16,8 @@ import {
   ThumbsUp,
   Truck,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+
+import { useCallback, useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Collapsible from "./Collapsible";
 import { useNavigate, useParams } from "react-router-dom";
@@ -220,8 +223,11 @@ export default function Productshowcase() {
       );
       setAddedToBag(true);
     } catch (error: any) {
-      if(error.status === 403 && error.response.data.message === "Invalid token"){
-        navigate("/users/login")
+      if (
+        error.status === 403 &&
+        error.response.data.message === "Invalid token"
+      ) {
+        navigate("/users/login");
       }
       console.error("Failed to add to bag:", error);
     } finally {
@@ -255,21 +261,36 @@ export default function Productshowcase() {
 
       setWishlist(res.data.isWishlisted); // backend should return updated status
     } catch (err: any) {
-
-      if(err.status === 403 && err.response.data.message == "Invalid token"){
-        navigate("/users/login")
+      if (err.status === 403 && err.response.data.message == "Invalid token") {
+        navigate("/users/login");
       }
       console.error("Wishlist toggle failed:", err);
 
-      setWishlist(previousState)
+      setWishlist(previousState);
 
       // alert("Failed to update wishlist. Please try again.");
     }
   };
 
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    const index = emblaApi.selectedScrollSnap();
+    setSelectedIndex(index);
+    setSelectedImage(images[index]);
+  }, [emblaApi, images, setSelectedImage]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on("select", onSelect);
+    onSelect(); // Set initial state
+  }, [emblaApi, onSelect]);
+
   return (
     <div className="min-h-screen bg-white relative">
-      <div className="flex text-[0.85rem] absolute left-35 top-4 space-x-1">
+      <div className="md:flex md:text-[0.85rem] md:absolute md:left-35 md:top-4 md:space-x-1 hidden">
         <p
           onClick={() => navigate("/")}
           className="text-gray-500 font-semibold cursor-pointer"
@@ -283,10 +304,12 @@ export default function Productshowcase() {
         <p className="font-semibold"> {productTitle}</p>
       </div>
 
-      <div className="flex mt-20 flex-col md:flex-row max-w-7xl mx-auto px-4 py-8 gap-8">
+      <div className="flex md:mt-20 mt-0 flex-col md:flex-row max-w-7xl mx-auto px-4 py-8 gap-8">
         {/* Left Section - Fixed Image Gallery */}
-        <div className="md:w-1/2 sticky top-20 h-fit">
-          <div className="flex gap-4 mt-7">
+        {/* Left Section - Image Gallery */}
+        <div className="md:w-1/2 md:sticky top-20 h-fit">
+          {/* Desktop View */}
+          <div className="hidden md:flex gap-4 mt-7">
             <div className="flex flex-col gap-2">
               {images?.map((img, i) => (
                 <img
@@ -311,10 +334,47 @@ export default function Productshowcase() {
               />
             </div>
           </div>
+
+          {/* Mobile View Carousel */}
+{/* Mobile View Carousel */}
+<div className="md:hidden w-[100vw] -mx-4">
+  <div className="overflow-hidden w-full h-screen" ref={emblaRef}>
+    <div className="flex">
+      {images.map((img, i) => (
+        <div
+          key={i}
+          className="min-w-full h-screen flex justify-center items-center"
+        >
+          <img
+            src={img}
+            alt={`Slide ${i}`}
+            className="w-full h-full object-contain"
+            onClick={() => setIsModalOpen(true)}
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Pagination Dots */}
+  <div className="flex justify-center mt-4 gap-2">
+    {images.map((_, i) => (
+      <button
+        key={i}
+        onClick={() => emblaApi?.scrollTo(i)}
+        className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+          selectedIndex === i ? "bg-black" : "bg-gray-300"
+        }`}
+      />
+    ))}
+  </div>
+</div>
+
+
         </div>
 
         {/* Right Section - Product Info */}
-        <div className="md:w-1/2 mt-5 space-y-6">
+        <div className="md:w-1/2 lg:mt-5 mt-0 space-y-6">
           <div>
             <h2 className="text-xl font-semibold">{productData?.name}</h2>
             <p className="text-gray-600">
@@ -347,34 +407,41 @@ export default function Productshowcase() {
             </div>
           </div>
 
-          <div className="flex gap-4 mt-4">
+          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+            {/* Add to Bag / Go to Cart Button */}
             <Button
-              onClick={addedToBag ? () => navigate("/checkout/cart") : handleAddToBag}
+              onClick={
+                addedToBag ? () => navigate("/checkout/cart") : handleAddToBag
+              }
               disabled={loading}
-              className={` px-30 py-6 text-lg cursor-pointer ${
+              className={`w-full sm:w-auto lg:w-[18rem] px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 text-sm sm:text-base md:text-lg cursor-pointer ${
                 addedToBag
                   ? "bg-green-600 hover:bg-green-700"
                   : "bg-yellow-500 hover:bg-yellow-600"
               } text-white`}
             >
-              <span className="text-[1.3rem] text-gray-800">
+              <span className="text-[1rem] sm:text-[1.1rem] md:text-[1.3rem] text-gray-800">
                 {addedToBag ? "Go to Cart" : "Add to Bag"}
               </span>
             </Button>
+
+            {/* Wishlist Button */}
             <Button
               variant="outline"
-              className="hover:bg-white text-gray-700 py-6 cursor-pointer"
               onClick={handleToggle}
+              className="w-full sm:w-auto lg:w-[18rem] px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 lg:py-6 hover:bg-white text-gray-700 cursor-pointer"
             >
-              <div className="p-10 flex items-center gap-1">
+              <div className="flex items-center gap-2 justify-center">
                 <Heart
-                  className={`w-5 h-5 transition-colors duration-300 ${
+                  className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-300 ${
                     wishlist
                       ? "fill-red-500 text-red-500"
                       : "fill-white text-black stroke-2"
                   }`}
-                />{" "}
-                <span className="text-[1.3rem] text-gray-500">WISHLIST</span>
+                />
+                <span className="text-sm sm:text-base md:text-[1.2rem] text-gray-500">
+                  WISHLIST
+                </span>
               </div>
             </Button>
           </div>
@@ -524,52 +591,47 @@ export default function Productshowcase() {
 
             {/* review */}
 
-            <div className="mt-10 mb-6">
-              <h3 className="text-xl font-semibold mb-3">Ratings & Reviews</h3>
+<div className="mt-10 mb-6">
+  <h3 className="text-xl font-semibold mb-3">Ratings & Reviews</h3>
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                {/* Average Rating */}
-                <div className="flex flex-col items-center gap-3">
-                  <span className="text-5xl font-bold text-yellow-500">
-                    4.8
-                  </span>
-                  <div className="flex flex-col items-center">
-                    <div className="flex gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-5 h-5 ${
-                            i < 4.8
-                              ? "text-yellow-500 fill-yellow-500"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-500 mt-1">
-                      250 Ratings & 125 Reviews
-                    </span>
-                  </div>
-                </div>
+  <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+    {/* Average Rating */}
+    <div className="flex flex-col items-center gap-2 w-full sm:w-auto">
+      <span className="text-5xl font-bold text-yellow-500">4.8</span>
+      <div className="flex gap-1">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            className={`w-5 h-5 ${
+              i < 4.8 ? "text-yellow-500 fill-yellow-500" : "text-gray-300"
+            }`}
+          />
+        ))}
+      </div>
+      <span className="text-sm text-gray-500 mt-1 text-center">
+        250 Ratings & 125 Reviews
+      </span>
+    </div>
 
-                {/* Rating Breakdown (Optional) */}
-                <div className="flex-1 space-y-2">
-                  {[5, 4, 3, 2, 1].map((star) => (
-                    <div key={star} className="flex items-center gap-2">
-                      <span className=" text-sm text-gray-600 flex w-[2rem]">
-                        {star} ★
-                      </span>
-                      <div className="relative w-full h-2 bg-gray-200 rounded">
-                        <div
-                          className="absolute top-0 left-0 h-2 bg-yellow-400 rounded"
-                          style={{ width: `${Math.random() * 100}%` }} // Replace with real %
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+    {/* Rating Breakdown */}
+    <div className="w-full space-y-2">
+      {[5, 4, 3, 2, 1].map((star) => (
+        <div key={star} className="flex items-center gap-2 w-full">
+          <span className="text-sm text-gray-600 w-[2rem] shrink-0">
+            {star} ★
+          </span>
+          <div className="relative flex-1 h-2 bg-gray-200 rounded">
+            <div
+              className="absolute top-0 left-0 h-2 bg-yellow-400 rounded"
+              style={{ width: `${Math.random() * 100}%` }} // Replace with real %s
+            ></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
 
             <div className="mt-10">
               <h3 className="text-xl font-semibold mb-4">Customer Reviews</h3>

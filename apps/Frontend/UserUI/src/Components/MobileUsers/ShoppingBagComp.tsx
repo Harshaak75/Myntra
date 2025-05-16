@@ -39,7 +39,7 @@ const ShoppingBagComp = () => {
 
   const [pincode, setpincode] = useState("");
 
-  const [showSuccess, setshowSuccess] = useState(false)
+  const [showSuccess, setshowSuccess] = useState(false);
 
   const navigate = useNavigate();
 
@@ -102,9 +102,9 @@ const ShoppingBagComp = () => {
 
       setCartItems((prev) => prev.filter((item) => item.id !== id));
 
-      setshowSuccess(true)
+      setshowSuccess(true);
 
-      setTimeout(() => setshowSuccess(false), 2000)
+      setTimeout(() => setshowSuccess(false), 2000);
     } catch (error) {
       console.log(error);
     } finally {
@@ -115,19 +115,25 @@ const ShoppingBagComp = () => {
   return (
     <div className="min-h-screen bg-white p-4 md:p-10">
       {/* Top Navbar */}
-      <div className="flex items-center justify-between border-b pb-4">
+      {/* Top Navbar */}
+      <div className="flex items-center justify-between border-b pb-4 relative">
+        {/* Logo - Always visible, aligned left */}
         <img
           src={logo}
           alt="Logo"
           className="h-8 cursor-pointer"
           onClick={() => navigate("/")}
         />
-        <div className="flex items-center gap-6 text-sm font-medium">
+
+        {/* Step Indicator - Centered on mobile */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 md:static md:transform-none flex items-center gap-6 text-sm font-medium">
           <span className="text-green-600">BAG</span>
           <span className="text-gray-400">ADDRESS</span>
           <span className="text-gray-400">PAYMENT</span>
         </div>
-        <div className="flex items-center gap-1 text-green-600 text-sm">
+
+        {/* 100% Secure - Hidden on mobile, shown on md+ */}
+        <div className="hidden md:flex items-center gap-1 text-green-600 text-sm">
           <ShieldCheck />
           <span>100% SECURE</span>
         </div>
@@ -138,14 +144,16 @@ const ShoppingBagComp = () => {
         <div className="md:col-span-2 space-y-4">
           <Card className="p-4">
             <Label>Check delivery time & services</Label>
-            <div className="flex mt-2 gap-2">
+
+            {/* Responsive PIN entry */}
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
               <Input
                 onChange={(e) => setpincode(e.target.value)}
                 value={pincode}
                 placeholder="Enter PIN code"
-                className="w-1/2"
+                className="sm:w-1/2 w-full"
               />
-              <Button className="cursor-pointer">Enter</Button>
+              <Button className="w-full sm:w-auto">Enter</Button>
             </div>
           </Card>
 

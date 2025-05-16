@@ -138,7 +138,7 @@ export const Loginmobile = () => {
 
       {/* Back to Home Arrow */}
       <div
-        className="absolute top-4 left-4 md:hidden lg:block lg:flex items-center gap-1 cursor-pointer text-pink-600 hover:text-pink-700 transition"
+        className="absolute flex item-center gap-1 top-4 left-4 lg:block lg:flex items-center gap-1 cursor-pointer text-pink-600 hover:text-pink-700 transition"
         onClick={() => navigate("/")}
       >
         <ArrowLeft className="w-5 h-5" />

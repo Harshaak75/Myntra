@@ -462,7 +462,7 @@ export default function AccountPage() {
 
   return (
     <main className="">
-      <div className="border border-gray-300 p-8 rounded-sm">
+      <div className="border border-gray-300 p-8  rounded-sm">
         <h2 className="text-xl font-bold mb-6">Edit Details</h2>
         <hr className="mb-6" />
 
@@ -479,12 +479,12 @@ export default function AccountPage() {
                 type="email"
                 value={email}
                 disabled={true}
-                className={`text-gray-800 cursor-not-allowed`}
+                className={`text-gray-800 cursor-not-allowed text-xs-320`}
               />
               <span className="ml-2 text-green-500">✔</span>
               <button
                 onClick={() => setShowChangeEmailModal(true)}
-                className={`ml-auto text-sm font-semibold cursor-pointer text-[#ff3f6ce0]`}
+                className={`ml-auto text-sm font-semibold cursor-pointer text-[#ff3f6ce0] text-xs-300`}
               >
                 CHANGE
               </button>

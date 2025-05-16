@@ -57,7 +57,7 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
         </div>
         <div className="flex items-center gap-4">
           <SquarePlus className="text-xl" />
-          <Heart className="text-xl" />
+          <Heart className="text-xl" onClick={() => navigate("/my/wishlist")}/>
           <ShoppingBag className="text-xl" />
         </div>
       </div>
@@ -72,6 +72,8 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
             className="h-8 cursor-pointer pl-5"
             onClick={() => navigate("/")}
           />
+
+          {/* mobile nav bar */}
 
           <nav
             className="flex gap-6 [@media(min-width:1015px)]:text-[0.71rem] [@media(min-width:1399px)]:text-[0.9rem]

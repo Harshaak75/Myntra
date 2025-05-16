@@ -4,10 +4,10 @@ import { SidebarAccount } from "./AccountComp/SidebarAccount";
 export const SidebarLayout = () => {
   return (
     <div className="">
-    <div className=" mt-20 bg-white px-4 py-10 md:px-16 lg:px-28 flex gap-10">
+    <div className="md:mt-20 mt-2 bg-white lg:px-28 flex md:gap-10 gap-0">
       <SidebarAccount />
 
-      <div className="mt-8 w-[70%] bg-white">
+      <div className="mt-8 lg:w-[60%] w-[100%] bg-white">
         <Outlet />
       </div>
     </div>

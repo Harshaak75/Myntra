@@ -3,6 +3,7 @@ import { Heart, Star } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import ProductHeart from "./ProductHeart";
 import { useNavigate } from "react-router-dom";
+import useIsMobile from "@/Hooks/useIsMobile";
 
 interface Product {
   name: string;
@@ -50,6 +51,18 @@ const ProductItem = ({ item }: { item: Product }) => {
 
   console.log("images", validImages);
 
+  const isMobile = useIsMobile();
+  const handleClick = () => {
+    const url = `/cart/${slugify(item.name)}/${item.id}`;
+    if (isMobile) {
+      // Open in same tab
+      window.location.href = url;
+    } else {
+      // Open in new tab
+      window.open(url, "_blank");
+    }
+  };
+
   return (
     <div
       className="p-2 relative
@@ -93,12 +106,7 @@ const ProductItem = ({ item }: { item: Product }) => {
                   src={img}
                   alt={item.name}
                   className="w-full h-full object-cover"
-                  onClick={() =>
-                    window.open(
-                      `/cart/${slugify(item.name)}/${item.id}`,
-                      "_blank"
-                    )
-                  }
+                  onClick={handleClick}
                 />
               ))}
             </div>
@@ -107,9 +115,7 @@ const ProductItem = ({ item }: { item: Product }) => {
               src={validImages[0]}
               alt={item.name}
               className="w-full h-full object-cover"
-              onClick={() =>
-                window.open(`/cart/${slugify(item.name)}/${item.id}`, "_blank")
-              }
+              onClick={handleClick}
             />
           ) : null}
         </div>
@@ -126,7 +132,7 @@ const ProductItem = ({ item }: { item: Product }) => {
           </h4>
           <p className="lg:text-xs text-[0.7rem] text-gray-600">{item.brand}</p>
           <div className="flex items-center gap-1 flex-wrap">
-            <p className="lg:text-sm text-[0.75rem] font-bold text-gray-700">
+            <p className="lg:text-sm text-[0.87rem] font-bold text-gray-700">
               Rs. {item.price}
             </p>
             <p className="text-xs line-through text-gray-400">
@@ -138,14 +144,18 @@ const ProductItem = ({ item }: { item: Product }) => {
           </div>
         </div>
 
-        <div className="absolute bottom-18 left-5 w-[5.5rem] h-[1.5rem] items-center bg-[rgba(255,255,255,0.7)] flex">
-          <div className="flex items-center p-2">
-            <p className="text-[0.8rem] font-semibold">4.3</p>{" "}
-            <Star className="h-[0.8rem] fill-green-800 text-green-800" />
-            <div className="border-l-2 h-[1.3rem] ml-1 border-black"></div>
+        <div className="absolute lg:bottom-18 lg:left-5 lg:w-[5.5rem] bottom-24 left-3 w-[4.5rem] h-[1.5rem] items-center bg-[rgba(255,255,255,0.7)] flex">
+          <div className="flex items-center lg:p-2">
+            <p className="lg:text-[0.8rem] text-[0.78rem] font-semibold pl-[0.3rem]">
+              4.3
+            </p>{" "}
+            <Star className="lg:h-[0.8rem] h-[0.78rem] fill-green-800 text-green-800" />
+            <div className="border-l-2 h-[1.3rem] lg:ml-1 ml-0 border-black"></div>
           </div>
           <div className="">
-            <p className="text-[0.8rem] font-semibold">59</p>
+            <p className="lg:text-[0.8rem] text-[0.78rem] lg:pl-0 pl-1 font-semibold">
+              59
+            </p>
           </div>
         </div>
       </div>

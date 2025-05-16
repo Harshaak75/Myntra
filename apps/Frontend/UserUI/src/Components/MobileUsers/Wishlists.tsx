@@ -148,7 +148,7 @@ export default function Wishlists() {
 
   return (
     <div className="min-h-screen w-full bg-white relative">
-      <div className="p-6 mt-20 pb-[10rem]">
+      <div className="md:p-6 p-0 pt-3 lg:mt-20 mt-12 pb-[10rem]">
         <h2 className="text-xl font-semibold mb-4">
           My Wishlist{" "}
           <span className="text-gray-500">
@@ -156,7 +156,7 @@ export default function Wishlists() {
           </span>
         </h2>
 
-        <div className="flex flex-wrap gap-6">
+        <div className="flex flex-wrap gap-x-3">
           {wishlistItems.map((item) => {
             const attributes = item.product.productAttribute || [];
             const frontImage = attributes.find(
@@ -169,7 +169,7 @@ export default function Wishlists() {
             return (
               <div
                 key={item.id}
-                className="w-[200px] flex flex-col border rounded shadow-sm bg-white relative overflow-hidden mt-5"
+                className="w-[48%] sm:w-[200px] flex flex-col border rounded md:shadow-sm shadow-none bg-white relative overflow-hidden mt-5"
               >
                 {/* Remove Button */}
                 <button

@@ -98,6 +98,21 @@ export const Account = () => {
     },
   ];
 
+  const handleRoute = (item: any) =>{
+    if(item == "Collection & Wishlist"){
+      navigate("/my/wishlist")
+    }
+    else if(item == "Address"){
+      navigate("/user/my/address")
+    }
+    else if(item == "Edit Profile"){
+      navigate("/user/profile/edit")
+    }
+    else{
+      navigate(`/user/${item}`)
+    }
+  }
+
   return (
     <div className="min-h-screen relative bg-gradient-to-b from-gray-50 to-gray-50">
       {isOpen && (
@@ -132,7 +147,7 @@ export const Account = () => {
           <div
             key={index}
             className="flex items-center justify-between px-5 py-4 active:bg-gray-50 cursor-pointer"
-            onClick={() => navigate(`/user/${item.label}`)}
+            onClick={() =>handleRoute(item.label)}
           >
             <div className="flex flex-col">
               <div className="flex items-center space-x-3">

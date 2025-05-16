@@ -250,3 +250,32 @@
   animation: slideInOut 3s ease forwards;
 }
 
+@layer utilities {
+  @media (max-width: 370px) and (min-width: 320px) {
+    .text-xs-320 {
+      font-size: 0.8rem; /* Tailwind's text-xs */
+      font-weight: 400;
+    }
+
+    .text-xs-300 {
+      font-size: 0.8rem; /* Tailwind's text-xs */
+    }
+
+
+
+    .form-small {
+      padding: 0.5rem; /* Tailwind's p-2 */
+    }
+
+    .input-box{
+      width: 90%;
+    }
+
+    .change-btn-sm {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+    }
+
+    /* Add anything else you need */
+  }
+}

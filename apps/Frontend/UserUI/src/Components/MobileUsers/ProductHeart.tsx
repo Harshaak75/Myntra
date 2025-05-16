@@ -67,7 +67,7 @@ function ProductHeart({ item, userId }: any) {
   };
 
   return (
-    <div className="absolute top-5 right-7 z-10" onClick={handleToggle}>
+    <div className="absolute lg:top-5 lg:right-7 right-2.5 top-2.5 z-10" onClick={handleToggle}>
       <Heart
         size={20}
         className={`transition-colors duration-300 ${
