@@ -65,8 +65,8 @@ const ProductItem = ({ item }: { item: Product }) => {
 
   return (
     <div
-      className="p-2 relative
-      w-[8.5rem] h-[17rem] 
+      className="p-2 relative image1 image11
+      w-[10rem] h-[17rem] 
       sm:w-[10.3rem] sm:h-[19rem]
       md:w-[9.2rem] md:h-[18rem]
       lg:w-[13rem] lg:h-[20rem]
@@ -74,7 +74,7 @@ const ProductItem = ({ item }: { item: Product }) => {
       2xl:w-[15rem] 2xl:h-[23rem]"
     >
       <div
-        className="rounded lg:p-2 p-0 transition md:w-full md:h-full cursor-pointer"
+        className="rounded lg:p-2 pb-[5rem]  transition md:w-full md:h-full cursor-pointer"
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
       >
@@ -82,8 +82,8 @@ const ProductItem = ({ item }: { item: Product }) => {
 
         {/* Image container */}
         <div
-          className="overflow-hidden relative bg-gray-200 mb-2 cursor-pointer
-          w-[7.5rem] h-[11rem]
+          className="overflow-hidden relative bg-gray-200 mb-2 cursor-pointer image2 image22
+          w-[9rem] h-[15rem]
           sm:w-[9rem] sm:h-[12rem]
           md:w-[8.2rem] md:h-[12rem]
           lg:w-[10.5rem] lg:h-[15rem]
@@ -144,7 +144,7 @@ const ProductItem = ({ item }: { item: Product }) => {
           </div>
         </div>
 
-        <div className="absolute lg:bottom-18 lg:left-5 lg:w-[5.5rem] bottom-24 left-3 w-[4.5rem] h-[1.5rem] items-center bg-[rgba(255,255,255,0.7)] flex">
+        <div className="absolute box2 box1 lg:bottom-18 lg:left-5 lg:w-[5.5rem] bottom-8 left-3 w-[4.5rem] h-[1.5rem] items-center bg-[rgba(255,255,255,0.7)] flex">
           <div className="flex items-center lg:p-2">
             <p className="lg:text-[0.8rem] text-[0.78rem] font-semibold pl-[0.3rem]">
               4.3

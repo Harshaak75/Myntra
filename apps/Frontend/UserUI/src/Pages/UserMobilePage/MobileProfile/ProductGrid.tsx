@@ -405,7 +405,7 @@ export default function ProductGrid() {
       </AnimatePresence>
 
       {/* Product Grid */}
-      <main className="flex-1 p-4 bg-white">
+      <main className="flex-1 md:p-4 p-0 bg-white">
         <div className="flex justify-between items-center">
           <div className="lg:pb-20 flex flex-col items-center md:h-0 pb-10 lg:gap-5 lg:h-[6rem]"></div>
 
@@ -422,7 +422,7 @@ export default function ProductGrid() {
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-center pb-10 gap-3 md:flex md:flex-wrap md:justify-center lg:justify-start lg:gap-y-10 lg:pl-18">
+        <div className="flex pt-3 space-y-[4rem] padd2 padd1 flex-wrap pb-10 md:flex md:flex-wrap md:justify-center lg:justify-start lg:gap-y-10 lg:pl-18">
           <AnimatePresence>
             {sortedProducts.map((item, index) => (
               <motion.div
