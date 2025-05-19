@@ -90,6 +90,7 @@ export default function ProductCard({
           headers: {
             authorization: `Bearer ${await getValidToken()}`,
           },
+          withCredentials: true,
         }
       );
       console.log(response);

@@ -35,6 +35,9 @@ export function PackingItems() {
       if (values.length === 13) {
         // You can add your backend call here
         setloading(true);
+
+        const token = await getValidToken();
+        console.log("hii",token.token);
         try {
           const response = await axios.post(
             `${backend_url}seller/getPicklistDetails`,
@@ -43,7 +46,7 @@ export function PackingItems() {
             },
             {
               headers: {
-                authorization: `Bearer ${await getValidToken()}`,
+                authorization: `Bearer ${token}`,
               },
               withCredentials: true
             }
@@ -88,6 +91,7 @@ export function PackingItems() {
             headers: {
               authorization: `Bearer ${await getValidToken()}`,
             },
+            withCredentials: true,
           }
         );
 

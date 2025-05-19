@@ -85,7 +85,7 @@ export default function OrderPlacedPage() {
             <div className="bg-gray-100 rounded-lg p-4">
               <p className="text-sm text-gray-500">Order ID</p>
               <p className="text-lg font-bold tracking-wide">
-                MNYTRA-{orderId}
+                MNYSTARS-{orderId}
               </p>
               <p className="text-sm text-gray-500 mt-1">
                 Expected Delivery:{" "}
