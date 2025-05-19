@@ -10,6 +10,7 @@ import { backend_url } from "../../../config";
 import { Gettoken } from "@/Utiles/Gettoken";
 import { logo } from "@/ImagesCollection";
 import { useNavigate } from "react-router-dom";
+import { NavbarSB } from "./NavbarSB";
 
 interface ProductAttribute {
   attributename: string;
@@ -116,30 +117,9 @@ const ShoppingBagComp = () => {
     <div className="min-h-screen bg-white p-4 md:p-10">
       {/* Top Navbar */}
       {/* Top Navbar */}
-      <div className="flex items-center justify-between border-b pb-4 relative">
-        {/* Logo - Always visible, aligned left */}
-        <img
-          src={logo}
-          alt="Logo"
-          className="h-8 cursor-pointer"
-          onClick={() => navigate("/")}
-        />
+      {/* <NavbarSB/> */}
 
-        {/* Step Indicator - Centered on mobile */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 md:static md:transform-none flex items-center gap-6 text-sm font-medium">
-          <span className="text-green-600">BAG</span>
-          <span className="text-gray-400">ADDRESS</span>
-          <span className="text-gray-400">PAYMENT</span>
-        </div>
-
-        {/* 100% Secure - Hidden on mobile, shown on md+ */}
-        <div className="hidden md:flex items-center gap-1 text-green-600 text-sm">
-          <ShieldCheck />
-          <span>100% SECURE</span>
-        </div>
-      </div>
-
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className=" grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left Side - Items and Offers */}
         <div className="md:col-span-2 space-y-4">
           <Card className="p-4">
@@ -215,7 +195,7 @@ const ShoppingBagComp = () => {
                   <div className="flex-1">
                     <p className="font-medium">{item.product.name}</p>
                     <p className="text-sm text-gray-500">
-                      Size: {item.size} | Qty: {item.quantity}
+                      Size: {item.size} | Qty: 1
                     </p>
                     <p className="text-sm text-green-600 mt-1">
                       Delivery by Tomorrow
@@ -315,7 +295,7 @@ const ShoppingBagComp = () => {
               <span>Total Amount</span>
               <span>₹{finalPrice}</span>
             </div>
-            <Button className="w-full mt-4 cursor-pointer">Place Order</Button>
+            <Button className="w-full mt-4 cursor-pointer" onClick={() => navigate("/checkout/address", {state: { cartItems, totalMRP, finalPrice}})}>Place Order</Button>
           </Card>
         </div>
       </div>

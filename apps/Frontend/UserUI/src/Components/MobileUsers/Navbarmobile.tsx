@@ -10,9 +10,13 @@ import {
   SquarePlus,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { HoverDropdown } from "./HoverDropdown";
+import { AnimatePresence } from "framer-motion";
+
+import { useDebounce, useDebouncedCallback } from 'use-debounce';
 
 export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
   const navigate = useNavigate();
@@ -42,8 +46,20 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
     }
   };
 
+  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+
+  const [query, setquery] = useState("");
+
+  const [debouncing] = useDebounce(query, 700);
+
+  useEffect(() =>{
+    if(debouncing.trim()){
+      alert(query)
+    }
+  },[debouncing])
+
   return (
-    <header className="shadow-sm bg-white w-full px-4 lg:py-5 py-3 flex items-center justify-between">
+    <header className="shadow-sm bg-white w-full py-3 px-2 lg:py-0 flex items-center justify-between">
       {/* MOBILE NAVBAR */}
       <div className="flex items-center justify-between w-full lg:hidden">
         <div className="flex gap-4 items-center">
@@ -57,59 +73,83 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
         </div>
         <div className="flex items-center gap-4">
           <SquarePlus className="text-xl" />
-          <Heart className="text-xl" onClick={() => navigate("/my/wishlist")}/>
+          <Heart className="text-xl" onClick={() => navigate("/my/wishlist")} />
           <ShoppingBag className="text-xl" />
         </div>
       </div>
 
       {/* DESKTOP NAVBAR */}
-      <div className="hidden lg:flex items-center justify-between w-full">
+      <div className="hidden h-[5rem] lg:px-2 lg:flex items-center justify-between w-full">
         {/* Left section: logo and nav */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-5 h-full">
           <img
             src={logo}
             alt="Logo"
-            className="h-8 cursor-pointer pl-5"
+            className="h-8 cursor-pointer pl-2"
             onClick={() => navigate("/")}
           />
 
           {/* mobile nav bar */}
 
           <nav
-            className="flex gap-6 [@media(min-width:1015px)]:text-[0.71rem] [@media(min-width:1399px)]:text-[0.9rem]
+            className="flex h-full [@media(min-width:1015px)]:text-[0.83rem] [@media(min-width:1399px)]:gap-3 [@media(min-width:1399px)]:text-[0.9rem]
            font-semibold text-gray-700"
           >
-            <button className="hover:text-pink-500 cursor-pointer">MEN</button>
-            <button className="hover:text-pink-500 cursor-pointer">
-              WOMEN
-            </button>
-            <button className="hover:text-pink-500 cursor-pointer">KIDS</button>
-            <button className="hover:text-pink-500 cursor-pointer">
-              HOME & LIVING
-            </button>
-            <button className="hover:text-pink-500 cursor-pointer">
-              BEAUTY
-            </button>
-            <button className="hover:text-pink-500 cursor-pointer">
-              STUDIO
-            </button>
+            <div className=" h-full flex" onMouseEnter={() => setHoveredCategory("Men")} onMouseLeave={() => setHoveredCategory(null)}>
+              <button className={`hover:text-pink-500 cursor-pointer px-2  ${hoveredCategory == "Men" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}>
+                MEN
+              </button>
+
+          
+              {hoveredCategory === "Men" && <HoverDropdown selectedCategory="Men"/>}
+            </div>
+
+            <div className=" h-full flex" onMouseEnter={() => setHoveredCategory("WomenEthnic")} onMouseLeave={() => setHoveredCategory(null)}>
+              <button className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "WomenEthnic" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}>
+                WOMEN ETHNIC
+              </button>
+
+              {hoveredCategory === "WomenEthnic" && <HoverDropdown selectedCategory="WomenEthnic"/>}
+            </div>
+
+            <div className=" h-full flex" onMouseEnter={() => setHoveredCategory("WomenWestern")} onMouseLeave={() => setHoveredCategory(null)}>
+              <button className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "WomenWestern" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}>
+                WOMEN WESTERN
+              </button>
+
+              {hoveredCategory === "WomenWestern" && <HoverDropdown selectedCategory="WomenWestern"/>}
+            </div>
+
+            <div className=" h-full flex" onMouseEnter={() => setHoveredCategory("Kids")} onMouseLeave={() => setHoveredCategory(null)}>
+              <button className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "Kids" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}>
+                KIDS
+              </button>
+
+              {hoveredCategory === "Kids" && <HoverDropdown selectedCategory="Kids"/>}
+            </div>
           </nav>
         </div>
 
-        {/* Middle: Responsive Search Bar */}
+        {/* Middle: Responsive Search Bar larger searchbar*/}
         <div className="flex flex-grow mx-8">
           <div className="flex flex-grow items-center gap-2 border border-gray-300 rounded-xl px-4 py-2">
-            <Search className="text-gray-500 w-4 h-4" />
+            <Search className="text-gray-500 w-5 h-5 cursor-pointer" />
             <input
               type="text"
+              value={query}
+              onChange={(e) => setquery(e.target.value)}
               placeholder="Search for products, brands and more"
-              className="w-full outline-none bg-transparent text-sm"
+              spellCheck="false"
+              className="w-full outline-none bg-transparent text-lg pl-2"
             />
           </div>
         </div>
 
         {/* Right section: icons */}
-        <div className="flex gap-6 items-center text-gray-700 text-sm font-medium [@media(min-width:1015px)]:text-[0.7rem] [@media(min-width:1399px)]:text-[0.9rem]">
+        <div className="flex gap-6 items-center  text-gray-700 text-sm font-medium [@media(min-width:1015px)]:text-[0.7rem] [@media(min-width:1399px)]:text-[0.9rem]">
+          <button className="hover:text-pink-500 cursor-pointer [@media(min-width:1399px)]:text-[0.95rem] [@media(min-width:1015px)]:text-[0.86rem]">
+            Become a Supplier
+          </button>
           <div className="relative group hidden lg:flex flex-col items-center cursor-pointer">
             <User className="w-5 h-5 mb-0.5" />
             <span className="text-sm font-medium text-gray-700 group-hover:text-pink-500 transition">
@@ -140,10 +180,16 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
                 )}
               </div>
               <ul className="text-sm py-2">
-                <li onClick={() => navigate("/checkout/cart")} className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                <li
+                  onClick={() => navigate("/checkout/cart")}
+                  className="px-4 py-1 hover:bg-gray-100 cursor-pointer"
+                >
                   Orders
                 </li>
-                <li onClick={() => navigate("my/wishlist")} className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                <li
+                  onClick={() => navigate("my/wishlist")}
+                  className="px-4 py-1 hover:bg-gray-100 cursor-pointer"
+                >
                   Wishlist
                 </li>
                 <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
@@ -164,7 +210,10 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
                 <li className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
                   Saved VPA
                 </li>
-                <li onClick={() => navigate("/user/my/address")} className="px-4 py-1 hover:bg-gray-100 cursor-pointer">
+                <li
+                  onClick={() => navigate("/user/my/address")}
+                  className="px-4 py-1 hover:bg-gray-100 cursor-pointer"
+                >
                   Saved Addresses
                 </li>
               </ul>

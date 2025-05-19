@@ -14,7 +14,7 @@ model users {
   email         String         @unique @db.VarChar(100)
   Order         Order[]
   refreshTokens refresh_token?
-  userAddress   userAddress?
+  userAddress   userAddress[]
   userProfile   userProfile?
   phoneNumber   PhoneNumber?
   Wishlist      Wishlist[]
@@ -33,7 +33,7 @@ model userProfile {
 
 model userAddress {
   id            Int     @id @default(autoincrement())
-  userId        Int     @unique
+  userId        Int
   name          String
   mobile        String
   pincode       String

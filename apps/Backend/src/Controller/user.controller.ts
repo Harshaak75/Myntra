@@ -19,7 +19,7 @@ export const getProfileData = async (
   req: Request,
   res: Response,
   next: NextFunction
-):Promise<any> => {
+): Promise<any> => {
   const userId = req.user_id;
 
   try {
@@ -64,7 +64,6 @@ export const getProfileData = async (
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 export const editProfile = async (
   req: Request,
@@ -210,21 +209,37 @@ export const CreateOrder = async (
 
   try {
     const userId = req.user_id;
-    const data = req.body;
+    const { cartitems } = req.body;
 
-    const product_id = data.productid;
+    console.log("Received cart items:", cartitems);
 
-    const order_created: any = await create_the_order(userId, data, product_id);
+    let order_created;
 
-    if ("message" in order_created) {
-      return res.status(404).json({ message: order_created.message });
+    for (const item of cartitems) {
+      const product_id = item.productId;
+
+      console.log(item)
+
+      if (!product_id) {
+        console.log("Missing productId for item:", item);
+        continue;
+      }
+
+      order_created = await create_the_order(userId, item, product_id);
+      console.log("Order created:", order_created);
     }
 
-    console.log(order_created);
+    // const product_id = data.productid;
 
-    return res
-      .status(200)
-      .json({ message: "Order created successfully", order_created });
+    // const order_created: any = await create_the_order(userId, data, product_id);
+
+    // if ("message" in order_created) {
+    //   return res.status(404).json({ message: order_created.message });
+    // }
+
+    // console.log(order_created);
+
+    return res.status(200).json({ message: "Order created successfully", order_created});
   } catch (error) {
     return res.status(500).json({ message: "Error creating order" });
   }
@@ -274,7 +289,6 @@ export const getOrderDetails = async (
     return res.status(500).json({ message: "Error fetching order detail" });
   }
 };
-
 
 export const getData = async (
   req: Request,
@@ -331,7 +345,7 @@ export const getData = async (
 
       return {
         id: p.id,
-        name:  attrs["Product Title"]|| "",
+        name: attrs["Product Title"] || "",
         price: p.price,
         brand: p.name || "",
         frontImage: attrs["Front Image"] || "", // match DB key exactly

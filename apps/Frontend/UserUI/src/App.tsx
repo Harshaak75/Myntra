@@ -39,6 +39,11 @@ import { ShoppingBag } from "lucide-react";
 import ShoppingBagComp from "./Components/MobileUsers/ShoppingBagComp.js";
 import { Address } from "./Components/MobileUsers/Address.js";
 import Productshowcase from "./Components/MobileUsers/Productshowcase.js";
+import { NavbarSB } from "./Components/MobileUsers/NavbarSB.js";
+import AddressSection from "./Components/MobileUsers/Order/AddressSection.js";
+import { OrderUserLayout } from "./Components/MobileUsers/Order/OrderUserLayout.js";
+import PaymentOption from "./Components/MobileUsers/Order/PaymentOption.js";
+import Orderplaced from "./Components/MobileUsers/Order/Orderplaced.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -92,7 +97,15 @@ function App() {
 
           <Route path="/" element={<Mobilehome />} />
 
+          
+
+          
+
+          <Route element={<OrderUserLayout/>}>
           <Route path="/checkout/cart" element={<ShoppingBagComp/>}/>
+          <Route path="/checkout/address" element={<AddressSection/>}/>
+          <Route path="/checkout/payment" element={<PaymentOption/>}/>
+          </Route>
 
           {/* wishlist */}
 
@@ -108,6 +121,7 @@ function App() {
             <Route path="/user/Products/:category" element={<ProductGrid/>}/>
             <Route path="/my/wishlist" element={<Wishlists/>}/>
             <Route path="/cart/:name/:id" element={<Productshowcase/>}/>
+            <Route path="/user/orderPage" element={<Orderplaced/>}/>
             <Route element= {<SidebarLayout/>}>
             <Route path="/user/profile/edit" element={<AccountPage/>} />
             <Route path="/user/my/address" element={<Address/>} />
