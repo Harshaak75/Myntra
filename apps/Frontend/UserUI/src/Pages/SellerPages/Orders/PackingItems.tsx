@@ -45,6 +45,7 @@ export function PackingItems() {
               headers: {
                 authorization: `Bearer ${await getValidToken()}`,
               },
+              withCredentials: true
             }
           );
 
