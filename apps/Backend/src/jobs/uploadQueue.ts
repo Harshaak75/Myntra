@@ -1,27 +1,24 @@
 import { Worker, Job } from "bullmq";
 import ExcelJs from "exceljs";
 import { PrismaClient } from "@prisma/client";
-import { generateBrandCode, generateCustomCode } from "./GenerateBrandCode";
-import { getDirectDownloadUrl, uploadImageToBucket } from "./UploadImage";
+import { generateBrandCode, generateCustomCode } from "../utils/GenerateBrandCode";
+import { getDirectDownloadUrl, uploadImageToBucket } from "../utils/UploadImage";
 import { Decimal } from "@prisma/client/runtime/library";
-
 import Redis from "ioredis";
 
-const redis = new Redis(process.env.REDIS_URL || "", {
-  maxRetriesPerRequest: null,
-});
+// const redis = new Redis(process.env.REDIS_URL || "", {
+//   maxRetriesPerRequest: null,
+// });
 
 const Client = new PrismaClient();
 
-export const uploadWorker = new Worker(
-  "upload-queue",
-  async (job: Job) => {
-    const { fileBuffer, originalname, sellerId, file_name } = job.data;
+export const uploadWorker = async (job: any) => {
+    const { fileBuffer, originalname, sellerId } = job;
+
+    console.log("fileBuffer", fileBuffer.data,"fileBuffer", fileBuffer, "originalname", originalname, "sellerId", sellerId);
 
     const category = originalname.split("-")[0].toUpperCase();
-    
     const workbook = new ExcelJs.Workbook();
-    
     const buffer = Buffer.from(fileBuffer.data);
     await workbook.xlsx.load(buffer);
 
@@ -33,7 +30,6 @@ export const uploadWorker = new Worker(
       header.push(String(cell.value).trim());
     });
 
-
     const rows: any[] = [];
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber === headerRowIndex) return;
@@ -41,15 +37,23 @@ export const uploadWorker = new Worker(
       row.eachCell((cell, colnumber) => {
         const key = header[colnumber - 1];
         if (key) {
-          product[key] = cell.value;
+          if (typeof cell.value === "object" && cell.value !== null) {
+            if ("hyperlink" in cell.value) {
+              product[key] = cell.value.hyperlink;
+            } else if ("text" in cell.value) {
+              product[key] = cell.value.text;
+            } else {
+              product[key] = JSON.stringify(cell.value);
+            }
+          } else {
+            product[key] = cell.value;
+          }
         }
       });
       rows.push(product);
     });
 
-
     const lotId = Math.floor(1000000 + Math.random() * 9000000).toString();
-
     const attributeData: any[] = [];
 
     for (const row of rows) {
@@ -64,7 +68,6 @@ export const uploadWorker = new Worker(
       const uniqueCode = generateCustomCode();
       const productSKU = `${brandCode}${categoryCode}${uniqueCode}`;
 
-
       const product = await Client.product.create({
         data: {
           name: `${row.brand}`,
@@ -77,19 +80,21 @@ export const uploadWorker = new Worker(
         },
       });
 
+      console.log("row", row)
 
       for (const [key, value] of Object.entries(row)) {
-        const isImageField = key.toLowerCase().includes("image");
+        const isImageField = key.toLowerCase().replace(/\s/g, "").includes("image");
         const isValidUrl = typeof value === "string" && value.includes("http");
         const isGoogleDrive = isValidUrl && value.includes("drive.google.com");
 
+        console.log("Key:", key, "Value:", value, "isImageField:", isImageField, "isGoogleDrive:", isGoogleDrive);
+
         if (isImageField && isGoogleDrive) {
           const directDownloadUrl = getDirectDownloadUrl(value);
+          console.log("Direct image URL:", directDownloadUrl, typeof directDownloadUrl);
           if (directDownloadUrl) {
-            const uploadedImageUrl = await uploadImageToBucket(
-              directDownloadUrl,
-              productSKU
-            );
+            const uploadedImageUrl = await uploadImageToBucket(directDownloadUrl, productSKU);
+            console.log("Uploaded image URL:", uploadedImageUrl, typeof uploadedImageUrl);
             if (uploadedImageUrl) {
               await Client.productAttribute.create({
                 data: {
@@ -105,7 +110,6 @@ export const uploadWorker = new Worker(
             console.warn("Invalid Google Drive format", value);
           }
         } else if (!["MRP", "brand", "styleId"].includes(key)) {
-
           attributeData.push({
             attributename: key,
             attributevalue: String(value),
@@ -120,6 +124,5 @@ export const uploadWorker = new Worker(
     });
 
     console.log(`✅ Successfully processed upload for seller ${sellerId}`);
-  },
-  { connection: redis }
-);
+  };
+  // { connection: redis }

@@ -6,6 +6,7 @@
     "build": "tsc",
     "dev": "pnpm run build && nodemon dist/servers.js",
     "start": "node dist/servers.js",
+    "start:worker": "node dist/queue/workers/uploadWorker.js",
     "postinstall": "cross-env PUPPETEER_CACHE_DIR=.puppeteer-cache npx puppeteer browsers install chrome && pnpm run build"
   },
   "keywords": [],

@@ -634,7 +634,7 @@ export const Upload_Documats = async (
     await uploadQueue.add(
       "process-excel-upload",
       {
-        fileBuffer: req.file.buffer,
+        fileBuffer: req.file.buffer.toJSON(),
         originalname: req.file.originalname,
         sellerId: req.seller_id,
         file_name,
