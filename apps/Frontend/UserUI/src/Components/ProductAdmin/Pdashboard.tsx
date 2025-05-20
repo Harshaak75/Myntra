@@ -15,6 +15,8 @@ import {
 } from "recharts";
 import { AdminValidToken } from "@/Utiles/ValidateToken";
 import { getSupabaseClient } from "@/SupabaseClient";
+import { useNavigate } from "react-router-dom";
+import { Getadmintoken } from "@/Utiles/Getadmintoken";
 
 function useChartColors() {
   const [colors, setColors] = useState<string[]>([]);
@@ -97,15 +99,21 @@ export default function Pdashboard() {
 
   const [loading, setloading] = useState(false);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     async function fetchSummary() {
       // Fetch Products
       setloading(true);
 
       try {
-        const token = await AdminValidToken();
+        // const token = await AdminValidToken();
+        const token = await Getadmintoken();
+        console.log(token)
 
         if (!token) {
+          alert("Session expired, please login")
+          navigate("/productadmin/login");
           return;
         }
         const supabase = getSupabaseClient(token);

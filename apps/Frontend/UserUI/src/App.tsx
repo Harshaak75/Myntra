@@ -44,6 +44,8 @@ import AddressSection from "./Components/MobileUsers/Order/AddressSection.js";
 import { OrderUserLayout } from "./Components/MobileUsers/Order/OrderUserLayout.js";
 import PaymentOption from "./Components/MobileUsers/Order/PaymentOption.js";
 import Orderplaced from "./Components/MobileUsers/Order/Orderplaced.js";
+import Sellerform from "./Components/Seller/Sellerform.js";
+import SellerDashboardSection from "./Components/SellerFrontend/SellerDashboardSection.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -96,6 +98,10 @@ function App() {
           <Route path="/users/login/otp" element={<LoginOTP />} />
 
           <Route path="/" element={<Mobilehome />} />
+
+          <Route path="/sellerForm" element={<Sellerform/>}/>
+
+          <Route path="/sellerPage" element={<SellerDashboardSection/>}/>
 
           
 

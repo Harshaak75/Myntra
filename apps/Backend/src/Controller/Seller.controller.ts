@@ -364,7 +364,6 @@ export const downloadExcel = async (
         isStandardSize: ["Yes", "No"],
         usage: [
           "Casual",
-          "Formal",
           "Sportswear",
           "Men Activewear",
           "Women Activewear",

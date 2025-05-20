@@ -35,7 +35,7 @@ export const login_product_admin = async (
       path: "/",
       secure: secure_cookie === "Production",
       sameSite: secure_cookie == "Production" ? "none" : "lax",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
     });
 
     return res.json({
@@ -221,5 +221,30 @@ export const logoutadmin = async (
     res.status(200).json({ message: "The admin is logged out." });
   } catch (error: any) {
     res.status(400).json({ message: "Error in logout: ", error: error });
+  }
+}
+
+export const getEmailAdmin = async(
+    req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> =>{
+  const admin_id = req.admin_id;
+
+  try {
+    const response = await Client.admin_users.findMany({
+      where:{
+        id: Number(admin_id)
+      },
+      select:{
+        email: true
+      }
+    })
+
+    console.log(response[0]?.email)
+    res.status(200).json({message: "The email sent", email : response[0]?.email})
+  } catch (error) {
+    console.log("error in the getting email", error)
+    res.status(500).json({message: "The email error"})
   }
 }

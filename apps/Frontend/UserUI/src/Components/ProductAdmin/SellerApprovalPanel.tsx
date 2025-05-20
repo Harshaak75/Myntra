@@ -18,6 +18,8 @@ import {
 } from "@/Components/ui/drawer";
 import { getSupabaseClient } from "@/SupabaseClient";
 import { AdminValidToken } from "@/Utiles/ValidateToken";
+import { Getadmintoken } from "@/Utiles/Getadmintoken";
+import { useNavigate } from "react-router-dom";
 
 interface Seller {
   id: string;
@@ -40,13 +42,16 @@ export default function SellerApprovalPanel() {
 
   const [loading, setloading] = useState(false)
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     async function fetchSellers() {
         setloading(true)
-      const token = await AdminValidToken();
+      // const token = await AdminValidToken();
+      const token = await Getadmintoken();
       if (!token){
-        setloading(false);
-        return;
+          navigate("/productadmin/login");
+          return;
       }
 
       const supabase = getSupabaseClient(token);

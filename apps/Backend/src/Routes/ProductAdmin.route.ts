@@ -3,8 +3,8 @@ import express from "express";
 import { body } from "express-validator";
 import { authenticate_Admin_User } from "../Middlewares/authenticate.admin";
 import { authorizeAdmin } from "../utils/adminAuthUtils";
-import { aproveProduct, deleteProduct, getName, getSellerDetails, login_product_admin, logoutadmin, Updatestatus } from "../Controller/ProductAdmin.controller";
-import { updateProduct } from "../Controller/Seller.controller";
+import { aproveProduct, deleteProduct, getEmailAdmin, getName, getSellerDetails, login_product_admin, logoutadmin, Updatestatus } from "../Controller/ProductAdmin.controller";
+import { getEmail, updateProduct } from "../Controller/Seller.controller";
 
 const productAdmin = express.Router();
 
@@ -28,5 +28,7 @@ productAdmin.post("/get-seller-name",authenticate_Admin_User, authorizeAdmin("pr
 productAdmin.put("/update", authenticate_Admin_User, authorizeAdmin("product_admin"), Updatestatus);
 
 productAdmin.get("/logoutadmin", authenticate_Admin_User, authorizeAdmin("product_admin"), logoutadmin)
+
+productAdmin.get("/getEmail", authenticate_Admin_User, authorizeAdmin("product_admin"), getEmailAdmin)
 
 export default productAdmin;

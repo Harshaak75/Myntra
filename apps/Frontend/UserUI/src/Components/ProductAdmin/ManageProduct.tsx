@@ -2,33 +2,62 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { getSupabaseClient } from "@/SupabaseClient";
 import { AdminValidToken } from "@/Utiles/ValidateToken";
-import { backend_url, excel_supabase_key, excel_supabase_url } from "../../../config";
+import {
+  backend_url,
+  excel_supabase_key,
+  excel_supabase_url,
+} from "../../../config";
 import { createClient } from "@supabase/supabase-js";
+import { Getadmintoken } from "@/Utiles/Getadmintoken";
+import { useNavigate } from "react-router-dom";
+import { CheckCircle } from "lucide-react";
 
 // Excel Storage Client
 const supabaseExcel = createClient(excel_supabase_url, excel_supabase_key);
 
 export function ManageProduct() {
-  const [sellers, setSellers] = useState<{ id: number; firstname: string }[]>([]);
+  const [sellers, setSellers] = useState<{ id: number; firstname: string }[]>(
+    []
+  );
   const [selectedSellerId, setSelectedSellerId] = useState<number | null>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
-  const [excelFilesByCategory, setExcelFilesByCategory] = useState<{ [cat: string]: { name: string; publicUrl: string }[] }>({});
+  const [excelFilesByCategory, setExcelFilesByCategory] = useState<{
+    [cat: string]: { name: string; publicUrl: string }[];
+  }>({});
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
-        const token = await AdminValidToken();
-        if (!token) return;
+        // const token = await AdminValidToken();
+        const token = await Getadmintoken();
+        if (!token) {
+          navigate("/productadmin/login");
+          return;
+        }
         const supabase = getSupabaseClient(token);
-        const { data, error } = await supabase.from("Product").select("sellerId").eq("status", "Pending");
+        const { data, error } = await supabase
+          .from("Product")
+          .select("sellerId")
+          .eq("status", "Pending");
         if (error) throw error;
 
-        const uniqueIds = Array.from(new Set(data.map((item) => item.sellerId)));
-        const sellerRes = await axios.post(`${backend_url}ProductAdmin/get-seller-name`, { uniqueIds }, { headers: { Authorization: `Bearer ${token}` } });
+        const uniqueIds = Array.from(
+          new Set(data.map((item) => item.sellerId))
+        );
+        const sellerRes = await axios.post(
+          `${backend_url}ProductAdmin/get-seller-name`,
+          { uniqueIds },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
+          }
+        );
         setSellers(sellerRes.data.data);
       } catch (err) {
         console.error("Fetch seller error:", err);
@@ -41,26 +70,46 @@ export function ManageProduct() {
   const fetchDataForSeller = async (sellerId: number) => {
     try {
       setLoading(true);
-      const token = await AdminValidToken();
-      if (!token) return;
+      // const token = await AdminValidToken();
+      const token = await Getadmintoken();
+      if (!token) {
+        navigate("/productadmin/login");
+        return;
+      }
 
       const supabase = getSupabaseClient(token);
-      const { data: productData } = await supabase.from("Product").select("*").eq("status", "Pending").eq("sellerId", sellerId);
+      const { data: productData } = await supabase
+        .from("Product")
+        .select("*")
+        .eq("status", "Pending")
+        .eq("sellerId", sellerId);
       setProducts(productData || []);
 
-      const { data: filesData } = await supabaseExcel.storage.from("productdetails").list("excel", { limit: 1000 });
+      const { data: filesData } = await supabaseExcel.storage
+        .from("productdetails")
+        .list("excel", { limit: 1000 });
 
-      const categoryMap: { [cat: string]: { name: string; publicUrl: string }[] } = {};
+      const categoryMap: {
+        [cat: string]: { name: string; publicUrl: string }[];
+      } = {};
       filesData?.forEach((file) => {
         if (!file.name) return;
         const fileName = file.name;
-        const categoryName = fileName.split("_")[1]?.split(".")[0]?.toLowerCase();
+        const categoryName = fileName
+          .split("_")[1]
+          ?.split(".")[0]
+          ?.toLowerCase();
         if (categoryName) {
-          const { data } = supabaseExcel.storage.from("productdetails").getPublicUrl(`excel/${fileName}`);
+          const { data } = supabaseExcel.storage
+            .from("productdetails")
+            .getPublicUrl(`excel/${fileName}`);
           if (!categoryMap[categoryName]) {
             categoryMap[categoryName] = [];
           }
-          categoryMap[categoryName].push({ name: fileName, publicUrl: data.publicUrl });
+          categoryMap[categoryName].push({
+            name: fileName,
+            publicUrl: data.publicUrl,
+          });
         }
       });
 
@@ -69,7 +118,13 @@ export function ManageProduct() {
       if (productData) {
         const types = productData
           .map((prod) => cleanCategory(prod.productType))
-          .filter((type) => type && !["undefined", "myntra", "myntra-template"].includes(type.toLowerCase()));
+          .filter(
+            (type) =>
+              type &&
+              !["undefined", "myntra", "myntra-template"].includes(
+                type.toLowerCase()
+              )
+          );
 
         const uniqueTypes = Array.from(new Set(types));
         setCategories(uniqueTypes);
@@ -83,7 +138,12 @@ export function ManageProduct() {
 
   const cleanCategory = (type: string) => {
     if (!type) return "";
-    return type.toLowerCase().replace(/-template.*$/, "").replace(/_\d+$/, "").replace(/-/g, " ").trim();
+    return type
+      .toLowerCase()
+      .replace(/-template.*$/, "")
+      .replace(/_\d+$/, "")
+      .replace(/-/g, " ")
+      .trim();
   };
 
   const handleSellerSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -93,44 +153,52 @@ export function ManageProduct() {
     fetchDataForSeller(id);
   };
 
-  const handleApproval = async (productId: number, status: "Approved" | "Rejected") => {
+  const handleApproval = async (
+    productId: number,
+    status: "Approved" | "Rejected"
+  ) => {
     try {
       setLoading(true);
-    const token = await AdminValidToken();
-    if (!token) {
-      console.error("Token not found. Please login again.");
-      return;
-    }
+      // const token = await AdminValidToken();
+      const token = await Getadmintoken();
+      if (!token) {
+        navigate("/productadmin/login");
+        return;
+      }
 
-    const response = await axios.put(`${backend_url}ProductAdmin/update`,{
-      productId,
-      status,
-    },{
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+      const response = await axios.put(
+        `${backend_url}ProductAdmin/update`,
+        {
+          productId,
+          status,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
 
-    if (response.status === 200) {
-      console.log("Status updated successfully:", response.data);
-      setProducts((prev) => prev.filter((prod) => prod.id !== productId));
-      alert("Status updated successfully");
-      setLoading(false);
-    } else {
-      console.error("Failed to update status:", response.data);
+      if (response.status === 200) {
+        console.log("Status updated successfully:", response.data);
+        setProducts((prev) => prev.filter((prod) => prod.id !== productId));
+        alert("Status updated successfully");
+        setLoading(false);
+      } else {
+        console.error("Failed to update status:", response.data);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("Failed to update status. Please try again.");
+    } finally {
       setLoading(false);
     }
-  }catch(error){
-    console.error("Error updating status:", error);
-    alert("Failed to update status. Please try again.");
-  }
-  finally{
-    setLoading(false);
-  }
-}
+  };
 
   const downloadFile = (url: string, fileName: string) => {
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = fileName;
     document.body.appendChild(link);
@@ -145,7 +213,10 @@ export function ManageProduct() {
   return (
     <div className="flex flex-col p-6 ml-[15rem] min-h-screen bg-gray-50">
       <h1 className="text-3xl font-bold mb-2 text-gray-800">Manage Products</h1>
-      <span className="text-gray-500 mb-6"><span className="text-blue-700 font-semibold">Home</span> <span className="mx-1">{">"}</span> Manage Products</span>
+      <span className="text-gray-500 mb-6">
+        <span className="text-blue-700 font-semibold cursor-pointer" onClick={() => navigate("/ProductAdmin/dashboard")}>Home</span>{" "}
+        <span className="mx-1">{">"}</span> Manage Products
+      </span>
 
       {/* Seller Dropdown */}
       {!loading && sellers.length > 0 ? (
@@ -163,12 +234,21 @@ export function ManageProduct() {
             ))}
           </select>
         </div>
-      ) : !loading && <p className="text-red-500 mb-6">Error loading sellers. Please retry.</p>}
+      ) : (
+        !loading && (
+          <p className="text-gray-500 mb-6 flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-500" />
+            No pending products to review.
+          </p>
+        )
+      )}
 
       {/* Category List */}
       {categories.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Select Category</h2>
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">
+            Select Category
+          </h2>
           <div className="flex flex-wrap gap-4">
             {categories.map((cat) => (
               <button
@@ -228,20 +308,36 @@ export function ManageProduct() {
                   <tr key={p.id} className="hover:bg-gray-100">
                     <td className="px-6 py-4">{p.name}</td>
                     <td className="px-6 py-4">{p.price}</td>
-                    <td className="px-6 py-4">{new Date(p.createdAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-4">
+                      {new Date(p.createdAt).toLocaleDateString()}
+                    </td>
                     <td className="px-6 py-4">{p.productSku}</td>
                     <td className="px-6 py-4">{p.sellerSku}</td>
-                    <td className="px-6 py-4">{cleanCategory(p.productType)}</td>
+                    <td className="px-6 py-4">
+                      {cleanCategory(p.productType)}
+                    </td>
                     <td className="px-6 py-4">{p.status}</td>
                     <td className="px-6 py-4 flex gap-2">
-                      <button onClick={() => handleApproval(p.id, "Approved")} className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md text-sm cursor-pointer">Accept</button>
-                      <button onClick={() => handleApproval(p.id, "Rejected")} className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md text-sm cursor-pointer">Reject</button>
+                      <button
+                        onClick={() => handleApproval(p.id, "Approved")}
+                        className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md text-sm cursor-pointer"
+                      >
+                        Accept
+                      </button>
+                      <button
+                        onClick={() => handleApproval(p.id, "Rejected")}
+                        className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md text-sm cursor-pointer"
+                      >
+                        Reject
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="text-center p-6 text-gray-600">No pending products for selected category.</td>
+                  <td colSpan={8} className="text-center p-6 text-gray-600">
+                    No pending products for selected category.
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -251,10 +347,10 @@ export function ManageProduct() {
 
       {/* Loader */}
       {loading && (
-          <div className="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50">
-            <div className="loader"></div>
-          </div>
-        )}
+        <div className="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50">
+          <div className="loader"></div>
+        </div>
+      )}
     </div>
   );
 }

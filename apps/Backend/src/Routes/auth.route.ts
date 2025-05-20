@@ -72,6 +72,11 @@ router.get("/getinfo", (req,res) =>{
   res.status(200).json({token})
 })
 
+router.get("/getadmininfo", (req,res) =>{
+  const token = req.cookies.admin_access_token
+  res.status(200).json({token})
+})
+
 router.get("/getAuth" , (req, res) =>{
   const token = req.cookies.sell_access_token;
   
