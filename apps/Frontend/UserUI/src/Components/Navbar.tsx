@@ -37,6 +37,8 @@ export default function Navbar({
 
   const navigate = useNavigate();
 
+  const [loading, setloading] = useState(false);
+
   const handleMouseEnter = (event: any, item: any) => {
     if (!menuDropdowns[item]) {
       return;
@@ -74,26 +76,34 @@ export default function Navbar({
   };
 
   const handlelogout = async () => {
-    await axios
-      .get(`${backend_url}seller/logoutSeller`,{
-        withCredentials: true
-      })
-      .then((response) => {
-        console.log("The responsive",response);
-        localStorage.removeItem("authorization"); // Clear token
-        localStorage.removeItem("email"); // Clear email
-        navigate("/seller/signin");
-      })
-      .catch((error) => {
-        if (error.response) {
-          if (error.response.status == 401) {
-            console.warn("Session expired. Redirecting to login.");
-            localStorage.removeItem("authorization"); // Clear token
-            localStorage.removeItem("email"); // Clear email
-            navigate("/seller/signin");
+    try {
+      setloading(true)
+      await axios
+        .get(`${backend_url}seller/logoutSeller`, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          console.log("The responsive", response);
+          localStorage.removeItem("authorization"); // Clear token
+          localStorage.removeItem("email"); // Clear email
+          navigate("/seller/signin");
+        })
+        .catch((error) => {
+          if (error.response) {
+            if (error.response.status == 401) {
+              console.warn("Session expired. Redirecting to login.");
+              localStorage.removeItem("authorization"); // Clear token
+              localStorage.removeItem("email"); // Clear email
+              navigate("/seller/signin");
+            }
           }
-        }
-      });
+        });
+    } catch (error) {
+      console.log(error);
+    }
+    finally{
+      setloading(false)
+    }
   };
 
   return (
@@ -240,6 +250,12 @@ export default function Navbar({
           )}
         </div>
       </div>
+
+      {loading && (
+        <div className="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-70">
+          <div className="loader"></div>
+        </div>
+      )}
 
       <DropdownMenu
         isVisible={isDropdownVisible}
