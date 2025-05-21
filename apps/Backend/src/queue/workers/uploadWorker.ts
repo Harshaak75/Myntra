@@ -3,9 +3,10 @@ import { Worker, Job } from "bullmq";
 import Redis from "ioredis";
 import express from "express";
 import { uploadWorker } from "../../jobs/uploadQueue";
+import { redis_url } from "../../config";
 
 // Redis connection with auto-reconnect and retry
-const redis = new Redis(process.env.REDIS_URL || "", {
+const redis = new Redis(redis_url || "", {
   maxRetriesPerRequest: null,
   reconnectOnError: (err) => {
     console.error("🔁 Redis reconnecting on error:", err);
