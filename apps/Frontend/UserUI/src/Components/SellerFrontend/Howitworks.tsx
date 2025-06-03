@@ -23,7 +23,7 @@ export default function Howitworks(){
     {
       number: 1,
       title: "Register as a Supplier",
-      description: "Sign up on the Meesho Supplier Panel with your business details and complete the verification process."
+      description: "Sign up on the Mynstars Supplier Panel with your business details and complete the verification process."
     },
     {
       number: 2,
@@ -33,7 +33,7 @@ export default function Howitworks(){
     {
       number: 3,
       title: "Receive Orders",
-      description: "Get notified when customers place orders for your products through the Meesho app and website."
+      description: "Get notified when customers place orders for your products through the Mynstars app and website."
     },
     {
       number: 4,
@@ -53,7 +53,7 @@ export default function Howitworks(){
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-[#333333] mb-4">How It Works</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Getting started with selling on Meesho is simple. Follow these steps to begin 
+            Getting started with selling on Mynstars is simple. Follow these steps to begin 
             your journey to business growth.
           </p>
         </div>

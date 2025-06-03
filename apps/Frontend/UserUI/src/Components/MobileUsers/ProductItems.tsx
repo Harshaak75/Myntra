@@ -16,7 +16,7 @@ interface Product {
 }
 
 const ProductItem = ({ item }: { item: Product }) => {
-  console.log("first", item.images);
+  console.log("first", item);
   const validImages = item.images.filter((img) => {
     // if(img && img != " "){
     //   return img;
@@ -62,6 +62,11 @@ const ProductItem = ({ item }: { item: Product }) => {
       window.open(url, "_blank");
     }
   };
+
+    const discount = 55;
+  const finalPrice = Math.ceil(
+    Number(item.price) - (Number(item.price) * discount) / 100
+  );
 
   return (
     <div
@@ -133,13 +138,13 @@ const ProductItem = ({ item }: { item: Product }) => {
           <p className="lg:text-xs text-[0.7rem] text-gray-600">{item.brand}</p>
           <div className="flex items-center gap-1 flex-wrap">
             <p className="lg:text-sm text-[0.87rem] font-bold text-gray-700">
-              Rs. {item.price}
+              Rs. {finalPrice}
             </p>
             <p className="text-xs line-through text-gray-400">
-              Rs. {item.originalPrice}
+              Rs. {item.price}
             </p>
             <p className="text-red-500 text-[0.7rem] lg:text-[0.8rem] md:text-[0.7rem]">
-              {item.discount}
+              {discount}% OFF
             </p>
           </div>
         </div>

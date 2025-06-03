@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { generateTokensAdmin } from "../utils/tokenUtils";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { admin_serect } from "../config";
+import { deleteProductFromMeilisearch, syncProductsToMeilisearch } from "../utils/meilisearch";
 
 const Client = new PrismaClient();
 
@@ -86,6 +87,10 @@ export const delete_product = async (id: any) => {
     });
     console.log(deletedProduct);
 
+    await deleteProductFromMeilisearch(id);
+
+    console.log("Deleted the product")
+
     return deletedProduct;
   } catch (error: any) {
     throw new Error(`Error deleting product: ${error.message}`);
@@ -107,6 +112,35 @@ export const approve_product = async (product_id: string, approve: boolean) => {
       where: { id: parseInt(product_id) },
       data: { approved: approve },
     });
+
+    const response = await Client.product.findMany({
+      where:{
+        approved:true,
+        status: "Approved"
+      },
+      include:{
+        productAttribute: true
+      }
+    });
+
+    const formated = response.map((item) => {
+      const attributes: any = {};
+
+      item.productAttribute.forEach((attribute) =>{
+        attributes[attribute.attributename] = attribute.attributevalue
+      });
+
+      return {
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        productType: item.productType,
+        attributes,
+      }
+    });
+
+    await syncProductsToMeilisearch(formated);
+    console.log("Synced to Meilisearch");
 
     return updateApproveal;
   } catch (error: any) {

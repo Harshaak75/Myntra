@@ -1,22 +1,104 @@
-import React from "react";
-import HeaderSection from "./HeaderSection";
-import HeroSection from "./HeroSection";
-import FeatureSection from "./FeatureSection";
-import Howitworks from "./Howitworks";
-import { FAQsection } from "./FAQsection";
-import Footersection from "./Footersection";
+import React, { useEffect } from "react";
+import HeroBanner from "@/Components/Categories/HeroBanner";
+import CategoryGrid from "@/Components/Categories/CategoryGrid";
+import BrandGrid from "@/Components/Categories/BrandGrid";
+import ProductGrid from "@/Components/Categories/ProductGrid";
+import DealsSection from "@/Components/Categories/DealsSection";
+import PageHeader from "@/Components/Categories/PageHeader";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
+import Footersection from "@/Components/SellerFrontend/Footersection";
+import { Footermobile } from "@/Components/MobileUsers/Footermobie";
 import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { millisearch_key, millisearch_url } from "../../../config";
 
-export default function SellerDashboardSection() {
+type Product = {
+  id: number;
+  name: string;
+  price: string;
+  title: string;
+};
+
+const CategoryPage = () => {
+  const location = useLocation();
+  const { category } = location.state || {};
+  const [product, setProducts] = React.useState<any>([]);
+
+  const getGenderKey = (category: string) => {
+    if (category === "Men") return "men";
+    if (category === "WomenEthnic" || category === "WomenWestern")
+      return "women";
+    if (category === "genz") return "genz";
+    if (category === "Kids") return "kids";
+    return "men"; // fallback
+  };
+
+  const genderKey = getGenderKey(category);
+
+  const genderMap: any = {
+    Men: "Men",
+    WomenEthnic: "Women",
+    WomenWestern: "Women",
+    Kids: "Kids Wear",
+    genz: "genz",
+  };
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const genderValue = genderMap[category];
+        console.log(genderValue);
+        const filterField =
+          genderValue === "Kids Wear"
+            ? "attributes.Usage"
+            : "attributes.Gender";
+        const filterQuery = `${filterField} = "${genderValue}"`;
+
+        const res = await axios.post(
+          `${millisearch_url}indexes/product/search`,
+          {
+            q: "",
+            filter: filterQuery,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${millisearch_key}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        setProducts(res.data.hits);
+
+        console.log("genderValue", res.data);
+
+        console.log("products", res.data.hits);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+      } finally {
+        // setLoading(false);
+      }
+    };
+
+    if (category) {
+      fetchProducts();
+    }
+  }, [category]);
+
   return (
     <div className="min-h-screen bg-white">
-      {/* <Toaster position="top-right" /> */}
-      <HeaderSection />
-      <HeroSection />
-      <FeatureSection />
-      <Howitworks />
-      <FAQsection />
-      <footer className="bg-[#FAFBFC] text-gray-700 text-sm mt-2 hidden lg:block">
+      {/* <PageHeader /> */}
+
+      <div className="container mx-auto mt-25 pb-10 px-4">
+        <HeroBanner gender={genderKey} />
+        {genderKey != "kids" && <CategoryGrid gender={genderKey} />}
+        <BrandGrid gender={genderKey} />
+        {/* <DealsSection /> */}
+        {genderKey != "genz" && <ProductGrid products={product} />}
+      </div>
+      {/* <Footersection/> */}
+      {/* <Footermobile /> */}
+      <footer className="bg-[#FAFBFC] text-gray-700 text-sm mt-8 hidden lg:block">
         <div className="max-w-screen-xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {/* ONLINE SHOPPING */}
           <div>
@@ -185,9 +267,8 @@ export default function SellerDashboardSection() {
           <p className="text-right text-[1rem]">A Mynstars company</p>
         </div>
       </footer>
-
-      {/* Login modal is hidden initially and triggered via Header buttons */}
-      {/* <LoginModal /> */}
     </div>
   );
-}
+};
+
+export default CategoryPage;

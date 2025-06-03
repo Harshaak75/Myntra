@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
 
-type Category = "Men" | "WomenEthnic" | "WomenWestern" | "Kids";
+type Category = "Men" | "WomenEthnic" | "genz" | "Kids";
 
 const menuData: Record<Category, { title: string; items: string[] }[]> = {
   Men: [
@@ -96,56 +96,64 @@ const menuData: Record<Category, { title: string; items: string[] }[]> = {
     ],
   },
 ],
-WomenWestern: [
+genz: [
   {
-    title: "Topwear",
+    title: "Women's Western Wear",
     items: [
-      "All Topwear",
-      "Tops",
-      "Dresses",
-      "T-shirts",
-      "Jumpsuits",
+      "Dresses Under ₹599",
+      "Tops Under ₹399",
+      "Jeans Under ₹599",
+      "T-shirts Under ₹299",
+      "Trousers Under ₹699",
+      "Shorts Under ₹699",
+      "Shirts Under ₹499",
+      "skirts Under ₹499",
+      "Jackets Under ₹899",
+      "Sweatshirts Under ₹699",
+      "Sweaters Under ₹899"
     ],
   },
   {
-    title: "Bottomwear",
+    title: "Men's Casual Wear",
     items: [
-      "All Bottomwear",
-      "Jeans & Jeggings",
-      "Palazzos",
-      "Shorts",
-      "Skirts",
+      "T-shirts Under ₹299",
+      "Shirts Under ₹499",
+      "Jeans Under ₹599",
+      "Trousers Under ₹699",
+      "Shorts Under ₹599",
+      "Jackets Under ₹899",
+      "Sweatshirts Under ₹699",
+      "Sweaters Under ₹999",
+      "Co-ords Under ₹999"
     ],
   },
   {
-    title: "Innerwear",
+    title: "Women's Ethnic Wear",
     items: [
-      "Bra",
-      "Women Innerwear",
-      "Briefs",
+      "Kurtas Under ₹399",
+      "Kurtis Under ₹499",
+      "Kurta sets Under ₹499",
+      "Ethnic Dresses Under ₹999",
+      "Palazzos Under ₹799"
     ],
   },
   {
-    title: "Sleepwear",
+    title: "Lingerie & Loungewear",
     items: [
-      "Nightsuits",
-      "Women Nightdress",
+      "Bras Under ₹399",
+      "Night suits Under ₹799",
+      "Nightdresses Under ₹999",
+      "Lounge pants Under ₹999",
+      "Briefs Under ₹599"
     ],
   },
   {
-    title: "Maternity Wear",
+    title: "Men's Occassion Wear",
     items: [
-      "All Maternity & Feedingwear",
-      "Maternity Kurtis & Dresses",
+      "Kurtas Under ₹799",
+      "Kurta Sets Under ₹999",
     ],
-  },
-  {
-    title: "Sports Wear",
-    items: [
-      "All Women Sportwear",
-      "Sports Bra",
-    ],
-  },
+  }
 ],
   Kids: [
   {
@@ -200,10 +208,10 @@ return (
           key={index}
           className={`p-6 w-[15rem] flex-1 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
         >
-          <h4 className="font-bold text-pink-600 mb-5 text-[1.16rem]">
+          <h4 className="font-bold text-pink-600 mb-5 text-[0.98rem]">
             {section.title}
           </h4>
-          <ul className="space-y-3 text-[1rem] text-gray-500">
+          <ul className="space-y-3 text-[0.93rem] text-gray-500">
             {section.items.map((item, i) => (
               <li key={i} className="hover:text-pink-600 cursor-pointer">
                 {item}

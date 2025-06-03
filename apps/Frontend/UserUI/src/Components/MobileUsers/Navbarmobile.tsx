@@ -1,7 +1,7 @@
 import { logo } from "@/ImagesCollection";
 import { logOut } from "@/store/authSlice";
 import axios from "axios";
-import { backend_url } from "../../../config";
+import { backend_url, millisearch_key, millisearch_url } from "../../../config";
 import {
   Heart,
   Menu,
@@ -16,7 +16,10 @@ import { useNavigate } from "react-router-dom";
 import { HoverDropdown } from "./HoverDropdown";
 import { AnimatePresence } from "framer-motion";
 
-import { useDebounce, useDebouncedCallback } from 'use-debounce';
+import { useRef} from "react";
+
+
+import { useDebounce, useDebouncedCallback } from "use-debounce";
 
 export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
   const navigate = useNavigate();
@@ -52,11 +55,74 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
 
   const [debouncing] = useDebounce(query, 700);
 
-  useEffect(() =>{
-    if(debouncing.trim()){
-      alert(query)
+  const [item, selecteditem] = useState([]);
+
+  const [showOptions, setShowOptions] = useState(false);
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      wrapperRef.current &&
+      !wrapperRef.current.contains(event.target as Node)
+    ) {
+      setShowOptions(false);
     }
-  },[debouncing])
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
+
+  useEffect(() => {
+    if (debouncing.trim()) {
+      if (debouncing.length > 2) {
+        // alert("Searching for: " + debouncing);
+        getDataFromMilli(debouncing);
+        setShowOptions(true);
+      } else{
+        selecteditem([]);
+        setShowOptions(false);
+      }
+    }
+    if (query.length == 0) {
+      selecteditem([]);
+      setShowOptions(false);
+    }
+  }, [debouncing, query]);
+
+  const getDataFromMilli = async (query: string) => {
+    try {
+      const response = await axios.post(
+        `${millisearch_url}indexes/product/search`,
+        {
+          q: query,
+          filter: "",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${millisearch_key}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("The response from milli", response.data.hits);
+      selecteditem(response.data.hits);
+      console.log(item);
+      // navigate("/search", { state: { item: response.data.hits } });
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
+
+  const handleCategoryClick = (category: any) => {
+    // alert(category);
+    navigate("/categoryPage", { state: { category } });
+  };
 
   return (
     <header className="shadow-sm bg-white w-full py-3 px-2 lg:py-0 flex items-center justify-between">
@@ -95,44 +161,79 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
             className="flex h-full [@media(min-width:1015px)]:text-[0.83rem] [@media(min-width:1399px)]:gap-3 [@media(min-width:1399px)]:text-[0.9rem]
            font-semibold text-gray-700"
           >
-            <div className=" h-full flex" onMouseEnter={() => setHoveredCategory("Men")} onMouseLeave={() => setHoveredCategory(null)}>
-              <button className={`hover:text-pink-500 cursor-pointer px-2  ${hoveredCategory == "Men" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}>
+            <div
+              className=" h-full flex"
+              onMouseEnter={() => setHoveredCategory("Men")}
+              onMouseLeave={() => setHoveredCategory(null)}
+            >
+              <button
+                onClick={() => handleCategoryClick("Men")}
+                className={`hover:text-pink-500 cursor-pointer px-2  ${hoveredCategory == "Men" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}
+              >
                 MEN
               </button>
 
-          
-              {hoveredCategory === "Men" && <HoverDropdown selectedCategory="Men"/>}
+              {hoveredCategory === "Men" && (
+                <HoverDropdown selectedCategory="Men" />
+              )}
             </div>
 
-            <div className=" h-full flex" onMouseEnter={() => setHoveredCategory("WomenEthnic")} onMouseLeave={() => setHoveredCategory(null)}>
-              <button className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "WomenEthnic" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}>
-                WOMEN ETHNIC
+            <div
+              className=" h-full flex"
+              onMouseEnter={() => setHoveredCategory("WomenEthnic")}
+              onMouseLeave={() => setHoveredCategory(null)}
+            >
+              <button
+                onClick={() => handleCategoryClick("WomenEthnic")}
+                className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "WomenEthnic" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}
+              >
+                WOMEN
               </button>
 
-              {hoveredCategory === "WomenEthnic" && <HoverDropdown selectedCategory="WomenEthnic"/>}
+              {hoveredCategory === "WomenEthnic" && (
+                <HoverDropdown selectedCategory="WomenEthnic" />
+              )}
             </div>
 
-            <div className=" h-full flex" onMouseEnter={() => setHoveredCategory("WomenWestern")} onMouseLeave={() => setHoveredCategory(null)}>
-              <button className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "WomenWestern" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}>
-                WOMEN WESTERN
+            <div
+              className=" h-full flex"
+              onMouseEnter={() => setHoveredCategory("genz")}
+              onMouseLeave={() => setHoveredCategory(null)}
+            >
+              <button
+                onClick={() => handleCategoryClick("genz")}
+                className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "genz" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}
+              >
+                GENZ
               </button>
 
-              {hoveredCategory === "WomenWestern" && <HoverDropdown selectedCategory="WomenWestern"/>}
+              {hoveredCategory === "genz" && (
+                <HoverDropdown selectedCategory="genz" />
+              )}
             </div>
 
-            <div className=" h-full flex" onMouseEnter={() => setHoveredCategory("Kids")} onMouseLeave={() => setHoveredCategory(null)}>
-              <button className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "Kids" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}>
+            <div
+              className=" h-full flex"
+              onMouseEnter={() => setHoveredCategory("Kids")}
+              onMouseLeave={() => setHoveredCategory(null)}
+            >
+              <button
+                onClick={() => handleCategoryClick("Kids")}
+                className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "Kids" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}
+              >
                 KIDS
               </button>
 
-              {hoveredCategory === "Kids" && <HoverDropdown selectedCategory="Kids"/>}
+              {hoveredCategory === "Kids" && (
+                <HoverDropdown selectedCategory="Kids" />
+              )}
             </div>
           </nav>
         </div>
 
         {/* Middle: Responsive Search Bar larger searchbar*/}
-        <div className="flex flex-grow mx-8">
-          <div className="flex flex-grow items-center gap-2 border border-gray-300 rounded-xl px-4 py-2">
+        <div ref={wrapperRef} className="flex flex-grow mx-8 relative">
+          <div className="flex flex-grow items-center gap-2 border border-gray-300 rounded-md px-4 py-2">
             <Search className="text-gray-500 w-5 h-5 cursor-pointer" />
             <input
               type="text"
@@ -143,11 +244,34 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
               className="w-full outline-none bg-transparent text-lg pl-2"
             />
           </div>
+          {showOptions && (
+            <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded z-50 border border-gray-200 max-h-[360px] overflow-hidden">
+              <div className="px-4 py-2 font-semibold text-gray-700 bg-gray-100">
+                All Others
+              </div>
+              {item?.map((data: any, index) => (
+                <div
+                  key={data?.id}
+                  className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-md text-gray-700"
+                  onClick={() => {
+                    // setSearchTerm(`${item.brand} ${item.gender} ${item.category || ''}`);
+                    // setShowDropdown(false);
+                    // alert(data.attributes["Usage"])
+                    setquery("")
+                    navigate(`/user/Products/${data.name}`, {state: {Gender : data.attributes["Gender"]}})
+                  }}
+                >
+                  {data.name} {data.attributes["Product Title"]} For{" "}
+                  {data.attributes.Gender}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right section: icons */}
         <div className="flex gap-6 items-center  text-gray-700 text-sm font-medium [@media(min-width:1015px)]:text-[0.7rem] [@media(min-width:1399px)]:text-[0.9rem]">
-          <button className="hover:text-pink-500 cursor-pointer [@media(min-width:1399px)]:text-[0.95rem] [@media(min-width:1015px)]:text-[0.86rem]">
+          <button onClick={() => navigate("/sellerPage")} className="hover:text-pink-500 cursor-pointer [@media(min-width:1399px)]:text-[0.95rem] [@media(min-width:1015px)]:text-[0.86rem]">
             Become a Supplier
           </button>
           <div className="relative group hidden lg:flex flex-col items-center cursor-pointer">

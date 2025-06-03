@@ -218,7 +218,7 @@ export const CreateOrder = async (
     for (const item of cartitems) {
       const product_id = item.productId;
 
-      console.log(item)
+      console.log(item);
 
       if (!product_id) {
         console.log("Missing productId for item:", item);
@@ -239,7 +239,9 @@ export const CreateOrder = async (
 
     // console.log(order_created);
 
-    return res.status(200).json({ message: "Order created successfully", order_created});
+    return res
+      .status(200)
+      .json({ message: "Order created successfully", order_created });
   } catch (error) {
     return res.status(500).json({ message: "Error creating order" });
   }
@@ -295,26 +297,39 @@ export const getData = async (
   res: Response,
   next: NextFunction
 ): Promise<any> => {
-  const { usage } = req.body;
+  const { usage, Gender } = req.body;
   if (!usage) return res.status(400).json({ error: "Usage category required" });
 
   try {
-    const products = await Client.product.findMany({
+    const category = usage;
+    const categoryType = category.replace(/-/g, "").toUpperCase();
+
+    console.log("Category Type:", categoryType, Gender);
+
+    let products = await Client.product.findMany({
       where: {
         isActive: true,
         approved: true,
         productAttribute: {
           some: {
             attributename: {
-              equals: "Usage",
+              equals: "Gender",
               mode: "insensitive",
             },
             attributevalue: {
-              equals: usage,
+              equals: Gender, // gender = "Male" | "Female" | etc.
               mode: "insensitive",
             },
           },
         },
+        OR: [
+          {
+            productType: {
+              contains: categoryType,
+              mode: "insensitive",
+            },
+          },
+        ],
       },
       select: {
         id: true,
@@ -334,6 +349,44 @@ export const getData = async (
         },
       },
     });
+
+    if (products.length == 0) {
+      products = await Client.product.findMany({
+        where: {
+          isActive: true,
+          approved: true,
+          productAttribute: {
+            some: {
+              attributename: {
+                equals: "Usage",
+                mode: "insensitive",
+              },
+              attributevalue: {
+                equals: usage,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          productAttribute: {
+            where: {
+              attributename: {
+                in: ["brand", "Front Image", "Back Image", "Product Title"],
+                mode: "insensitive",
+              },
+            },
+            select: {
+              attributename: true,
+              attributevalue: true,
+            },
+          },
+        },
+      });
+    }
 
     console.log("pro", products);
 

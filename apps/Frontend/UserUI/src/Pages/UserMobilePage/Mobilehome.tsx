@@ -53,6 +53,8 @@ import { useSidebar } from "@/Hooks/SidebarContsxt";
 import { useDispatch, useSelector } from "react-redux";
 import { closeMenu, openMenu } from "@/store/SidebarSlice";
 import ProductCarousel from "@/Components/ProductCarousel";
+import axios from "axios";
+import { backend_url } from "../../../config";
 
 export function Mobilehome() {
   const categories = [
@@ -73,34 +75,34 @@ export function Mobilehome() {
     {
       menImage:
         "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/af955959-e154-432a-85cf-8ba0ec5f43a51722596980603-image_png_1851545165.png",
-      menCategory : "Casual",
+      menCategory: "Casual",
       womenImage:
         "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/8ab90130-0d13-4679-b351-82a2971b526b1722596488868-image_png_1119801902.png",
-      womenCategory : "Women Activewear"
+      womenCategory: "Women Activewear",
     },
     {
       menImage:
         "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/99f8940e-ca70-4948-a6cc-d3c6abebeb411722596921405-image_png1367818484.png",
-      menCategory : "Men Activewear",
+      menCategory: "Men Activewear",
       womenImage:
         "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d7e299ae-04f3-4b4d-b3f3-5fab02779df01722236022154-Card_46.png",
-      womenCategory : "Western wear"
+      womenCategory: "Western wear",
     },
     {
       menImage:
         "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d31abeab-0bf8-4d06-91e2-2a5a18ed08011722236020770-Card_25.png",
-      menCategory : "Sportswear",
+      menCategory: "Sportswear",
       womenImage:
         "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/fc7c482c-e400-4b20-8ff9-ffdd6275888c1722596447798-image_png_230248853.png",
-      womenCategory : "Western wear"
+      womenCategory: "Western wear",
     },
     {
       menImage:
         "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/84511f5f-5465-4d6c-8dff-017e2863b6e91722236021852-Card_26.png",
-      menCategory : "Sportswear",
+      menCategory: "Sportswear",
       womenImage:
         "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/cee4c20e-1629-4f61-9f25-bd1bf411b7f01722596082053-image_png739596407.png",
-      womenCategory : "Office wear"
+      womenCategory: "Office wear",
     },
     // ...add as many as needed
   ];
@@ -118,21 +120,6 @@ export function Mobilehome() {
       setCurrentSlide(slider.track.details.rel);
     },
   });
-
-  const homepageProducts = [
-    { title: "AirPods Pro", price: "$199", image: "/products/airpods.jpg" },
-    { title: "MacBook Air", price: "$999", image: "/products/macbook.jpg" },
-    { title: "iPhone 15", price: "$799", image: "/products/iphone.jpg" },
-    { title: "Apple Watch", price: "$399", image: "/products/watch.jpg" },
-    { title: "HomePod Mini", price: "$99", image: "/products/homepod.jpg" },
-    { title: "Magic Mouse", price: "$79", image: "/products/mouse.jpg" },
-    { title: "AirPods Pro", price: "$199", image: "/products/airpods.jpg" },
-    { title: "MacBook Air", price: "$999", image: "/products/macbook.jpg" },
-    { title: "iPhone 15", price: "$799", image: "/products/iphone.jpg" },
-    { title: "Apple Watch", price: "$399", image: "/products/watch.jpg" },
-    { title: "HomePod Mini", price: "$99", image: "/products/homepod.jpg" },
-    { title: "Magic Mouse", price: "$79", image: "/products/mouse.jpg" },
-  ];
 
   const categoryPhotos = [
     { image: photo1, category: "Casual" },
@@ -189,6 +176,25 @@ export function Mobilehome() {
 
     return () => clearInterval(interval);
   }, []);
+
+  const [query, setquery] = useState("");
+
+
+  // serach
+
+  // useEffect(() => {
+  //   const fetch = async () => {
+  //     try {
+  //       const response = await axios.get(`${backend_url}user/addDataToMellisearch`);
+  //       console.log(response.data);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   fetch();
+  // }, []);
+
+
 
   const handleClick = (cat: any) => {
     console.log(cat);

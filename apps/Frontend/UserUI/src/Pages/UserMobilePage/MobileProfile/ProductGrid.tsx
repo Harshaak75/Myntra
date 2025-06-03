@@ -21,11 +21,13 @@ import {
 } from "@/ImagesCollection";
 import React, { useEffect, useRef, useState } from "react";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, delay, motion } from "framer-motion";
 import MobileFilterSortBar from "@/Components/MobileUsers/MobileFilterSortBar";
 import MobileFilterModal from "@/Components/MobileUsers/MobileFilterModal";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fetchProductsByCategory } from "@/Utiles/api";
+import axios from "axios";
+import { millisearch_key, millisearch_url } from "../../../../config";
 
 interface Product {
   name: string;
@@ -162,40 +164,188 @@ export default function ProductGrid() {
 
   const [sortOption, setSortOption] = useState("recommended");
 
+  const [Gender, setGender] = useState("");
+
+  const location = useLocation();
+  const state = location.state;
+
   const { category } = useParams();
+  // const { category, "*" : gender } = useParams();
+
+  console.log("gender", state?.Gender);
+
+  useEffect(() => {
+    if (state?.Gender) {
+      setGender(state.Gender);
+    }
+  }, [state?.Gender]);
+
+  console.log("genders", state?.Gender);
   const [product, setProduct] = useState<Product[]>([]);
+  const [product2, setProduct2] = useState<Product[]>([]);
 
   const [loading, setloading] = useState(true);
 
-  useEffect(() => {
-    function fetchData() {
-      if (category) {
-        setloading(true);
-        fetchProductsByCategory(decodeURIComponent(category))
-          .then((data) => {
-            console.log("hi", data)
-            const normalized = data.map((item: any) => ({
-              ...item,
-              images: [item.frontImage, item.backImage].filter(Boolean),
-            }));
-            setProduct(normalized);
-          })
-          .catch((error) => {
-            if (error.response?.status === 503 && error.response?.data?.retry) {
-              console.log("Network error");
-              setTimeout(fetchData, 5000);
-            }
+  // useEffect(() => {
+  //   function fetchData() {
+  //     if (category) {
+  //       console.log("category", category, state?.Gender);
 
-            console.error(error);
-          })
-          .finally(() => {
-            setloading(false);
-          });
+  //       if (!state?.Gender && Gender === "") {
+  //         setloading(true);
+  //         fetchProductsByCategory(decodeURIComponent(category), state?.Gender)
+  //           .then((data) => {
+  //             console.log("hi", data);
+  //             const normalized = data.map((item: any) => ({
+  //               ...item,
+  //               images: [item.frontImage, item.backImage].filter(Boolean),
+  //             }));
+  //             console.log("normalized", normalized);
+  //             setProduct(normalized);
+  //           })
+  //           .catch((error) => {
+  //             if (
+  //               error.response?.status === 503 &&
+  //               error.response?.data?.retry
+  //             ) {
+  //               console.log("Network error");
+  //               setTimeout(fetchData, 5000);
+  //             }
+
+  //             console.error(error);
+  //           })
+  //           .finally(() => {
+  //             setloading(false);
+  //           });
+  //       } else {
+  //         setloading(true);
+  //         fetchProductsByCategory(decodeURIComponent(category), state?.Gender)
+  //           .then((data) => {
+  //             console.log("hi", data);
+  //             const normalized = data.map((item: any) => ({
+  //               ...item,
+  //               images: [item.frontImage, item.backImage].filter(Boolean),
+  //             }));
+  //             setProduct(normalized);
+  //           })
+  //           .catch((error) => {
+  //             if (
+  //               error.response?.status === 503 &&
+  //               error.response?.data?.retry
+  //             ) {
+  //               console.log("Network error");
+  //               setTimeout(fetchData, 5000);
+  //             }
+
+  //             console.error(error);
+  //           })
+  //           .finally(() => {
+  //             setloading(false);
+  //           });
+  //       }
+
+  //       setloading(true);
+  //       fetchProductsByCategory(decodeURIComponent(category), state?.Gender)
+  //         .then((data) => {
+  //           console.log("hi", data);
+  //           const normalized = data.map((item: any) => ({
+  //             ...item,
+  //             images: [item.frontImage, item.backImage].filter(Boolean),
+  //           }));
+  //           setProduct(normalized);
+  //         })
+  //         .catch((error) => {
+  //           if (error.response?.status === 503 && error.response?.data?.retry) {
+  //             console.log("Network error");
+  //             setTimeout(fetchData, 5000);
+  //           }
+
+  //           console.error(error);
+  //         })
+  //         .finally(() => {
+  //           setloading(false);
+  //         });
+  //     }
+  //   }
+
+  //   console.log("caet", category);
+
+  //   fetchData();
+  // }, [category]);
+
+  // const filters: any = [];
+
+  const normalizedCategory = (category || "").toLowerCase().replace(/-/g, "");
+
+  const filters: any = [
+    state?.Gender ? `attributes.Gender = "${state.Gender}"` : null,
+    category
+      ? `(productType = "${normalizedCategory}" OR name="${category}" OR attributes.Usage = "${category}")`
+      : null,
+  ].filter(Boolean);
+
+  // if (category) filters.push(`attributes.Usage = "${category}"`);
+  // if (state?.Gender) filters.push(`attributes.Gender = "${state?.Gender}"`);
+  // if (brand) filters.push(`attributes.Brand = "${brand}"`);
+  // if (color) filters.push(`attributes.Color = "${color}"`);
+
+  useEffect(() => {
+    // console.log("Inside the millisearch",category)
+    async function fetchData() {
+      setloading(true);
+      try {
+        const response = await axios.post(
+          `${millisearch_url}indexes/product/search`,
+          {
+            q: "",
+            attributesToSearchOn: [
+              "productType",
+              "name",
+              "attributes.Usage",
+              "attributes.Gender",
+            ],
+            filter: filters.length > 0 ? filters : undefined,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${millisearch_key}`,
+            },
+          }
+        );
+
+        const normalized1 = response.data.hits.map((item: any) => {
+          const attrs = item.attributes || {};
+
+          const frontImage = attrs["Front Image"] || "";
+          const backImage = attrs["Back Image"] || "";
+
+          return {
+            id: item.id,
+            name: item.name || "",
+            price: item.price || 0,
+            productType: item.productType || "",
+            ...attrs, // all original attributes like Product Title, Price, etc.
+            images: [frontImage, backImage].filter(Boolean),
+            frontImage,
+            backImage,
+          };
+        });
+
+        console.log("response data: ", response.data.hits);
+        console.log("product data", normalized1);
+        setProduct(normalized1);
+
+        console.log("below data: ", response.data.hits);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setloading(false);
       }
     }
 
     fetchData();
-  }, [category]);
+  }, [state?.Gender, category]);
 
   const handleBrandChange = (brand: string) => {
     setSelectedBrands((prev) =>
@@ -203,23 +353,50 @@ export default function ProductGrid() {
     );
   };
 
-  const filteredProducts = product.filter(
-    (product) =>
-      (selectedBrands.length === 0 || selectedBrands.includes(product.brand)) &&
-      product.price <= maxPrice
-  );
+  const [sortedProducts, setSortedProducts] = useState<Product[]>([]);
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortOption) {
-      case "priceLowToHigh":
-        return a.price - b.price;
-      case "priceHighToLow":
-        return b.price - a.price;
-      case "recommended":
-      default:
-        return 0; // Leave original order
-    }
-  });
+  useEffect(() => {
+    const filteredProducts = product.filter(
+      (product) =>
+        (selectedBrands.length === 0 ||
+          selectedBrands.includes(product.brand)) &&
+        product.price <= maxPrice
+    );
+
+    const sorted = [...filteredProducts].sort((a, b) => {
+      switch (sortOption) {
+        case "priceLowToHigh":
+          return a.price - b.price;
+        case "priceHighToLow":
+          return b.price - a.price;
+        case "recommended":
+        default:
+          return 0; // Leave original order
+      }
+    });
+    console.log("changes")
+
+    // Update the state with the sorted products
+    setSortedProducts(sorted);
+  }, [product, selectedBrands, maxPrice, sortOption]); // This will run when any of the dependencies change
+
+  // const filteredProducts = product.filter(
+  //   (product) =>
+  //     (selectedBrands.length === 0 || selectedBrands.includes(product.brand)) &&
+  //     product.price <= maxPrice
+  // );
+
+  // const sortedProducts = [...filteredProducts].sort((a, b) => {
+  //   switch (sortOption) {
+  //     case "priceLowToHigh":
+  //       return a.price - b.price;
+  //     case "priceHighToLow":
+  //       return b.price - a.price;
+  //     case "recommended":
+  //     default:
+  //       return 0; // Leave original order
+  //   }
+  // });
 
   const clearAllFilters = () => {
     setSelectedBrands([]);
@@ -233,8 +410,13 @@ export default function ProductGrid() {
     <div className="flex min-h-screen lg:mt-20 md:mt-0 border-t relative">
       {/* Breadcrumbs */}
       <p className="mb-5 absolute top-3 z-10 pl-7 hidden lg:block">
-        <span onClick={() => navigate("/")} className="text-[0.8rem] cursor-pointer hover:text-gray-600">Home</span> /{" "}
-        <span className="text-[0.8rem]">Clothing</span> /{" "}
+        <span
+          onClick={() => navigate("/")}
+          className="text-[0.8rem] cursor-pointer hover:text-gray-600"
+        >
+          Home
+        </span>{" "}
+        / <span className="text-[0.8rem]">Clothing</span> /{" "}
         <span className="text-[0.9rem] font-semibold">{category}</span>
       </p>
       <p className="absolute top-11 z-10 pl-7 hidden lg:block">
@@ -427,10 +609,10 @@ export default function ProductGrid() {
             {sortedProducts.map((item, index) => (
               <motion.div
                 key={item.name + index}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0}}
+                animate={{ opacity: 1}}
+                exit={{ opacity: 0 }}
+                transition={{ opacity: { duration: 0.5 } }} 
               >
                 <ProductItem key={index} item={item} />
               </motion.div>

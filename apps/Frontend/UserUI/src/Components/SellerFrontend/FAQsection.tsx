@@ -9,11 +9,11 @@ import {
 export function FAQsection(){
   const faqs = [
     {
-      question: "How much does it cost to sell on Meesho?",
-      answer: "It's completely free to list and sell products on Meesho. We do not charge any commission on your sales, unlike other marketplaces."
+      question: "How much does it cost to sell on Mynstars?",
+      answer: "It's completely free to list and sell products on Mynstars. We do not charge any commission on your sales, unlike other marketplaces."
     },
     {
-      question: "What products can I sell on Meesho?",
+      question: "What products can I sell on Mynstars?",
       answer: "You can sell products across various categories including Fashion, Home & Kitchen, Beauty & Personal Care, Electronics, and more. However, certain products are prohibited as per our policies."
     },
     {
@@ -21,16 +21,16 @@ export function FAQsection(){
       answer: "Payments are processed regularly to your registered bank account. The payment cycle is typically 7-15 days after order delivery, depending on your seller tier."
     },
     {
-      question: "How do returns work on Meesho?",
-      answer: "When a customer initiates a return, you'll be notified. Once the product is received back in good condition, the return is processed. Meesho has one of the lowest return rates in the industry."
+      question: "How do returns work on Mynstars?",
+      answer: "When a customer initiates a return, you'll be notified. Once the product is received back in good condition, the return is processed. Mynstars has one of the lowest return rates in the industry."
     },
     {
-      question: "What kind of support does Meesho provide to suppliers?",
-      answer: "Meesho provides dedicated account management, business growth insights, marketing opportunities, and technical support to help you grow your business on our platform."
+      question: "What kind of support does Mynstars provide to suppliers?",
+      answer: "Mynstars provides dedicated account management, business growth insights, marketing opportunities, and technical support to help you grow your business on our platform."
     },
     {
       question: "How is shipping handled?",
-      answer: "You can use Meesho's logistics partners at negotiated rates or your own shipping methods. The shipping costs are calculated based on product weight and delivery location."
+      answer: "You can use Mynstars's logistics partners at negotiated rates or your own shipping methods. The shipping costs are calculated based on product weight and delivery location."
     }
   ];
 
@@ -40,7 +40,7 @@ export function FAQsection(){
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-[#333333] mb-4">Frequently Asked Questions</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Find answers to common questions about selling on Meesho.
+            Find answers to common questions about selling on Mynstars.
           </p>
         </div>
 

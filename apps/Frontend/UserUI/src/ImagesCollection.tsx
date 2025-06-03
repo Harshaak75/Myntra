@@ -52,6 +52,17 @@ import p15 from "./assets/images/p15.jpg"
 import p16 from "./assets/images/p16.jpg"
 import wishlist from "./assets/images/wishlist.png"
 
+import jeans from "./assets/images/jeans.jpg";
+import tshirt from "./assets/images/tshirt.jpg";
+import shirt from "./assets/images/shirt.jpg";
+import kids from "./assets/images/kids.jpg";
+import trouser from "./assets/images/trousers.jpg";
+import kurta from "./assets/images/kurta.jpg";
+import saree from "./assets/images/sarees.jpg";
+import dress from "./assets/images/dress.jpg";
+import shorts from "./assets/images/shorts.jpg"
+import seller from "./assets/images/sellerPage.png"
+
 export {
     myntralogo,
     logo,
@@ -105,6 +116,16 @@ export {
     p14,
     p15,
     p16,
-    wishlist
+    wishlist,
+    shirt,
+    jeans,
+    tshirt,
+    kids,
+    trouser,
+    kurta,
+    saree,
+    dress,
+    shorts,
+    seller,
     // Add more logos here if needed
 };

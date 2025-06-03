@@ -1,7 +1,10 @@
 import React from 'react';
 import { Button } from '@/Components/ui/button';
+import { seller } from '@/ImagesCollection';
+import { useNavigate } from 'react-router-dom';
 
 export default function HeroSection() {
+  const navigate = useNavigate();
   return (
     <div className="bg-gradient-to-r from-white to-pink-50 py-16 lg:py-24">
       <div className="p-[2rem] 2xl:max-w-[1400px] mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center">
@@ -13,7 +16,7 @@ export default function HeroSection() {
             Join thousands of suppliers selling on Mynstars and reach millions of customers across India. No commission, no listing fees - just pure business growth.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button size="lg" className="bg-[#F43397] text-white hover:bg-[#F43397]/90 transition">
+            <Button onClick={() => navigate("/seller/signin")} size="lg" className="bg-[#F43397] text-white cursor-pointer hover:bg-[#F43397]/90 transition">
               Register Now
             </Button>
             <Button size="lg" variant="outline" className="text-[#F43397] border-[#F43397] hover:bg-[#F43397] hover:text-white transition">
@@ -35,7 +38,7 @@ export default function HeroSection() {
             </div>
           </div>
         </div>
-        <div className="w-full md:w-1/2 flex justify-center">
+        {/* <div className="w-full md:w-1/2 flex justify-center">
           <div className="bg-white p-6 rounded-lg shadow-xl border border-gray-200 w-full max-w-md">
             <h3 className="text-xl font-semibold text-center mb-6">
               Start Selling Today
@@ -72,6 +75,9 @@ export default function HeroSection() {
               Already a supplier? <a href="#" className="text-[#F43397] hover:underline">Log in</a>
             </p>
           </div>
+        </div> */}
+        <div className="">
+          <img src={seller} alt="" />
         </div>
       </div>
     </div>

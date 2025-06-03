@@ -34,3 +34,9 @@ export const user_serect = process.env.SERECT_USER_PASSWORD
 export const supabase_url_image = process.env.SUPABASE_URL_IMAGE;
 export const supabase_key_image = process.env.SUPABASE_SERVICES_ROLE_KEY_IMAGE;
 export const supabase_bucket_name_image = process.env.BUCKET_NAME_IMAGE
+
+
+// mellisearch
+
+export const melli_url = process.env.MELLISEARCH_MASTER_URL;
+export const melli_key = process.env.MELLISEARCH_MASTER_KEY;

@@ -12,6 +12,7 @@ import {
   getProfileData,
 } from "../Controller/user.controller";
 import { getProfile } from "../Controller/auth.controller";
+import { searchProducts, syncProductsToMeilisearch } from "../utils/meilisearch";
 
 const userRouter = express.Router();
 
@@ -382,5 +383,50 @@ userRouter.delete("/delete/cartItem/:id", authenticate_User, async (req, res) =>
     res.status(500).json({error: error})
   }
 });
+
+
+// data to milisearch
+
+userRouter.post("/sync",async (req,res) =>{
+
+  const {query} = req.body;
+  try {
+    const data = await searchProducts(query);
+
+    console.log("Synced to Meilisearch:");
+
+    res.status(200).json({ message: 'Synced approved products to Meilisearch' , data});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to sync' });
+  }
+})
+
+userRouter.get("/addDataToMellisearch", async(req, res) =>{
+  const response = await Client.product.findMany({
+        include:{
+          productAttribute: true
+        }
+      });
+  
+      const formated = response.map((item) => {
+        const attributes: any = {};
+  
+        item.productAttribute.forEach((attribute) =>{
+          attributes[attribute.attributename] = attribute.attributevalue
+        });
+  
+        return {
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          productType: item.productType,
+          attributes,
+        }
+      });
+  
+      await syncProductsToMeilisearch(formated);
+      res.json({ message: "Synced approved products to Meilisearch" });
+})
 
 export default userRouter;

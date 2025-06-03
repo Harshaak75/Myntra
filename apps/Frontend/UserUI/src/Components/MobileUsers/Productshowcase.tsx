@@ -288,9 +288,14 @@ export default function Productshowcase() {
     onSelect(); // Set initial state
   }, [emblaApi, onSelect]);
 
+  const discount = 55;
+  const finalPrice = Math.ceil(
+    Number(productData?.price) - (Number(productData?.price) * discount) / 100
+  );
+
   return (
     <div className="min-h-screen bg-white relative">
-      <div className="md:flex md:text-[0.85rem] md:absolute md:left-35 md:top-4 md:space-x-1 hidden">
+      <div className="md:flex md:text-[0.85rem] md:absolute md:top-4 md:space-x-1 hidden">
         <p
           onClick={() => navigate("/")}
           className="text-gray-500 font-semibold cursor-pointer"
@@ -316,7 +321,11 @@ export default function Productshowcase() {
                   key={i}
                   src={img}
                   alt={`Thumb ${i}`}
-                  onClick={() => setSelectedImage(img)}
+                  onClick={() => {
+                    setSelectedImage(img);
+                    const index = images.findIndex((image) => image === img);
+                    if (emblaApi) emblaApi.scrollTo(index); // sync carousel
+                  }}
                   className={`w-16 h-20 object-cover border-2 cursor-pointer ${
                     selectedImage === img ? "border-black" : "border-gray-200"
                   }`}
@@ -336,41 +345,39 @@ export default function Productshowcase() {
           </div>
 
           {/* Mobile View Carousel */}
-{/* Mobile View Carousel */}
-<div className="md:hidden w-[100vw] -mx-4">
-  <div className="overflow-hidden w-full h-screen" ref={emblaRef}>
-    <div className="flex">
-      {images.map((img, i) => (
-        <div
-          key={i}
-          className="min-w-full h-screen flex justify-center items-center"
-        >
-          <img
-            src={img}
-            alt={`Slide ${i}`}
-            className="w-full h-full object-contain"
-            onClick={() => setIsModalOpen(true)}
-          />
-        </div>
-      ))}
-    </div>
-  </div>
+          {/* Mobile View Carousel */}
+          <div className="md:hidden w-[100vw] -mx-4">
+            <div className="overflow-hidden w-full h-screen" ref={emblaRef}>
+              <div className="flex">
+                {images.map((img, i) => (
+                  <div
+                    key={i}
+                    className="min-w-full h-screen flex justify-center items-center"
+                  >
+                    <img
+                      src={img}
+                      alt={`Slide ${i}`}
+                      className="w-full h-full object-contain"
+                      onClick={() => setIsModalOpen(true)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
 
-  {/* Pagination Dots */}
-  <div className="flex justify-center mt-4 gap-2">
-    {images.map((_, i) => (
-      <button
-        key={i}
-        onClick={() => emblaApi?.scrollTo(i)}
-        className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-          selectedIndex === i ? "bg-black" : "bg-gray-300"
-        }`}
-      />
-    ))}
-  </div>
-</div>
-
-
+            {/* Pagination Dots */}
+            <div className="flex justify-center mt-4 gap-2">
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => emblaApi?.scrollTo(i)}
+                  className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                    selectedIndex === i ? "bg-black" : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Right Section - Product Info */}
@@ -384,9 +391,9 @@ export default function Productshowcase() {
           </div>
 
           <div className="space-x-2 text-2xl font-bold">
-            ₹{productData?.price}{" "}
-            <span className="line-through text-gray-400 text-xl">₹1200</span>{" "}
-            <span className="text-green-600 text-xl">63% OFF</span>
+            ₹{finalPrice}{" "}
+            <span className="line-through text-gray-400 text-xl">{productData?.price}</span>{" "}
+            <span className="text-green-600 text-xl">{discount}% OFF</span>
           </div>
 
           <div className="space-y-2">
@@ -414,7 +421,7 @@ export default function Productshowcase() {
                 addedToBag ? () => navigate("/checkout/cart") : handleAddToBag
               }
               disabled={loading}
-              className={`w-full sm:w-auto lg:w-[18rem] px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 text-sm sm:text-base md:text-lg cursor-pointer ${
+              className={`w-full sm:w-auto lg:h-[3rem] lg:w-[18rem] px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 text-sm sm:text-base md:text-lg cursor-pointer ${
                 addedToBag
                   ? "bg-green-600 hover:bg-green-700"
                   : "bg-yellow-500 hover:bg-yellow-600"
@@ -591,47 +598,50 @@ export default function Productshowcase() {
 
             {/* review */}
 
-<div className="mt-10 mb-6">
-  <h3 className="text-xl font-semibold mb-3">Ratings & Reviews</h3>
+            <div className="mt-10 mb-6">
+              <h3 className="text-xl font-semibold mb-3">Ratings & Reviews</h3>
 
-  <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-    {/* Average Rating */}
-    <div className="flex flex-col items-center gap-2 w-full sm:w-auto">
-      <span className="text-5xl font-bold text-yellow-500">4.8</span>
-      <div className="flex gap-1">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className={`w-5 h-5 ${
-              i < 4.8 ? "text-yellow-500 fill-yellow-500" : "text-gray-300"
-            }`}
-          />
-        ))}
-      </div>
-      <span className="text-sm text-gray-500 mt-1 text-center">
-        250 Ratings & 125 Reviews
-      </span>
-    </div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+                {/* Average Rating */}
+                <div className="flex flex-col items-center gap-2 w-full sm:w-auto">
+                  <span className="text-5xl font-bold text-yellow-500">
+                    4.8
+                  </span>
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-5 h-5 ${
+                          i < 4.8
+                            ? "text-yellow-500 fill-yellow-500"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-500 mt-1 text-center">
+                    250 Ratings & 125 Reviews
+                  </span>
+                </div>
 
-    {/* Rating Breakdown */}
-    <div className="w-full space-y-2">
-      {[5, 4, 3, 2, 1].map((star) => (
-        <div key={star} className="flex items-center gap-2 w-full">
-          <span className="text-sm text-gray-600 w-[2rem] shrink-0">
-            {star} ★
-          </span>
-          <div className="relative flex-1 h-2 bg-gray-200 rounded">
-            <div
-              className="absolute top-0 left-0 h-2 bg-yellow-400 rounded"
-              style={{ width: `${Math.random() * 100}%` }} // Replace with real %s
-            ></div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
-
+                {/* Rating Breakdown */}
+                <div className="w-full space-y-2">
+                  {[5, 4, 3, 2, 1].map((star) => (
+                    <div key={star} className="flex items-center gap-2 w-full">
+                      <span className="text-sm text-gray-600 w-[2rem] shrink-0">
+                        {star} ★
+                      </span>
+                      <div className="relative flex-1 h-2 bg-gray-200 rounded">
+                        <div
+                          className="absolute top-0 left-0 h-2 bg-yellow-400 rounded"
+                          style={{ width: `${Math.random() * 100}%` }} // Replace with real %s
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
 
             <div className="mt-10">
               <h3 className="text-xl font-semibold mb-4">Customer Reviews</h3>

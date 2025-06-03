@@ -46,6 +46,7 @@ import PaymentOption from "./Components/MobileUsers/Order/PaymentOption.js";
 import Orderplaced from "./Components/MobileUsers/Order/Orderplaced.js";
 import Sellerform from "./Components/Seller/Sellerform.js";
 import SellerDashboardSection from "./Components/SellerFrontend/SellerDashboardSection.js";
+import CategoryPage from "./Pages/MainCategory/CategoryPage.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -104,6 +105,7 @@ function App() {
           <Route path="/sellerPage" element={<SellerDashboardSection/>}/>
 
           
+          
 
           
 
@@ -128,6 +130,7 @@ function App() {
             <Route path="/my/wishlist" element={<Wishlists/>}/>
             <Route path="/cart/:name/:id" element={<Productshowcase/>}/>
             <Route path="/user/orderPage" element={<Orderplaced/>}/>
+            <Route path="/categoryPage" element={<CategoryPage/>}/>
             <Route element= {<SidebarLayout/>}>
             <Route path="/user/profile/edit" element={<AccountPage/>} />
             <Route path="/user/my/address" element={<Address/>} />
