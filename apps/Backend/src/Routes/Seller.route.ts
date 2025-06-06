@@ -9,6 +9,7 @@ import {
   downloadExcel,
   GeneratePicklist,
   getEmail,
+  getLotData,
   getPicklistDetails,
   getProductDetails,
   getQuantity,
@@ -197,6 +198,8 @@ SellerRoute.get("/newToken", async (req, res) => {
     res.status(500).json({error})
   }
 });
+
+SellerRoute.post("/getLotDetails", getLotData);
 
 // SellerRoute.post("/by-category", authenticate_Seller, getData)
 

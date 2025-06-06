@@ -10,6 +10,8 @@ import {
 // import moment = require("moment");
 
 import moment from "moment";
+import { bucket_name_pattern } from "../config";
+import supabase1 from "../utils/Supabase.connect.image";
 
 dotenv.config();
 
@@ -413,5 +415,60 @@ export const getData = async (
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch products" });
+  }
+};
+
+// pattern
+
+export const upload_pattern = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  if (!req.file) {
+    return res.status(400).json({ message: "File is required" });
+  }
+
+  try {
+    const file_name = `pattern/${Date.now()}_${req.file.originalname}`;
+    const id = req.body.productid;
+
+    if (!bucket_name_pattern) {
+      return res.status(400).json({ message: "Bucket name is required" });
+    }
+
+    const { data, error } = await supabase1.storage
+      .from(bucket_name_pattern)
+      .upload(file_name, req.file.buffer, {
+        contentType: req.file.mimetype,
+      });
+
+    if (error) {
+      return res
+        .status(500)
+        .json({ message: "Error uploading file", error: error });
+    }
+
+    const { data: publicUrlData } = supabase1.storage
+      .from(bucket_name_pattern)
+      .getPublicUrl(file_name);
+
+    const publicUrl = publicUrlData?.publicUrl;
+
+    const response = await Client.productAttribute.create({
+      data: {
+        productId: Number(id),
+        attributename: "patternLink",
+        attributevalue: publicUrl,
+      },
+    });
+
+    console.log("Public URL:", publicUrl);
+
+    console.log("response", response);
+
+    res.status(200).json({ message: "The pattern added" });
+  } catch (error) {
+    res.status(500).json({ message: error });
   }
 };

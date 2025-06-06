@@ -139,6 +139,8 @@ export const approve_product = async (product_id: string, approve: boolean) => {
       }
     });
 
+    console.log("calleding the sync methods", formated);
+
     await syncProductsToMeilisearch(formated);
     console.log("Synced to Meilisearch");
 

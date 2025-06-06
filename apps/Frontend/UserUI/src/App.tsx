@@ -73,14 +73,17 @@ function App() {
           {/* Signin added you can change it */}
           <Route path="/SellerLogin" element={<SellerLogin />} />
           {/* ✅ Routes with Navbar (Wrapped inside Layout) */}
-          <Route path="/seller/pending-verification" element={<PendingVerification/>}/>
+          <Route
+            path="/seller/pending-verification"
+            element={<PendingVerification />}
+          />
           <Route element={<Layout />}>
             <Route path="/seller/dashboard" element={<GridSellerDashboard />} />
             <Route path="/seller/cataloguing" element={<SellerCatalog />} />
             <Route path="/accountDetails" element={<SellerForm />} />
             <Route path="/manage-shop" element={<SellerDeatils />} />
           </Route>
-          
+
           {/* orders seller */}
           <Route element={<OrderLayout />}>
             <Route path="/Orders/Search" element={<OrdersMdirect />} />
@@ -100,19 +103,14 @@ function App() {
 
           <Route path="/" element={<Mobilehome />} />
 
-          <Route path="/sellerForm" element={<Sellerform/>}/>
+          <Route path="/sellerForm" element={<Sellerform />} />
 
-          <Route path="/sellerPage" element={<SellerDashboardSection/>}/>
+          <Route path="/sellerPage" element={<SellerDashboardSection />} />
 
-          
-          
-
-          
-
-          <Route element={<OrderUserLayout/>}>
-          <Route path="/checkout/cart" element={<ShoppingBagComp/>}/>
-          <Route path="/checkout/address" element={<AddressSection/>}/>
-          <Route path="/checkout/payment" element={<PaymentOption/>}/>
+          <Route element={<OrderUserLayout />}>
+            <Route path="/checkout/cart" element={<ShoppingBagComp />} />
+            <Route path="/checkout/address" element={<AddressSection />} />
+            <Route path="/checkout/payment" element={<PaymentOption />} />
           </Route>
 
           {/* wishlist */}
@@ -126,14 +124,14 @@ function App() {
             <Route path="/user/account" element={<Account />} />
             <Route path="/user/Order" element={<Ordermobile />} />
             <Route path="/user/Edit Profile" element={<Profilemobile />} />
-            <Route path="/user/Products/:category" element={<ProductGrid/>}/>
-            <Route path="/my/wishlist" element={<Wishlists/>}/>
-            <Route path="/cart/:name/:id" element={<Productshowcase/>}/>
-            <Route path="/user/orderPage" element={<Orderplaced/>}/>
-            <Route path="/categoryPage" element={<CategoryPage/>}/>
-            <Route element= {<SidebarLayout/>}>
-            <Route path="/user/profile/edit" element={<AccountPage/>} />
-            <Route path="/user/my/address" element={<Address/>} />
+            <Route path="/user/Products/:category" element={<ProductGrid />} />
+            <Route path="/my/wishlist" element={<Wishlists />} />
+            <Route path="/cart/:name/:id" element={<Productshowcase />} />
+            <Route path="/user/orderPage" element={<Orderplaced />} />
+            <Route path="/categoryPage" element={<CategoryPage />} />
+            <Route element={<SidebarLayout />}>
+              <Route path="/user/profile/edit" element={<AccountPage />} />
+              <Route path="/user/my/address" element={<Address />} />
             </Route>
           </Route>
 
@@ -147,7 +145,7 @@ function App() {
               path="/productAdmin/manageProduct"
               element={<ManageProduct />}
             />
-            <Route path="/admin/approval" element={<SellerApprovalPanel/>}/>
+            <Route path="/admin/approval" element={<SellerApprovalPanel />} />
           </Route>
         </Routes>
       </Router>

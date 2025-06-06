@@ -16,7 +16,7 @@ export default function SellerCatalog() {
   const [store, setstore] = useState("");
   const [loading, setloading] = useState(false);
   const [selectfile, setselectfile] = useState<File | null>(null);
-  const [products, setProducts] = useState<any[]>([]); 
+  const [products, setProducts] = useState<any[]>([]);
 
   const handlefile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -35,7 +35,7 @@ export default function SellerCatalog() {
           {
             headers: {
               "Content-Type": "application/json",
-              authorization: `Bearer ${localStorage.getItem("authorization")}`,
+              authorization: `Bearer ${await getValidToken()}`,
             },
             withCredentials: true,
             responseType: "blob",
@@ -78,12 +78,12 @@ export default function SellerCatalog() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const {token} = await getValidToken();
+        const { token } = await getValidToken();
         if (!token) {
           console.error("Token missing.");
           return;
         }
-  
+
         const supabase = getSupabaseClient(token);
 
         const seller_id = await getSellerIdFromToken(token); // Function to extract seller ID from token
@@ -91,37 +91,36 @@ export default function SellerCatalog() {
           console.error("Seller ID missing.");
           return;
         }
-  
+
         // Now fetch products where sellerId == current user's id
         const { data, error } = await supabase
           .from("Product")
           .select("*")
           .eq("sellerId", seller_id);
-  
+
         if (error) {
           console.error("Error fetching data:", error.message);
         } else {
           console.log("Fetched Products:", data);
-          setProducts(data || []); 
+          setProducts(data || []);
         }
       } catch (error) {
         console.error("Error:", error);
       }
     };
-  
+
     fetchData();
   }, []);
 
   const groupedProducts = useMemo(() => {
     const grouped: { [lotId: string]: any[] } = {};
-    products.forEach(product => {
+    products.forEach((product) => {
       const lotId = product.lotId || "Unknown Lot";
       if (!grouped[lotId]) grouped[lotId] = [];
       grouped[lotId].push(product);
     });
     return grouped;
-  }, [products])
-  
+  }, [products]);
 
   const uploadfile = async (file: any) => {
     if (!file) {
@@ -149,7 +148,8 @@ export default function SellerCatalog() {
         .post(`${backend_url}seller/upload_documents`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
-            authorization: `Bearer ${localStorage.getItem("authorization")}`,
+            // authorization: `Bearer ${localStorage.getItem("authorization")}`,
+            authorization: `Bearer ${await getValidToken()}`,
           },
           withCredentials: true,
         })
@@ -175,7 +175,43 @@ export default function SellerCatalog() {
     setloading(false);
   };
 
- return (
+  const [selectedLot, setSelectedLot] = useState(null); // data
+  const [showModal, setShowModal] = useState(false); // visibility
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedLot(null);
+  };
+
+  const [product, setproduct] = useState([]);
+  const [selectedLotId, setSelectedLotId] = useState(null);
+
+  const handleLot = async (lotid: any) => {
+    setproduct([]);
+    setloading(true);
+    try {
+      const response = await axios.post(
+        `${backend_url}seller/getLotDetails`,
+        {
+          data: {
+            lotId: lotid,
+          },
+        },
+        { withCredentials: true }
+      );
+
+      console.log(response);
+      setproduct(response.data.formatted);
+      setSelectedLotId(lotid);
+      setShowModal(true);
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setloading(false);
+    }
+  };
+
+  return (
     <div className="grid grid-cols-1 lg:grid-cols-4 bg-gray-100 p-3 relative gap-4">
       {/* Sidebar */}
       <div className="lg:col-span-1 bg-white flex flex-col gap-5 p-5 rounded-lg overflow-auto">
@@ -252,83 +288,94 @@ export default function SellerCatalog() {
           </div>
         </div>
         <div className="bg-white p-4 rounded-md mt-6">
-  <h2 className="text-xl font-semibold mb-4">My Lots</h2>
-  <div className="overflow-x-auto">
-  <table className="min-w-full divide-y divide-gray-200 mx-auto my-4">
-  <thead className="bg-gray-100">
-    <tr>
-      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Lot ID
-      </th>
-      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Total Styles
-      </th>
-      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Lot Status
-      </th>
-      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Submitted By
-      </th>
-      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Uploaded On
-      </th>
-      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Status
-      </th>
-      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Actions
-      </th>
-      <th className="px-6 py-3"></th>
-    </tr>
-  </thead>
-  <tbody className="bg-white divide-y divide-gray-200">
-    {Object.keys(groupedProducts).map((lotId) => {
-      const items = groupedProducts[lotId];
-      const firstItem = items[0];
-      return (
-        <tr key={lotId} className="hover:bg-gray-50">
-          <td className="px-6 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900">
-            {lotId}
-          </td>
-          <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
-            {items.length} Styles
-          </td>
-          <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
-            CATALOG ACTIVITY COMPLETED
-          </td>
-          <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
-            {localStorage.getItem("email")}
-          </td>
+          <h2 className="text-xl font-semibold mb-4">My Lots</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 mx-auto my-4">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Lot ID
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Styles
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Lot Status
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Submitted By
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Uploaded On
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                  <th className="px-6 py-3"></th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {Object.keys(groupedProducts).map((lotId) => {
+                  const items = groupedProducts[lotId];
+                  const firstItem = items[0];
+                  return (
+                    <tr key={lotId} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900">
+                        {lotId}
+                      </td>
+                      <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
+                        {items.length} Styles
+                      </td>
+                      <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
+                        CATALOG ACTIVITY COMPLETED
+                      </td>
+                      <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
+                        {localStorage.getItem("email")}
+                      </td>
 
-          <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
-            {new Date(firstItem.createdAt).toLocaleDateString() || "-"}
-          </td>
-          <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
-            Catalog_Complete
-          </td>
-          <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-right">
-            <button className="text-[#0bc1a9] hover:underline">
-              View
-            </button>
-          </td>
-        </tr>
-      );
-    })}
-  </tbody>
-</table>
-
-  </div>
-</div>
+                      <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
+                        {new Date(firstItem.createdAt).toLocaleDateString() ||
+                          "-"}
+                      </td>
+                      <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
+                        Catalog_Complete
+                      </td>
+                      <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-right">
+                        <button
+                          className="text-[#0bc1a9] hover:underline cursor-pointer"
+                          onClick={() => handleLot(lotId)}
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       {/* Modal: Download Template */}
       {isOpen && (
         <>
-          <div className="fixed inset-0 bg-black opacity-50 backdrop-blur-sm z-40" onClick={() => setIsOpen(false)}></div>
+          <div
+            className="fixed inset-0 bg-black opacity-50 backdrop-blur-sm z-40"
+            onClick={() => setIsOpen(false)}
+          ></div>
           <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white p-6 rounded-lg shadow-2xl z-50">
-            <p className="text-xl font-semibold">Download Attribute Sheet Template</p>
+            <p className="text-xl font-semibold">
+              Download Attribute Sheet Template
+            </p>
             <div className="bg-gray-300 w-full h-0.5 my-2"></div>
-            <p className="text-sm text-gray-400">Select the article types you want to add and download the sample template</p>
+            <p className="text-sm text-gray-400">
+              Select the article types you want to add and download the sample
+              template
+            </p>
             <div className="mt-5">
               <select
                 value={selectedItem}
@@ -352,7 +399,11 @@ export default function SellerCatalog() {
                 {loading ? "Downloading..." : "Download Template"}
               </button>
             </div>
-            <X className="absolute top-4 right-4 cursor-pointer" onClick={() => setIsOpen(false)} size={24} />
+            <X
+              className="absolute top-4 right-4 cursor-pointer"
+              onClick={() => setIsOpen(false)}
+              size={24}
+            />
           </div>
         </>
       )}
@@ -360,14 +411,23 @@ export default function SellerCatalog() {
       {/* Modal: Add New Product */}
       {addProduct && (
         <>
-          <div className="fixed inset-0 bg-black opacity-50 backdrop-blur-sm z-40" onClick={() => setaddProduct(false)}></div>
+          <div
+            className="fixed inset-0 bg-black opacity-50 backdrop-blur-sm z-40"
+            onClick={() => setaddProduct(false)}
+          ></div>
           <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white p-6 rounded-lg shadow-2xl z-50">
             <div className="flex justify-between items-center">
               <p className="text-xl font-semibold">Add New Product</p>
-              <X className="cursor-pointer" onClick={() => setaddProduct(false)} size={24} />
+              <X
+                className="cursor-pointer"
+                onClick={() => setaddProduct(false)}
+                size={24}
+              />
             </div>
             <div className="border-b border-gray-300 my-3"></div>
-            <p className="text-sm text-gray-500">Upload your filled attribute sheet to create a new list.</p>
+            <p className="text-sm text-gray-500">
+              Upload your filled attribute sheet to create a new list.
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
               <select
                 className="border p-2 rounded-md"
@@ -414,7 +474,59 @@ export default function SellerCatalog() {
           </div>
         </>
       )}
-      
+
+      {showModal && (
+        <div className="fixed inset-0 z-70 bg-[rgba(0,0,0,0.4)] flex items-center justify-center">
+          <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-3 text-gray-500 hover:text-gray-700 text-xl cursor-pointer"
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-semibold mb-4">
+              Products for Lot ID: {selectedLotId}
+            </h2>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
+              {product.map((product: any) => {
+                return (
+                  <div
+                    key={product.id}
+                    className="border rounded-xl p-4 shadow-sm hover:shadow-md transition"
+                  >
+                    <p className="font-medium">Name: {product.name}</p>
+                    <p className="text-sm text-gray-600">
+                      Style: {product.productSku}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Price: ₹{product.price}
+                    </p>
+                    {product.patternLink ? (
+                      <a
+                        href={product.patternLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline text-sm mt-1 inline-block"
+                      >
+                        View Pattern PDF
+                      </a>
+                    ) : (
+                      <p className="text-xs text-red-500">No pattern link</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {loading && (
+        <div className="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50">
+          <div className="loader"></div>
+        </div>
+      )}
     </div>
   );
 }

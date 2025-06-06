@@ -221,6 +221,7 @@ export default function Productshowcase() {
         { productId: Number(id), size: selectedSize },
         { headers: { authorization: `Bearer ${token}` }, withCredentials: true }
       );
+      fun(Number(id));
       setAddedToBag(true);
     } catch (error: any) {
       if (
@@ -292,6 +293,41 @@ export default function Productshowcase() {
   const finalPrice = Math.ceil(
     Number(productData?.price) - (Number(productData?.price) * discount) / 100
   );
+
+  const [files, setFiles] = useState<File | null>(null);
+
+  const handlePatternUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    console.log("use", file);
+    if (file) {
+      setFiles(file);
+    }
+  };
+
+  const fun = async (id: any) => {
+    if (!files) {
+      console.warn("No file selected.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", files); // ✅ Single file selected earlier
+    formData.append("productid", id);
+
+    try {
+      const response = await axios.post(
+        `${backend_url}user/upload_patterns`,
+        formData,
+        {
+          // ❌ Do NOT set Content-Type manually
+          withCredentials: true,
+        }
+      );
+      console.log("Upload success:", response.data);
+    } catch (error) {
+      console.error("Error in adding patterns:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white relative">
@@ -392,7 +428,9 @@ export default function Productshowcase() {
 
           <div className="space-x-2 text-2xl font-bold">
             ₹{finalPrice}{" "}
-            <span className="line-through text-gray-400 text-xl">{productData?.price}</span>{" "}
+            <span className="line-through text-gray-400 text-xl">
+              {productData?.price}
+            </span>{" "}
             <span className="text-green-600 text-xl">{discount}% OFF</span>
           </div>
 
@@ -411,6 +449,33 @@ export default function Productshowcase() {
                   {size}
                 </Button>
               ))}
+            </div>
+          </div>
+
+          {/* add pattern */}
+
+          <div className="border border-dashed border-gray-400 p-4 rounded-xl bg-gray-50">
+            <h3 className="text-base font-medium text-gray-800 mb-2">
+              Want to add your own pattern?
+            </h3>
+            <p className="text-sm text-gray-600 mb-3">
+              Upload your preferred design pattern in PDF format. Once verified,
+              it will appear in the product visuals.
+            </p>
+
+            <div className="flex items-center gap-3">
+              <input
+                type="file"
+                accept="application/pdf"
+                className="block text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100 file:cursor-pointer"
+                onChange={handlePatternUpload} // Implement this handler later
+              />
+              <span className="text-xs text-gray-500">PDF only, max 5MB</span>
             </div>
           </div>
 

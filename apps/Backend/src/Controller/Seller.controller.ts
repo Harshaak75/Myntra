@@ -513,8 +513,6 @@ export const downloadExcel = async (
 //       const productSKU = `${brandCode}${categoryCode}${uniqueCode}`;
 //       console.log("productSKU", productSKU);
 
-      
-
 //       const pro = await Client.product.create({
 //         data: {
 //           name: `${row.brand}`,
@@ -1170,4 +1168,51 @@ export const addCoverId = async (
   }
 };
 
+export const getLotData = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  const lotId = req.body.data?.lotId;
+  console.log(lotId); // should print: 8149272
 
+  try {
+    const response = await Client.product.findMany({
+      where: {
+        lotId: lotId,
+      },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        productSku: true,
+        createdAt: true,
+        // Add other product fields you need
+        productAttribute: {
+          where: {
+            attributename: "patternLink", // only get patternLink
+          },
+          select: {
+            attributevalue: true, // only the link
+          },
+        },
+      },
+    });
+
+    const formatted = response.map((item) => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      productSku: item.productSku,
+      createdAt: item.createdAt,
+      patternLink: item.productAttribute[0]?.attributevalue || null,
+    }));
+
+    console.log(formatted);
+
+    // console.log("response: ", response);
+    res.status(200).json({ message: "The lotid data fetched", formatted });
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+};

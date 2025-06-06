@@ -8,6 +8,7 @@ import {
 } from "../Services/ProductAdmin.services";
 import { secure_cookie } from "../config";
 import { PrismaClient } from "@prisma/client";
+import { syncProductsToMeilisearch } from "../utils/meilisearch";
 
 const Client = new PrismaClient();
 
@@ -26,7 +27,10 @@ export const login_product_admin = async (
 
     console.log("data", data);
 
-    const productAdmin_login = await login_productAdmin(data.email, data.password);
+    const productAdmin_login = await login_productAdmin(
+      data.email,
+      data.password
+    );
 
     console.log("productAdmin_login", productAdmin_login);
 
@@ -43,12 +47,10 @@ export const login_product_admin = async (
       ProductAdmintoken: productAdmin_login.accessToken,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        message: "server error: error in login product admin",
-        error: error,
-      });
+    return res.status(500).json({
+      message: "server error: error in login product admin",
+      error: error,
+    });
   }
 };
 
@@ -127,44 +129,42 @@ export const aproveProduct = async (
   }
 };
 
-
 export const getName = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<any> =>{
+): Promise<any> => {
   try {
     const ids = req.body;
 
-  const data = await Client.seller.findMany({
-    where: {
-      id: {
-        in: ids.uniqueIds,
+    const data = await Client.seller.findMany({
+      where: {
+        id: {
+          in: ids.uniqueIds,
+        },
       },
-    },
-    select: {
-      id: true,
-      firstname: true,
-    },
-  })
-  console.log("Data fetched successfully:", data);
-  return res.status(200).json({ message: "Data fetched successfully", data });
+      select: {
+        id: true,
+        firstname: true,
+      },
+    });
+    console.log("Data fetched successfully:", data);
+    return res.status(200).json({ message: "Data fetched successfully", data });
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 
 export const Updatestatus = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<any> =>{
+): Promise<any> => {
   try {
     const { productId, status } = req.body;
 
     console.log("productId", productId);
     console.log("status", status);
-
 
     const data = await Client.product.update({
       where: {
@@ -172,26 +172,58 @@ export const Updatestatus = async (
       },
       data: {
         status: status,
-        approved: status =="Approved",
+        approved: status == "Approved",
       },
-    })
+    });
+
+    const response = await Client.product.findMany({
+      where: {
+        approved: true,
+        status: "Approved",
+      },
+      include: {
+        productAttribute: true,
+      },
+    });
+
+    const formated = response.map((item) => {
+      const attributes: any = {};
+
+      item.productAttribute.forEach((attribute) => {
+        attributes[attribute.attributename] = attribute.attributevalue;
+      });
+
+      return {
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        productType: item.productType,
+        attributes,
+      };
+    });
+
+    console.log("calleding the sync methods", formated);
+
+    await syncProductsToMeilisearch(formated);
+    console.log("Synced to Meilisearch");
+
     console.log("Data updated successfully:", data);
     return res.status(200).json({ message: "Data updated successfully", data });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({ message: "Error updating data", error });
   }
-}
+};
 
 export const logoutadmin = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<any> =>{
+): Promise<any> => {
   const admin_id = req.admin_id;
   try {
     const user_details = await Client.refresh_token_admin.delete({
-      where: { adminId: Number(admin_id)},
+      where: { adminId: Number(admin_id) },
     });
 
     console.log(user_details);
@@ -222,29 +254,31 @@ export const logoutadmin = async (
   } catch (error: any) {
     res.status(400).json({ message: "Error in logout: ", error: error });
   }
-}
+};
 
-export const getEmailAdmin = async(
-    req: Request,
+export const getEmailAdmin = async (
+  req: Request,
   res: Response,
   next: NextFunction
-): Promise<any> =>{
+): Promise<any> => {
   const admin_id = req.admin_id;
 
   try {
     const response = await Client.admin_users.findMany({
-      where:{
-        id: Number(admin_id)
+      where: {
+        id: Number(admin_id),
       },
-      select:{
-        email: true
-      }
-    })
+      select: {
+        email: true,
+      },
+    });
 
-    console.log(response[0]?.email)
-    res.status(200).json({message: "The email sent", email : response[0]?.email})
+    console.log(response[0]?.email);
+    res
+      .status(200)
+      .json({ message: "The email sent", email: response[0]?.email });
   } catch (error) {
-    console.log("error in the getting email", error)
-    res.status(500).json({message: "The email error"})
+    console.log("error in the getting email", error);
+    res.status(500).json({ message: "The email error" });
   }
-}
+};
