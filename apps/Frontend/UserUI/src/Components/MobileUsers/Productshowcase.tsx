@@ -221,7 +221,7 @@ export default function Productshowcase() {
         { productId: Number(id), size: selectedSize },
         { headers: { authorization: `Bearer ${token}` }, withCredentials: true }
       );
-      fun(Number(id));
+      await fun(Number(id));
       setAddedToBag(true);
     } catch (error: any) {
       if (

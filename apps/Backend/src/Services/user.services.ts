@@ -74,26 +74,27 @@ export const create_the_order = async (
   }
 };
 
-export const get_user_order_details = async (orderId: any) => {
+export const get_user_order_details = async (userId: any) => {
   try {
-    const order = await Client.order.findUnique({
-      where: { id: Number(orderId) },
+    const orders = await Client.order.findMany({
+      where: { buyerId: Number(userId) },
+      include: {
+        product: {
+          include: {
+            productAttribute: true,
+          },
+        },
+      },
     });
 
-    console.log(order);
+    if (!orders || orders.length === 0) {
+      return { message: "No orders found" };
+    }
 
-    if (!order) return { message: "Order not found" };
-
-    const product = await Client.product.findUnique({
-      where: { id: Number(order.productId) },
-    });
-
-    console.log(product);
-
-    if (!product) return { message: "Product not found" };
-
-    return { order, product };
+    return { orders }; // Return all orders with related product info
   } catch (error) {
-    return error;
+    console.error("Error fetching orders:", error);
+    return { message: "Something went wrong", error };
   }
 };
+

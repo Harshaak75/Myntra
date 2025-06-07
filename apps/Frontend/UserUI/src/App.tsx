@@ -47,6 +47,7 @@ import Orderplaced from "./Components/MobileUsers/Order/Orderplaced.js";
 import Sellerform from "./Components/Seller/Sellerform.js";
 import SellerDashboardSection from "./Components/SellerFrontend/SellerDashboardSection.js";
 import CategoryPage from "./Pages/MainCategory/CategoryPage.js";
+import OrderPage from "./Components/MobileUsers/OrderPage.js";
 
 // const topbar = ["MEN", "WOMEN", "KIDS", "LIVING", "BEAUTY"];
 
@@ -132,6 +133,7 @@ function App() {
             <Route element={<SidebarLayout />}>
               <Route path="/user/profile/edit" element={<AccountPage />} />
               <Route path="/user/my/address" element={<Address />} />
+              <Route path="/user/my/orders" element={<OrderPage />} />
             </Route>
           </Route>
 

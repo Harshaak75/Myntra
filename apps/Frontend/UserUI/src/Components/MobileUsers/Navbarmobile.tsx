@@ -305,7 +305,7 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
               </div>
               <ul className="text-sm py-2">
                 <li
-                  onClick={() => navigate("/checkout/cart")}
+                  onClick={() => navigate("/user/my/orders")}
                   className="px-4 py-1 hover:bg-gray-100 cursor-pointer"
                 >
                   Orders

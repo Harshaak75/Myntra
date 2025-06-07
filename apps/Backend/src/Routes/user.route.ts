@@ -103,7 +103,7 @@ userRouter.post("/updateEmail", authenticate_User, async (req, res) => {
 
 userRouter.post("/order", authenticate_User, CreateOrder);
 
-userRouter.get("/order/:id", authenticate_User, getOrderDetails);
+userRouter.get("/orderDetails", authenticate_User, getOrderDetails);
 
 userRouter.post("/wishlist/toggle", authenticate_User, async (req, res) => {
   const userId = req.user_id;

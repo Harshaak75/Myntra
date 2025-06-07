@@ -259,35 +259,44 @@ export const getOrderDetails = async (
 
     console.log(orderId);
 
-    const order_details: any = await get_user_order_details(orderId.id);
+    const userId = req.user_id;
 
-    if (!order_details.product || !order_details.order) {
+    const order_details: any = await get_user_order_details(userId);
+
+    if (!order_details.orders || order_details.orders.length === 0) {
       return res.status(400).json({ message: "Error fetching order details" });
     }
 
-    console.log(order_details.order.quantity);
-
     return res.status(200).json({
       message: "Order details fetched successfully",
-      order: {
-        quantity: order_details.order.quantity,
-        totalPrice: order_details.order.totalPrice,
-        status: order_details.order.status,
-        orderDate: order_details.order.createdAt,
+      orders: order_details.orders.map((order: any) => ({
+        quantity: order.quantity,
+        orderCode: order.orderCode,
+        totalPrice: order.totalPrice,
+        status: order.status,
+        orderDate: order.createdAt,
         product: {
-          name: order_details.product.name,
-          price: order_details.product.price,
-          description: order_details.product.description,
-          category: order_details.product.category,
-          barnd: order_details.product.brand,
-          image: order_details.product.image,
-          subCategory: order_details.product.subCategory,
-          discount: order_details.product.discount,
-          sizeOption: order_details.product.sizeOption,
-          colorOption: order_details.product.colorOption,
-          created_at: order_details.product.createdAt,
+          title: order.product.productAttribute.find(
+            (attr: any) => attr.attributename === "Product Title"
+          )?.attributevalue,
+          price: order.product.price,
+          description: order.product.productAttribute.find(
+            (attr: any) => attr.attributename === "Product Description"
+          )?.attributevalue,
+          category: order.product.productAttribute.find(
+            (attr: any) => attr.attributename === "Usage"
+          )?.attributevalue,
+          brand: order.product.name,
+          image: order.product.productAttribute.find(
+            (attr: any) => attr.attributename === "Front Image"
+          )?.attributevalue,
+          discount: order.product.discount,
+          sizeOption: order.selectedSize,
+          colorOption: order.selectedColor,
+          created_at: order.createdAt,
+          PatternLink: order.buyerPatternLink,
         },
-      },
+      })),
     });
   } catch (error) {
     return res.status(500).json({ message: "Error fetching order detail" });
@@ -466,24 +475,23 @@ export const upload_pattern = async (
     //   },
     // });
 
-    console.log("Public URL:", typeof(publicUrl));
+    console.log("Public URL:", typeof publicUrl);
 
-    console.log(typeof(size))
-    console.log(userId)
+    console.log(typeof size);
+    console.log(userId);
 
-
-const response = await Client.cartItem.update({
-  where: {
-    userId_productId_size: {
-      userId: Number(userId),  // Make sure these are numbers
-      productId: Number(id),   // Make sure these are numbers
-      size: size,               // This can be any valid string
-    }
-  },
-  data: {
-    customPatternLink: publicUrl
-  }
-})
+    const response = await Client.cartItem.update({
+      where: {
+        userId_productId_size: {
+          userId: Number(userId), // Make sure these are numbers
+          productId: Number(id), // Make sure these are numbers
+          size: size, // This can be any valid string
+        },
+      },
+      data: {
+        customPatternLink: publicUrl,
+      },
+    });
 
     console.log("Public URL:", publicUrl);
 

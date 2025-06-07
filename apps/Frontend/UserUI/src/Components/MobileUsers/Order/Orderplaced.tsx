@@ -178,7 +178,7 @@ export default function OrderPlacedPage() {
 
             {/* 🚀 Actions */}
             <div className="flex items-center justify-center sm:flex-row gap-4 pt-4">
-              <Button variant="outline" className="w-[10rem]">
+              <Button variant="outline" className="w-[10rem] cursor-pointer" onClick={() => navigate("/user/my/orders")}>
                 Track Order
               </Button>
               <Button onClick={() => navigate("/")} className="w-[10rem] bg-pink-600 hover:bg-pink-700 text-white cursor-pointer">
