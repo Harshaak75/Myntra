@@ -189,6 +189,22 @@ export const OrderProductDetails = () => {
                     </strong>{" "}
                     <span className="font-semibold">{orderInfo?.colour}</span>
                   </p>
+
+                  {orderInfo?.patternLink &&  <p className="flex items-center gap-11 py-2">
+                    <strong className="text-gray-600 opacity-60 text-[1rem]">
+                      PatternLink
+                    </strong>{" "}
+                    <span className="font-semibold">
+                      <a
+                        href={orderInfo?.patternLink}
+                        target="_blank" // Open in new tab
+                        rel="noopener noreferrer" // Security best practice for target="_blank"
+                        className="text-blue-500 ml-0 hover:text-blue-700 underline transition duration-300 ease-in-out"
+                      >
+                        Click Here
+                      </a>
+                    </span>
+                  </p>}
                 </div>
               </div>
             </div>

@@ -925,6 +925,7 @@ export const getProductDetails = async (
           Gender: order_details.product.productAttribute.find(
             (arr: any) => arr.attributename == "Gender"
           ),
+          patternLink: order_details.buyerPatternLink,
           quntity: order_details.quantity,
           store: "Mynstars",
           orderStatus: order_details.status,

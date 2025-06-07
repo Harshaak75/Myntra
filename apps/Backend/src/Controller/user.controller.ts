@@ -429,9 +429,12 @@ export const upload_pattern = async (
     return res.status(400).json({ message: "File is required" });
   }
 
+  const userId = req.user_id;
+
   try {
     const file_name = `pattern/${Date.now()}_${req.file.originalname}`;
     const id = req.body.productid;
+    const size = req.body.size;
 
     if (!bucket_name_pattern) {
       return res.status(400).json({ message: "Bucket name is required" });
@@ -455,13 +458,32 @@ export const upload_pattern = async (
 
     const publicUrl = publicUrlData?.publicUrl;
 
-    const response = await Client.productAttribute.create({
-      data: {
-        productId: Number(id),
-        attributename: "patternLink",
-        attributevalue: publicUrl,
-      },
-    });
+    // const response = await Client.productAttribute.create({
+    //   data: {
+    //     productId: Number(id),
+    //     attributename: "patternLink",
+    //     attributevalue: publicUrl,
+    //   },
+    // });
+
+    console.log("Public URL:", typeof(publicUrl));
+
+    console.log(typeof(size))
+    console.log(userId)
+
+
+const response = await Client.cartItem.update({
+  where: {
+    userId_productId_size: {
+      userId: Number(userId),  // Make sure these are numbers
+      productId: Number(id),   // Make sure these are numbers
+      size: size,               // This can be any valid string
+    }
+  },
+  data: {
+    customPatternLink: publicUrl
+  }
+})
 
     console.log("Public URL:", publicUrl);
 

@@ -444,6 +444,6 @@ userRouter.get("/addDataToMellisearch", async (req, res) => {
 
 // upload patterns
 
-userRouter.post("/upload_patterns", upload.single("file"), upload_pattern);
+userRouter.post("/upload_patterns",authenticate_User, upload.single("file"), upload_pattern);
 
 export default userRouter;

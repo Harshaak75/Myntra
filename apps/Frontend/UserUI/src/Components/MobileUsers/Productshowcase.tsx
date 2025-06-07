@@ -213,7 +213,7 @@ export default function Productshowcase() {
     }
 
     setloading(true);
-    const token = Gettoken();
+    const token = await Gettoken();
     console.log(id);
     try {
       await axios.post(
@@ -313,14 +313,18 @@ export default function Productshowcase() {
     const formData = new FormData();
     formData.append("file", files); // ✅ Single file selected earlier
     formData.append("productid", id);
-
+    if(selectedSize){
+      formData.append("size", selectedSize);
+    }
     try {
       const response = await axios.post(
         `${backend_url}user/upload_patterns`,
         formData,
         {
-          // ❌ Do NOT set Content-Type manually
-          withCredentials: true,
+          headers:{
+            authorization: `bearer ${await Gettoken()}`
+          },
+          withCredentials: true
         }
       );
       console.log("Upload success:", response.data);

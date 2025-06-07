@@ -63,6 +63,7 @@ export const create_the_order = async (
         selectedColor: selectedColor,
         totalPrice: Number(product_price?.price) * quantity,
         status: "Created",
+        buyerPatternLink: order_data.customPatternLink
       },
     });
 

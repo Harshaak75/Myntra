@@ -172,24 +172,27 @@ model SellerShopDetails {
 }
 
 model Order {
-  id            Int       @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   productId     Int
   sellerId      Int
   buyerId       Int
   quantity      Int
   totalPrice    Decimal
   coverId       String?
-  status        String    @default("Created")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  orderCode     String    @unique
+  status        String   @default("Created")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  orderCode     String   @unique
   picklistId    Int?
   selectedSize  String? // 🆕 NEW FIELD
   selectedColor String? // 🆕 NEW FIELD
-  buyer         users     @relation(fields: [buyerId], references: [id])
-  picklist      Picklist? @relation(fields: [picklistId], references: [id])
-  product       Product   @relation(fields: [productId], references: [id])
-  seller        Seller    @relation(fields: [sellerId], references: [id])
+
+  buyerPatternLink String?
+
+  buyer    users     @relation(fields: [buyerId], references: [id])
+  picklist Picklist? @relation(fields: [picklistId], references: [id])
+  product  Product   @relation(fields: [productId], references: [id])
+  seller   Seller    @relation(fields: [sellerId], references: [id])
 }
 
 model Picklist {
@@ -253,11 +256,16 @@ model Wishlist {
 }
 
 model CartItem {
-  id        Int      @id @default(autoincrement())
-  user      users    @relation(fields: [userId], references: [id])
-  userId    Int
-  product   Product  @relation(fields: [productId], references: [id])
+  id Int @id @default(autoincrement())
+  userId Int
   productId Int
   size      String
   createdAt DateTime @default(now())
+
+  customPatternLink String?
+
+  user    users   @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId, size])
 }
