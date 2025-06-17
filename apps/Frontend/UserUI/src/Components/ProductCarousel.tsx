@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Card } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
 
-const ProductCarousel = ({ images }: { images: string[] }) => {
+const ProductCarousel = ({ images }: { images: any }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -58,14 +58,14 @@ const ProductCarousel = ({ images }: { images: string[] }) => {
         className="flex gap-2 overflow-x-auto scroll-smooth px-8 py-4 no-scrollbar"
         style={{ scrollSnapType: "x mandatory" }}
       >
-        {images.map((src, idx) => (
+        {images.map((src: any, idx: any) => (
           <Card
             key={idx}
             className="min-w-[240px] p-0 max-w-[240px] h-[320px] flex-shrink-0 overflow-hidden rounded-xl shadow-md transition-transform cursor-pointer hover:shadow-lg"
             style={{ scrollSnapAlign: "start" }}
           >
             <img
-              src={src}
+              src={src?.value}
               alt={`Product ${idx + 1}`}
               className="w-full h-full object-cover"
             />

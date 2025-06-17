@@ -56,6 +56,8 @@ import ProductCarousel from "@/Components/ProductCarousel";
 import axios from "axios";
 import { backend_url } from "../../../config";
 
+import useSWR from "swr";
+
 export function Mobilehome() {
   const categories = [
     "SHIRTS",
@@ -143,6 +145,38 @@ export function Mobilehome() {
     // Add all 18 accordingly
   ];
 
+  const [offerBanner, setOfferBanner] = useState([
+    { key: "FirstOffer", value: "" },
+    { key: "SecondOffer", value: "" },
+    { key: "ThirdOffer", value: "" },
+    { key: "FourthOffer", value: "" },
+    { key: "FifthOffer", value: "" },
+  ]);
+
+  const [Carasoal, setCarasoal] = useState([
+    { key: "Carasoal1", value: "" },
+    { key: "Carasoal2", value: "" },
+    { key: "Carasoal3", value: "" },
+    { key: "Carasoal4", value: "" },
+    { key: "Carasoal5", value: "" },
+    { key: "Carasoal6", value: "" },
+    { key: "Carasoal7", value: "" },
+    { key: "Carasoal8", value: "" },
+    { key: "Carasoal9", value: "" },
+  ]);
+
+  // images={[
+  //             "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/fc7c482c-e400-4b20-8ff9-ffdd6275888c1722596447798-image_png_230248853.png",
+  //             "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d7e299ae-04f3-4b4d-b3f3-5fab02779df01722236022154-Card_46.png",
+  //             "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/99f8940e-ca70-4948-a6cc-d3c6abebeb411722596921405-image_png1367818484.png",
+  //             "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d31abeab-0bf8-4d06-91e2-2a5a18ed08011722236020770-Card_25.png",
+  //             "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/84511f5f-5465-4d6c-8dff-017e2863b6e91722236021852-Card_26.png",
+  //             "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/cee4c20e-1629-4f61-9f25-bd1bf411b7f01722596082053-image_png739596407.png",
+  //             "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/caf08c79-22db-4d5e-ab01-86e18cc66d3e1722236021937-Card_49.png",
+  //             "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/566a7b6c-6121-45d0-9d17-a760a4d4e8ea1722236021456-Card_50.png",
+  //             "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/8ab90130-0d13-4679-b351-82a2971b526b1722596488868-image_png_1119801902.png",
+  //           ]}
+
   const isOpen = useSelector((state: any) => state.sidebar.isOpen);
   const dispatch = useDispatch();
 
@@ -179,6 +213,128 @@ export function Mobilehome() {
 
   const [query, setquery] = useState("");
 
+  const [offerImage, setofferImage] = useState("");
+
+  // using useSWR
+
+  const fetcher = async (url: any) => {
+    const res = await axios.get(url);
+    return res;
+  };
+
+  // const { data, error, isLoading } = useSWR(
+  //     "http://localhost:1337/api/banner1s?filters[label][$eq]=Home Banner&populate=*",
+  //     fetcher
+  //   )
+
+  // changing the carosoal
+
+  const [carasoalList, setcarasoalList] = useState<any[]>([]);
+
+
+  const { data: carasoalData, error: carasoalerror, isLoading: carasoalisLoading } = useSWR(
+    "https://cms-7655.onrender.com/api/carasoals?populate=*",
+    fetcher
+  );
+
+  // console.log("carasoal",carasoalData?.data.data)
+  // console.log("carasoal",carasoalData?.data.data)
+
+  useEffect(() =>{
+    setcarasoalList(carasoalData?.data.data)
+  },[carasoalData])
+
+  useEffect(() =>{
+    if(!carasoalList) return;
+    console.log("len",Carasoal.length)
+
+    const ans = Carasoal.map((category) =>{
+      const matched = carasoalList.find((k) => k.CarouselValue === category.key)
+
+      console.log("hi",matched)
+
+      if(matched && matched?.CarouselImage[0].url){
+        return {
+          ...category,
+          value: `https://cms-7655.onrender.com${matched?.CarouselImage[0].url}`,
+        }
+      }
+      return category;
+    });
+    // console.log("ans",ans)
+    setCarasoal(ans)
+    // setcarasoalList(ans);
+  },[carasoalList])
+
+
+
+
+
+
+
+
+  // changing the offers
+
+  const [offerbannerList, setofferBannerList] = useState<any[]>([]);
+
+  const { data: offerData, error: offerError, isLoading: offerIsLoading } = useSWR(
+    "https://cms-7655.onrender.com/api/offers?populate=*",
+    fetcher
+  );
+  // console.log(offerData?.data.data);
+
+  // const OfferUrl = `http://localhost:1337${data?.data.data[0].OfferBanner.formats.large.url}`
+
+  useEffect(() => {
+    setofferBannerList(offerData?.data.data);
+    // setofferImage(OfferUrl)
+  }, [offerData]);
+
+  useEffect(() => {
+    if (!offerbannerList) return;
+
+    const updated = offerBanner.map((banner) => {
+      const matched = offerbannerList.find(
+        (val) => val.OfferList === banner.key
+      );
+      // console.log("m",matched)
+      if (matched && matched.OfferBanner?.formats?.large?.url) {
+        return {
+          ...banner,
+          value: `https://cms-7655.onrender.com${matched.OfferBanner.formats.large.url}`,
+        };
+      }
+      return banner;
+    });
+
+    setOfferBanner(updated);
+  }, [offerbannerList]);
+
+  //   useEffect(() => {
+  //     if (data && data.data && data.data[0]?.attributes?.MainBanner?.data?.attributes?.formats?.large?.url) {
+  //       const imageUrl = `http://localhost:1337${data.data[0].attributes.MainBanner.data.attributes.formats.large.url}`
+  //       setofferImage(imageUrl)
+  //     }
+  //   }, [data])
+
+  //   if (error) return <div>Error fetching banner</div>
+  //   if (isLoading || !offerImage) return <div>Loading...</div>
+
+  // useEffect(() =>{
+  //   const fetchData = async () =>{
+  //     const response = await axios.get("http://localhost:1337/api/banner1s?filters[label][$eq]=Home Banner&populate=*",{
+  //       headers:{
+  //         Authorization : "038d20ad2817599dd57d6abf3adb082136b3a022fe14b628280d7cbc2cde7c9527a1cf1d5f7f6f1159ae2e2e7f86914d04980fa081dceee0d021a826fdd07639c77fd09ba531fff76e7fa63580726914c090cf9b4ccf38b94af90a7f61085670033215e37a779c50b4ee02ac5d6732a79712dcdad441712914a0ede05d621d88"
+  //       }
+  //     })
+
+  //     console.log(response)
+  //     console.log(response.data.data[0].MainBanner.formats.large.url)
+  //     const OfferUrl = `http://localhost:1337${response.data.data[0].MainBanner.formats.large.url}`
+  //     setofferImage(OfferUrl)
+  //   }
+  //   fetchData()
+  // },[])
 
   // serach
 
@@ -193,8 +349,6 @@ export function Mobilehome() {
   //   };
   //   fetch();
   // }, []);
-
-
 
   const handleClick = (cat: any) => {
     console.log(cat);
@@ -255,7 +409,7 @@ export function Mobilehome() {
           {/* Offer Image: visible on all screen sizes */}
           <div className="flex items-center justify-center overflow-hidden w-full px-0 lg:px-4 py-4">
             <img
-              src={offer}
+              src={offerBanner.find((k) => k.key === "FirstOffer")?.value}
               alt="Offer Banner"
               className="w-full max-w-screen-xl h-auto object-cover rounded-xl"
             />
@@ -283,17 +437,7 @@ export function Mobilehome() {
 
         <div className="hidden lg:block relative px-20">
           <ProductCarousel
-            images={[
-              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/fc7c482c-e400-4b20-8ff9-ffdd6275888c1722596447798-image_png_230248853.png",
-              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d7e299ae-04f3-4b4d-b3f3-5fab02779df01722236022154-Card_46.png",
-              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/99f8940e-ca70-4948-a6cc-d3c6abebeb411722596921405-image_png1367818484.png",
-              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/d31abeab-0bf8-4d06-91e2-2a5a18ed08011722236020770-Card_25.png",
-              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/84511f5f-5465-4d6c-8dff-017e2863b6e91722236021852-Card_26.png",
-              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/cee4c20e-1629-4f61-9f25-bd1bf411b7f01722596082053-image_png739596407.png",
-              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/caf08c79-22db-4d5e-ab01-86e18cc66d3e1722236021937-Card_49.png",
-              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/7/29/566a7b6c-6121-45d0-9d17-a760a4d4e8ea1722236021456-Card_50.png",
-              "https://assets.myntassets.com/w_163,c_limit,fl_progressive,dpr_2.0/assets/images/2024/8/2/8ab90130-0d13-4679-b351-82a2971b526b1722596488868-image_png_1119801902.png",
-            ]}
+            images={Carasoal}
           />
         </div>
 

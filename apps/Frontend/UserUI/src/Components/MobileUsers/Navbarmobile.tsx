@@ -18,6 +18,7 @@ import { AnimatePresence } from "framer-motion";
 
 import { useRef} from "react";
 
+import useSWR from "swr";
 
 import { useDebounce, useDebouncedCallback } from "use-debounce";
 
@@ -124,6 +125,48 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
     navigate("/categoryPage", { state: { category } });
   };
 
+  const [Navvalues, setNavvales] = useState([
+    {key: "MEN", Navitem: "MEN"},
+    {key: "WOMEN", Navitem: "WOMEN"},
+    {key: "GENZ", Navitem: "GENZ"},
+    {key: "KIDS", Navitem: "KIDS"}
+  ])
+
+  const fetchData = async (url : any) =>{
+    const res = await axios.get(url)
+    return res;
+  }
+
+  const [itemsList, setitemList] = useState([]);
+
+  const {data: Navdata, error: Naverror, isLoading: NavisLoding} = useSWR("https://cms-7655.onrender.com/api/navbar-stylings?populate=*",fetchData)
+
+  console.log(Navdata?.data.data)
+
+  useEffect(() =>{
+    setitemList(Navdata?.data.data)
+  },[Navdata])
+
+  useEffect(() =>{
+    if(!itemsList) return;
+
+    const itemData = Navvalues.map((val) =>{
+      const matched: any = itemsList.find((item: any) => item.NavLabel === val.key)
+
+      if(matched && matched.NavItems){
+        return {
+          ...val,
+          Navitem: matched.NavItems
+        }
+      }
+      return val;
+    })
+
+    setNavvales(itemData)
+  },[])
+
+
+
   return (
     <header className="shadow-sm bg-white w-full py-3 px-2 lg:py-0 flex items-center justify-between">
       {/* MOBILE NAVBAR */}
@@ -170,7 +213,9 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
                 onClick={() => handleCategoryClick("Men")}
                 className={`hover:text-pink-500 cursor-pointer px-2  ${hoveredCategory == "Men" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}
               >
-                MEN
+
+                {Navvalues.find((val) => val.key === "MEN")?.Navitem}
+                
               </button>
 
               {hoveredCategory === "Men" && (
@@ -187,7 +232,7 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
                 onClick={() => handleCategoryClick("WomenEthnic")}
                 className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "WomenEthnic" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}
               >
-                WOMEN
+                {Navvalues.find((val) => val.key === "WOMEN")?.Navitem}
               </button>
 
               {hoveredCategory === "WomenEthnic" && (
@@ -204,7 +249,7 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
                 onClick={() => handleCategoryClick("genz")}
                 className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "genz" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}
               >
-                GENZ
+                {Navvalues.find((val) => val.key === "GENZ")?.Navitem}
               </button>
 
               {hoveredCategory === "genz" && (
@@ -221,7 +266,7 @@ export const Navbarmobilt = ({ openMenu }: { openMenu?: () => void }) => {
                 onClick={() => handleCategoryClick("Kids")}
                 className={`hover:text-pink-500 cursor-pointer px-2 ${hoveredCategory == "Kids" ? "text-pink-500 border-b-3 border-pink-500" : ""}`}
               >
-                KIDS
+                {Navvalues.find((val) => val.key === "KIDS")?.Navitem}
               </button>
 
               {hoveredCategory === "Kids" && (
