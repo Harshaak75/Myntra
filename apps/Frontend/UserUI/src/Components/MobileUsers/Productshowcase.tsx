@@ -92,6 +92,8 @@ export default function Productshowcase() {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [addedToBag, setAddedToBag] = useState(false);
 
+  const [quantity, setQuantity] = useState(1);
+
   useEffect(() => {
     const fetchData = async () => {
       setloading(true);
@@ -218,7 +220,7 @@ export default function Productshowcase() {
     try {
       await axios.post(
         `${backend_url}user/cart/add`,
-        { productId: Number(id), size: selectedSize },
+        { productId: Number(id), size: selectedSize, quantity: quantity},
         { headers: { authorization: `Bearer ${token}` }, withCredentials: true }
       );
       await fun(Number(id));
@@ -332,6 +334,16 @@ export default function Productshowcase() {
       console.error("Error in adding patterns:", error);
     }
   };
+
+  
+
+const decreaseQuantity = () => {
+  setQuantity((prev) => Math.max(1, prev - 1));
+};
+
+const increaseQuantity = () => {
+  setQuantity((prev) => prev + 1);
+};
 
   return (
     <div className="min-h-screen bg-white relative">
@@ -482,6 +494,31 @@ export default function Productshowcase() {
               <span className="text-xs text-gray-500">PDF only, max 5MB</span>
             </div>
           </div>
+
+<div className="mt-6">
+  <h3 className="text-base font-medium text-gray-800 mb-2">Quantity</h3>
+  <div className="flex items-center border border-gray-300 rounded-md w-fit overflow-hidden">
+    <button
+      type="button"
+      onClick={decreaseQuantity}
+      className="w-10 h-10 text-lg text-gray-600 hover:bg-gray-100 transition"
+    >
+      −
+    </button>
+    <div className="w-12 text-center text-base text-gray-800 font-medium">
+      {quantity}
+    </div>
+    <button
+      type="button"
+      onClick={increaseQuantity}
+      className="w-10 h-10 text-lg text-gray-600 hover:bg-gray-100 transition"
+    >
+      +
+    </button>
+  </div>
+</div>
+
+
 
           <div className="flex flex-col sm:flex-row gap-4 mt-4">
             {/* Add to Bag / Go to Cart Button */}

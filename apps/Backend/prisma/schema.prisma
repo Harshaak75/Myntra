@@ -256,13 +256,14 @@ model Wishlist {
 }
 
 model CartItem {
-  id Int @id @default(autoincrement())
-  userId Int
+  id        Int      @id @default(autoincrement())
+  userId    Int
   productId Int
   size      String
   createdAt DateTime @default(now())
 
   customPatternLink String?
+  quantity          Int     @default(1)
 
   user    users   @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])

@@ -198,7 +198,7 @@ userRouter.post("/by-category", getData);
 
 // Example: Express/Next.js handler
 userRouter.post("/cart/add", authenticate_User, async (req, res) => {
-  const { productId, size } = req.body;
+  const { productId, size, quantity } = req.body;
   const userId = Number(req.user_id);
 
   if (!productId || !size) {
@@ -210,6 +210,7 @@ userRouter.post("/cart/add", authenticate_User, async (req, res) => {
       userId,
       productId,
       size,
+      quantity,
     },
   });
 

@@ -125,7 +125,7 @@ export default function OrderPage() {
           withCredentials: true,
         });
 
-        console.log(response);
+        console.log("This is response",response);
         setorder(response.data.orders);
       } catch (error) {
         console.log(error);
@@ -187,7 +187,7 @@ export default function OrderPage() {
                           Size: {item.sizeOption} | Color: {item.colorOption}
                         </p>
                         <p>
-                          Qty: {item.quantity} | Unit Price: ₹{item.price}
+                          Qty: {order.quantity} | Unit Price: ₹{item.price}
                         </p>
                         {item.PatternLink && (
                           <a

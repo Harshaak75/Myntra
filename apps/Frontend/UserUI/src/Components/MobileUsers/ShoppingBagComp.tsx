@@ -75,19 +75,38 @@ const ShoppingBagComp = () => {
 
   const selectedItems = cartItems.filter((item) => item.selected);
 
-  const totalMRP = selectedItems.reduce(
-    (sum, item) =>
-      sum + (Number(item.product.originalPrice) || Number(item.product.price)),
-    0
-  );
-  console.log(totalMRP);
-  const totalDiscount = selectedItems.reduce((sum, item) => {
-    const discount =
-      (item.product.originalPrice || item.product.price) - item.product.price;
-    return sum + discount;
-  }, 0);
-  console.log(totalDiscount);
-  const finalPrice = totalMRP - totalDiscount;
+  // const totalMRP = selectedItems.reduce(
+  //   (sum, item) =>
+  //     sum + (Number(item.product.originalPrice) || Number(item.product.price)),
+  //   0
+  // );
+  // console.log(totalMRP);
+  // const totalDiscount = selectedItems.reduce((sum, item) => {
+  //   const discount =
+  //     (item.product.originalPrice || item.product.price) - item.product.price;
+  //   return sum + discount;
+  // }, 0);
+  // console.log(totalDiscount);
+  // const finalPrice = totalMRP - totalDiscount;
+
+  const totalMRP = selectedItems.reduce((sum, item) => {
+  const price = Number(item.product.originalPrice) || Number(item.product.price);
+  return sum + price * item.quantity;
+}, 0);
+
+console.log("Total MRP:", totalMRP);
+
+const totalDiscount = selectedItems.reduce((sum, item) => {
+  const original = Number(item.product.originalPrice) || Number(item.product.price);
+  const discountPerItem = original - Number(item.product.price);
+  return sum + discountPerItem * item.quantity;
+}, 0);
+
+console.log("Total Discount:", totalDiscount);
+
+const finalPrice = totalMRP - totalDiscount;
+console.log("Final Price:", finalPrice);
+
 
   const handleRemove = async (id: any) => {
     const token = await Gettoken();
@@ -195,7 +214,7 @@ const ShoppingBagComp = () => {
                   <div className="flex-1">
                     <p className="font-medium">{item.product.name}</p>
                     <p className="text-sm text-gray-500">
-                      Size: {item.size} | Qty: 1
+                      Size: {item.size} | Qty: {item.quantity}
                     </p>
                     <p className="text-sm text-green-600 mt-1">
                       Delivery by Tomorrow
