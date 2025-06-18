@@ -256,7 +256,7 @@ export function Mobilehome() {
       if(matched && matched?.CarouselImage[0].url){
         return {
           ...category,
-          value: `https://cms-7655.onrender.com${matched?.CarouselImage[0].url}`,
+          value: `${matched?.CarouselImage[0].url}`,
         }
       }
       return category;
@@ -301,7 +301,7 @@ export function Mobilehome() {
       if (matched && matched.OfferBanner?.formats?.large?.url) {
         return {
           ...banner,
-          value: `https://cms-7655.onrender.com${matched.OfferBanner.formats.large.url}`,
+          value: `${matched.OfferBanner.formats.large.url}`,
         };
       }
       return banner;
