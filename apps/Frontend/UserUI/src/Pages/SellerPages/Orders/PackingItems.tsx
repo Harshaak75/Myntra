@@ -95,7 +95,7 @@ export function PackingItems() {
           }
         );
 
-        console.log(response.data.productDetails);
+        console.log("product", response.data.productDetails);
 
         if (response.data.productDetails.length > 0) {
           const product = response.data.productDetails[0];
@@ -106,6 +106,7 @@ export function PackingItems() {
           );
 
           if (!alreadyExists) {
+            console.log("scaaned",scannedProducts)
             setScannedProducts((prev) => [...prev, product]);
           }
 

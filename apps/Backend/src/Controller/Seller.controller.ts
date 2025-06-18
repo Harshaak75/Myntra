@@ -1085,6 +1085,7 @@ export const validateSKU = async (
         productQuantity: response.quantity,
         size: response.selectedSize,
         color: response.selectedColor,
+        imageUrl: response.product.productAttribute.find((atrr: any) => atrr.attributename == "Front Image")?.attributevalue,
         price: response.totalPrice,
         styleId: response.product.productAttribute.find(
           (attr: any) => attr.attributename === "styleGroupId"

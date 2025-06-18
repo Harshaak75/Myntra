@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { backend_url } from "../../config";
 import { useEffect, useState } from "react";
+import { getValidToken } from "@/Utiles/ValidateToken";
 
 const sellerGridIcons: Record<string, LucideIcon> = {
   Banknote,
@@ -37,6 +38,8 @@ const sellerGridIconsLabel: Record<string, string> = {
 export default function GridSellerDashboard() {
   const [email, setemail] = useState(() => localStorage.getItem("email"));
 
+  
+
   useEffect(() => {
     if (!email) {
       fetchEmail();
@@ -44,10 +47,12 @@ export default function GridSellerDashboard() {
   }, [email]);
 
   const fetchEmail = async () => {
+    const {token} = await getValidToken();
+    console.log("seller token",token)
     try {
       const response = await axios.get(`${backend_url}seller/email`, {
         headers: {
-          authorization: `Bearer ${localStorage.getItem("authorization")}`,
+          authorization: `Bearer ${token}`,
         },
         withCredentials: true,
       });
