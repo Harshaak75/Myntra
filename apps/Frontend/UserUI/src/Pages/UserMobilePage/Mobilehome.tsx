@@ -233,7 +233,7 @@ export function Mobilehome() {
 
 
   const { data: carasoalData, error: carasoalerror, isLoading: carasoalisLoading } = useSWR(
-    "https://cms-7655.onrender.com/api/carasoals?populate=*",
+    "https://cms-yvzw.onrender.com/api/carasoals?populate=*",
     fetcher
   );
 
@@ -278,7 +278,7 @@ export function Mobilehome() {
   const [offerbannerList, setofferBannerList] = useState<any[]>([]);
 
   const { data: offerData, error: offerError, isLoading: offerIsLoading } = useSWR(
-    "https://cms-7655.onrender.com/api/offers?populate=*",
+    "https://cms-yvzw.onrender.com/api/offers?populate=*",
     fetcher
   );
   // console.log(offerData?.data.data);
