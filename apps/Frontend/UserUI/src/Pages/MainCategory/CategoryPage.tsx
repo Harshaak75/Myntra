@@ -55,7 +55,7 @@ const CategoryPage = () => {
         const filterQuery = `${filterField} = "${genderValue}"`;
 
         const res = await axios.post(
-          `${millisearch_url}indexes/product/search`,
+          `${millisearch_url}indexes/products/search`,
           {
             q: "",
             filter: filterQuery,

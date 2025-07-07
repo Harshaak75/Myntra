@@ -295,7 +295,7 @@ export default function ProductGrid() {
       setloading(true);
       try {
         const response = await axios.post(
-          `${millisearch_url}indexes/product/search`,
+          `${millisearch_url}indexes/products/search`,
           {
             q: "",
             attributesToSearchOn: [
