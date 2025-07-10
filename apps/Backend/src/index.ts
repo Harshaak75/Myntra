@@ -20,12 +20,31 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cookieParser())
 
+// app.use(
+//   cors({
+//     // origin: "https://mynstars-opal.vercel.app",
+//     origin:"http://localhost:5173",
+//     credentials: true, // ✅ Allows sending cookies & authentication headers
+//     exposedHeaders: ["x-new-access-token", "Content-Disposition"], // Expose the custom header
+//   })
+// );
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://mynstars-opal.vercel.app"
+];
+
 app.use(
   cors({
-    // origin: "https://mynstars-opal.vercel.app",
-    origin:"http://localhost:5173",
-    credentials: true, // ✅ Allows sending cookies & authentication headers
-    exposedHeaders: ["x-new-access-token", "Content-Disposition"], // Expose the custom header
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    exposedHeaders: ["x-new-access-token", "Content-Disposition"],
   })
 );
 
